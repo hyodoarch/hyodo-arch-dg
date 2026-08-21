@@ -459,7 +459,8 @@ module.exports = function(eleventyConfig) {
     return (
       str &&
       str.replace(tagRegex, function(match, precede, tag) {
-        return `${precede}<a class="tag" onclick="toggleTagSearch(this)" data-content="${tag}">${tag}</a>`;
+        const tagName = tag.substring(1);
+        return `${precede}<a class="tag" href="/tags/${tagSlug(tagName)}/">${tag}</a>`;
       })
     );
   });
