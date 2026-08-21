@@ -90,72 +90,72 @@ module.exports = {
   },
 
   eleventyComputed: {
-    title: (data) => {
-      return data.tagName;
-    },
-
-    permalink: (data) => {
-      return `/tags/${tagSlug(data.tagName)}/`;
-    },
-
-    tagNotes: (data) => {
-      if (!data.collections || !data.collections.note) {
-        return [];
-      }
-
-    settings: (data) => {
-      const noteSettings = {};
-    
-      allSettings.forEach((setting) => {
-        let settingValue = data[setting];
-        let globalSetting = process.env[setting];
-    
-        let value =
-          settingValue ||
-          (globalSetting === "true" && settingValue !== false);
-    
-        noteSettings[setting] = value;
-      });
-    
-      // タグページでは note.njk 標準の h1 は表示しない
-      noteSettings.dgShowInlineTitle = false;
-    
-      return noteSettings;
-    },
-
-      return data.collections.note
-        .filter((item) => {
-          const tags = normalizeTags(item.data.tags)
-            .map((tag) => String(tag));
-
-          return (
-            tags.includes(String(data.tagName)) &&
-            !item.data.hide
-          );
-        })
-        .map((item) => {
-          const thumbnail = getUserProperty(
-            item.data,
-            "thumbnail"
-          );
-
-          const description = getUserProperty(
-            item.data,
-            "description"
-          );
-
-          return {
-            title: item.data.title || item.fileSlug,
-            url: item.url,
-            thumbnail: getThumbnailUrl(thumbnail),
-            description: description
-              ? String(description)
-              : "",
-          };
-        })
-        .sort((a, b) =>
-          a.title.localeCompare(b.title, "ja")
-        );
-    },
+  title: (data) => {
+    return data.tagName;
   },
+
+  permalink: (data) => {
+    return `/tags/${tagSlug(data.tagName)}/`;
+  },
+
+  tagNotes: (data) => {
+    if (!data.collections || !data.collections.note) {
+      return [];
+    }
+
+    return data.collections.note
+      .filter((item) => {
+        const tags = normalizeTags(item.data.tags)
+          .map((tag) => String(tag));
+
+        return (
+          tags.includes(String(data.tagName)) &&
+          !item.data.hide
+        );
+      })
+      .map((item) => {
+        const thumbnail = getUserProperty(
+          item.data,
+          "thumbnail"
+        );
+
+        const description = getUserProperty(
+          item.data,
+          "description"
+        );
+
+        return {
+          title: item.data.title || item.fileSlug,
+          url: item.url,
+          thumbnail: getThumbnailUrl(thumbnail),
+          description: description
+            ? String(description)
+            : "",
+        };
+      })
+      .sort((a, b) =>
+        a.title.localeCompare(b.title, "ja")
+      );
+  },
+
+  settings: (data) => {
+    const noteSettings = {};
+
+    allSettings.forEach((setting) => {
+      let settingValue = data[setting];
+      let globalSetting = process.env[setting];
+
+      let value =
+        settingValue ||
+        (globalSetting === "true" && settingValue !== false);
+
+      noteSettings[setting] = value;
+    });
+
+    // タグページでは note.njk 標準の h1 は表示しない
+    noteSettings.dgShowInlineTitle = false;
+
+    return noteSettings;
+  },
+},
 };
