@@ -111,10 +111,17 @@ module.exports = {
             !item.data.hideInFiletree
           );
         })
-        .map((item) => ({
-          title: item.data.title || item.fileSlug,
-          url: item.url,
-        }))
+        .map((item) => {
+          const thumbnail = getUserProperty(item.data, "thumbnail");
+          const description = getUserProperty(item.data, "description");
+        
+          return {
+            title: item.data.title || item.fileSlug,
+            url: item.url,
+            thumbnail: getThumbnailUrl(thumbnail),
+            description: description ? String(description) : "",
+          };
+        })
         .sort((a, b) => a.title.localeCompare(b.title, "ja"));
     },
     
