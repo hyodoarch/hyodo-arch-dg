@@ -91,7 +91,7 @@ module.exports = {
 
   eleventyComputed: {
     title: (data) => {
-      return "#" + data.tagName;
+      return data.tagName;
     },
 
     permalink: (data) => {
@@ -102,6 +102,26 @@ module.exports = {
       if (!data.collections || !data.collections.note) {
         return [];
       }
+
+    settings: (data) => {
+      const noteSettings = {};
+    
+      allSettings.forEach((setting) => {
+        let settingValue = data[setting];
+        let globalSetting = process.env[setting];
+    
+        let value =
+          settingValue ||
+          (globalSetting === "true" && settingValue !== false);
+    
+        noteSettings[setting] = value;
+      });
+    
+      // タグページでは note.njk 標準の h1 は表示しない
+      noteSettings.dgShowInlineTitle = false;
+    
+      return noteSettings;
+    },
 
       return data.collections.note
         .filter((item) => {
