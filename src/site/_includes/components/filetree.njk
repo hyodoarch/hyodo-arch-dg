@@ -6,15 +6,40 @@
                     <a data-note-icon="{{fileOrFolder.noteIcon}}" style="text-decoration: none;" class="filename" href="{{fileOrFolder.permalink}}">{{fileOrFolder.name}} </a>
                 </div>
             {% elif fileOrFolder.isFolder%}
-                <div class="folder inner-folder"  x-data="{isOpen: $persist(false).as({{currentPath | dump}})}" @click.stop="isOpen=!isOpen">
+                {% set indexNote = fileOrFolder["index.md"] %}
+            
+                <div class="folder inner-folder"
+                     x-data="{isOpen: $persist(false).as({{currentPath | dump}})}"
+                     @click.stop="isOpen=!isOpen">
+            
                     <div class="foldername-wrapper align-icon">
-                    <i x-show="isOpen" style="display: none;"  data-lucide="chevron-down"></i>
-                    <i x-show="!isOpen"  data-lucide="chevron-right"></i>
-                    <span class="foldername">{{fileOrFolderName}}</span>
+            
+                        <i x-show="isOpen"
+                           style="display: none;"
+                           data-lucide="chevron-down"></i>
+            
+                        <i x-show="!isOpen"
+                           data-lucide="chevron-right"></i>
+            
+                        {% if indexNote and indexNote.isNote %}
+                            <a
+                                @click.stop
+                                href="{{indexNote.permalink}}"
+                                class="foldername"
+                                style="text-decoration: none; color: inherit;"
+                            >
+                                {{fileOrFolderName}}
+                            </a>
+                        {% else %}
+                            <span class="foldername">{{fileOrFolderName}}</span>
+                        {% endif %}
+            
                     </div>
+            
                     {% for fileOrFolderName, child in fileOrFolder %}
                         {{menuItem(fileOrFolderName, child, step+1, (currentPath+"/"+fileOrFolderName))}}
                     {% endfor %}
+            
                 </div>
             {% endif %}
         </div>
