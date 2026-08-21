@@ -1,3 +1,7 @@
+require("dotenv").config();
+const settings = require("../../helpers/constants");
+const allSettings = settings.ALL_NOTE_SETTINGS;
+
 function tagSlug(tag) {
   return String(tag)
     .trim()
