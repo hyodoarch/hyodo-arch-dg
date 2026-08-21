@@ -27,6 +27,51 @@ module.exports = {
         fileSlug: item.fileSlug,
       }));
     },
+
+　　folderNotes: (data) => {
+      if (!data.collections || !data.collections.note || !data.page) {
+        return [];
+      }
+    
+      const currentStem = data.page.filePathStem;
+    
+      // index.md 以外では何もしない
+      if (!currentStem || !currentStem.endsWith("/index")) {
+        return [];
+      }
+    
+      // 現在の index.md があるフォルダ
+      const currentFolder = currentStem.slice(
+        0,
+        currentStem.lastIndexOf("/")
+      );
+    
+      return data.collections.note
+        .filter((item) => {
+          // index.md 自身は除外
+          if (item.filePathStem === currentStem) {
+            return false;
+          }
+    
+          const itemFolder = item.filePathStem.slice(
+            0,
+            item.filePathStem.lastIndexOf("/")
+          );
+    
+          // 同じフォルダのノートだけ
+          return (
+            itemFolder === currentFolder &&
+            !item.data.hide &&
+            !item.data.hideInFiletree
+          );
+        })
+        .map((item) => ({
+          title: item.data.title || item.fileSlug,
+          url: item.url,
+        }))
+        .sort((a, b) => a.title.localeCompare(b.title, "ja"));
+    },
+    
     settings: (data) => {
       const noteSettings = {};
       allSettings.forEach((setting) => {
