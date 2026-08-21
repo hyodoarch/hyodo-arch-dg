@@ -4,6 +4,52 @@ const { pickNoteMetadata } = require("../../helpers/bases-engine/noteMetadata");
 
 const allSettings = settings.ALL_NOTE_SETTINGS;
 
+function getUserProperty(data, key) {
+  const props = data && data["dg-note-properties"];
+
+  if (props && props[key] !== undefined) {
+    return props[key];
+  }
+
+  return data ? data[key] : undefined;
+}
+
+function getThumbnailUrl(value) {
+  if (!value || typeof value !== "string") {
+    return "";
+  }
+
+  let src = value.trim();
+
+  // [[image.jpg]] または ![[image.jpg]] を処理
+  const wikilink = src.match(/^!?\[\[([^\]]+)\]\]$/);
+
+  if (wikilink) {
+    src = wikilink[1]
+      .split("|")[0]
+      .split("#")[0]
+      .trim();
+  }
+
+  // Markdown形式の画像リンクにも対応
+  const markdownLink = src.match(/^!?\[[^\]]*\]\(([^)]+)\)$/);
+
+  if (markdownLink) {
+    src = markdownLink[1].trim();
+  }
+
+  // 外部画像・絶対パスはそのまま
+  if (
+    src.startsWith("http://") ||
+    src.startsWith("https://") ||
+    src.startsWith("/")
+  ) {
+    return src;
+  }
+
+  return encodeURI("/img/user/" + src);
+}
+
 module.exports = {
   eleventyComputed: {
     layout: (data) => {
