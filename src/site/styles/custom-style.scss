@@ -11,3 +11,47 @@ body {
     //   color: black;
     //  }
 }
+
+/* Folder page - project list */
+
+.folder-note-list {
+  display: grid;
+  gap: 1.75rem;
+  margin-top: 1.5rem;
+}
+
+.folder-note-card {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.folder-note-thumbnail-link {
+  display: block;
+}
+
+.folder-note-thumbnail {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  margin: 0;
+  border-radius: 6px;
+}
+
+.folder-note-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+.folder-note-description {
+  margin: 0;
+  line-height: 1.7;
+}
+
+@media (max-width: 700px) {
+  .folder-note-card {
+    grid-template-columns: 1fr;
+  }
+}
