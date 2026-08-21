@@ -136,6 +136,13 @@ function getAnchorAttributes(filePath, linkTitle) {
   }
 }
 
+function tagSlug(tag) {
+  return String(tag)
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[\/\\?#%]/g, "-");
+}
+
 const tagRegex = /(^|\s|\>)(#[^\s!@#$%^&*()=+\.,\[{\]};:'"?><]+)(?!([^<]*>))/g;
 
 const markdownFileTypeRegex = /\.(md|markdown)$/i;
@@ -396,6 +403,8 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addFilter("isoDate", function(date) {
     return date && date.toISOString();
   });
+
+  eleventyConfig.addFilter("tagSlug", tagSlug);
 
   eleventyConfig.addFilter("link", function(str) {
     return (
