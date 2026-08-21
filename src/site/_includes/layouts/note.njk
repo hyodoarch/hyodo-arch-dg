@@ -68,6 +68,19 @@ permalink: "notes/{{ page.fileSlug | slugify }}/"
         {% include imp %}
       {% endfor %}
       {{ content | hideDataview | taggify | link | resolveMdLinks | safe}}
+
+      {% if folderNotes and folderNotes.length > 0 %}
+        <ul class="folder-note-list">
+          {% for note in folderNotes %}
+            <li>
+              <a class="internal-link" href="{{ note.url }}">
+                {{ note.title }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
       {% for imp in dynamics.common.afterContent %}
         {% include imp %}
       {% endfor %}
