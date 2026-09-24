@@ -1,0 +1,6 @@
+@use '../image-captions';
+@use '../image-grid-captions';
+
+// Digital Garden can replace img with picture during optimization.
+.image-grid-captions__item > picture { display: block; width: 100%; margin: 0; }
+.image-grid-captions__item img { float: none; }

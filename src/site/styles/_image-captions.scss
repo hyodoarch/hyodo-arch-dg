@@ -1,0 +1,26 @@
+.image-captions-figure {
+  display: table;
+  margin: 0 0 1em;
+  padding: 0;
+  max-width: 100%;
+}
+.image-captions-figure img,
+.image-captions-figure picture {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0;
+  float: none;
+}
+.image-captions-caption {
+  display: table-caption;
+  caption-side: bottom;
+  text-align: center;
+  overflow-wrap: anywhere;
+  padding: .3em 0;
+  font: inherit;
+  color: inherit;
+}
+figure.image-captions-left { float: left; margin-right: 1em; }
+figure.image-captions-right { float: right; margin-left: 1em; }
+figure.image-captions-center { margin-left: auto; margin-right: auto; }

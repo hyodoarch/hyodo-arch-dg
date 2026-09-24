@@ -596,6 +596,7 @@ module.exports = function(eleventyConfig) {
   });
 
   function fillPictureSourceSets(src, cls, alt, meta, width, imageTag) {
+    const escapeAttribute = (value) => markdownLib.utils.escapeHtml(String(value ?? ''));
     imageTag.tagName = "picture";
     let html = `<source
       media="(max-width:480px)"
@@ -621,10 +622,10 @@ module.exports = function(eleventyConfig) {
         />`
     }
     html += `<img
-      class="${cls.toString()}"
-      src="${src}"
-      alt="${alt}"
-      width="${width}"
+      class="${escapeAttribute(cls.toString())}"
+      src="${escapeAttribute(src)}"
+      alt="${escapeAttribute(alt)}"
+      width="${escapeAttribute(width)}"
       />`;
     imageTag.innerHTML = html;
   }

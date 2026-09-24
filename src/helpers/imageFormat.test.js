@@ -75,7 +75,7 @@ describe("isDecodableImage", () => {
 		).resolves.toBe(false); // svg is not in scope for the optimizer
 
 		await expect(
-			isDecodableImage("src/site/img/user/A Assets/travolta.png"),
+			isDecodableImage("test/fixtures/image-captions/images/square.png"),
 		).resolves.toBe(true);
 	});
 
