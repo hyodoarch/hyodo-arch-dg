@@ -27,6 +27,14 @@ const embed = alias => `![[${path}|${alias}]]`;
 const grid = (n, params = '') => '```image-grid-captions\ncolumns: ' + n + '\n' + params + '\n' + Array.from({length: n}, (_, i) => `![[${path}${i ? '' : '|外観'}]]`).join('\n') + '\n```';
 
 describe('Image Captions compatibility', () => {
+  it.each(['left', 'right'])('supports captionless %s wrapping without an empty caption', alignment => {
+    const html = parse(md.render(embed(`${alignment}|312`) + '\n\n## Heading\n\nText\n\n<br clear="all">'));
+    expect(html.querySelector('figure').classList.contains(`image-captions-${alignment}`)).toBe(true);
+    expect(html.querySelector('figure').getAttribute('style')).toContain('--image-caption-width:312px');
+    expect(html.querySelector('figcaption')).toBeNull();
+    expect(html.querySelector('img').getAttribute('alt')).toBe('');
+    expect(html.querySelector('br').getAttribute('clear')).toBe('all');
+  });
   it.each(['Caption', 'Caption|405', 'Caption|left', 'Caption|center', 'Caption|right', 'Caption|right|405'])('%s produces semantic figure', alias => {
     const html = parse(md.render(embed(alias)));
     expect(html.querySelectorAll('figure')).toHaveLength(1);

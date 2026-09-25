@@ -75,6 +75,21 @@ const sortTree = (unsorted, navigationOrder, currentPath) => {
     orderedKeys = Object.keys(unsorted).sort(defaultCompare);
   }
 
+  // Folder order belongs to its index note. Keep ordinary note positions intact.
+  const folderKeys = orderedKeys.filter((key) => unsorted[key].isFolder);
+  const folderOrder = (key) => unsorted[key]["index.md"]?.order ?? Infinity;
+  if (folderKeys.some((key) => Number.isFinite(folderOrder(key)))) {
+    folderKeys.sort((a, b) => {
+      const aOrder = folderOrder(a);
+      const bOrder = folderOrder(b);
+      return aOrder === bOrder ? naturalCompare(a, b) : aOrder < bOrder ? -1 : 1;
+    });
+    let folderIndex = 0;
+    orderedKeys = orderedKeys.map((key) =>
+      unsorted[key].isFolder ? folderKeys[folderIndex++] : key
+    );
+  }
+
   const orderedTree = orderedKeys.reduce((obj, key) => {
     obj[key] = unsorted[key];
     return obj;
@@ -142,7 +157,11 @@ function getPermalinkMeta(note, key) {
     //ignore
   }
 
-  return [{ permalink, name, noteIcon, hide, pinned }, folders];
+  const rawOrder = note.data.order ?? note.data["dg-note-properties"]?.order;
+  const order = (typeof rawOrder === "number" ||
+    (typeof rawOrder === "string" && rawOrder.trim() !== "")) &&
+    Number.isFinite(Number(rawOrder)) ? Number(rawOrder) : undefined;
+  return [{ permalink, name, noteIcon, hide, pinned, order }, folders];
 }
 
 function assignNested(obj, keyPath, value) {

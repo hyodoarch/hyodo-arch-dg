@@ -70,44 +70,9 @@ permalink: "notes/{{ page.fileSlug | slugify }}/"
       {{ content | hideDataview | taggify | link | resolveMdLinks | safe}}
 
       {% if folderNotes and folderNotes.length > 0 %}
-        <div class="folder-note-list">
-      
-          {% for note in folderNotes %}
-            <article class="folder-note-card">
-      
-              {% if note.thumbnail %}
-                <a href="{{ note.url }}" class="folder-note-thumbnail-link">
-                  <img
-                    src="{{ note.thumbnail }}"
-                    alt="{{ note.title }}"
-                    class="folder-note-thumbnail"
-                    loading="lazy"
-                  >
-                </a>
-              {% endif %}
-      
-              <div class="folder-note-body">
-      
-                <h2 class="folder-note-title">
-                  <a class="internal-link" href="{{ note.url }}">
-                    {{ note.title }}
-                  </a>
-                </h2>
-      
-                {% if note.description %}
-                  <p class="folder-note-description">
-                    {{ note.description }}
-                  </p>
-                {% endif %}
-      
-              </div>
-      
-            </article>
-          {% endfor %}
-      
-        </div>
+        {% set listingNotes = folderNotes %}
+        {% include "components/note-cards.njk" %}
       {% endif %}
-
       {% for imp in dynamics.common.afterContent %}
         {% include imp %}
       {% endfor %}

@@ -1,0 +1,235 @@
+// Category lists follow the original site's 147px thumbnail + 18px gap layout.
+body main.content .folder-note-list {
+  display: grid;
+  gap: 27px;
+  margin-top: 27px;
+}
+body main.content .folder-note-card {
+  display: grid;
+  grid-template-columns: minmax(0, 147px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+body main.content .folder-note-thumbnail-link {
+  display: block;
+  picture { display: block; }
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: auto;
+    object-fit: contain;
+    margin: 0;
+    border-radius: 0;
+  }
+}
+body main.content .folder-note-body {
+  min-width: 0;
+  .folder-note-title { margin: 0 0 6px; }
+  .folder-note-description { margin: 0; overflow-wrap: anywhere; }
+}
+@media (max-width: 674px) {
+  body main.content .folder-note-list { margin-inline: 16px; }
+  body main.content .folder-note-card {
+    grid-template-columns: minmax(0, 23.125%) minmax(0, 1fr);
+    gap: 2.5%;
+  }
+}
+
+// 兵藤事務所WEB：本文と右ナビゲーションのレイアウト。
+// 見出し・本文は .obsidian/snippets/hyodo-arch.css に合わせる。
+body:not(:has(.content.canvas-page)) {
+  --dg-content-max-width: 642px;
+  --dg-filetree-width: 222px;
+  --dg-filetree-min-width: 222px;
+  --hyodo-column-gap: 40px;
+  --hyodo-layout-width: calc(var(--dg-content-max-width) + var(--hyodo-column-gap) + var(--dg-filetree-width));
+  --hyodo-layout-left: max(24px, calc((100% - var(--hyodo-layout-width)) / 2));
+  padding: 0;
+  margin: 0;
+  background: #fff;
+
+  > main.content {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--dg-content-max-width);
+    margin-inline: auto;
+    padding: 27px 0 60px;
+    background: #fff;
+    color: #222;
+    font-family: "Yu Mincho", "游明朝", serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.8;
+
+    :is(p, ul, ol, li) {
+      font-size: 14px !important;
+      line-height: 1.8;
+    }
+    p { margin-block: 0 18px; }
+    figcaption { margin-top: 0; }
+    // 画像の段落には下余白を付けない。インライン画像のベースライン余白も除く。
+    p:has(> picture:only-child),
+    p:has(> img:only-child),
+    p:has(> a:only-child > img:only-child),
+    p:has(> a:only-child > picture:only-child) {
+      margin-bottom: 0;
+      > picture, > img, > a, > picture > img,
+      > a > picture, > a > img, > a > picture > img {
+        display: block;
+      }
+    }
+    :is(h1, h2, h3) {
+      font-family: "Yu Mincho", "游明朝", serif;
+      font-weight: 700;
+      line-height: 1.5;
+      color: #333;
+    }
+    h1 { font-size: 20px !important; margin-block: 6px 6px; }
+    h2 { font-size: 16px !important; margin-block: 5px 6px; }
+    h3 { font-size: 14px !important; margin-block: 4px 3px; }
+    div.note-tags { margin-bottom: 9px; }
+    // 無聊写記の記事タイトル下のタグに合わせる。
+    div.note-tags a.tag {
+      color: #000;
+      background: #f0f0f0;
+      border: 1px solid #d0d0d0;
+      border-radius: 0.35rem;
+      box-shadow: none;
+      text-decoration: none;
+    }
+    a { color: #739e39; text-decoration: none; }
+    a:hover { color: #5a7f26; text-decoration: underline; }
+    img { max-width: 100%; height: auto; border-radius: 0; }
+  }
+
+  .filetree-wrapper {
+    left: auto;
+    right: 0;
+    width: var(--dg-filetree-width);
+    justify-content: flex-start;
+    background: #fff;
+  }
+
+  .filetree-sidebar {
+    box-sizing: border-box;
+    padding: 27px 0 16px;
+    background: #fff;
+    color: #333;
+    font-family: "Yu Mincho", "游明朝", serif;
+    line-height: 1.5;
+
+    // メニューと追加バナーを続けて表示し、全体をスクロール可能にする。
+    overflow-y: auto;
+    scrollbar-width: thin;
+    > .folder { flex: 0 0 auto; overflow: visible; }
+    .hyodo-sidebar-links {
+      flex-shrink: 0;
+      margin-top: 14px;
+      color: #666;
+      font-size: 14px;
+      p { margin: 0; padding: .1em 0 .5em; }
+      > a { display: block; width: fit-content; margin: 0 0 14px 14px; }
+      img { display: block; max-width: 180px; height: auto; border-radius: 0; }
+      a:hover img { opacity: .7; }
+    }
+
+    .hyodo-sidebar-banner {
+      display: block;
+      flex-shrink: 0;
+      margin-bottom: 24px;
+      img { display: block; width: 222px; max-width: 100%; height: auto; border-radius: 0; }
+    }
+    .notelink, .foldername-wrapper {
+      margin: 0;
+      padding: 4px 8px;
+      border: 0;
+      border-radius: 5px;
+      background: transparent;
+      font-size: 15px;
+      font-weight: bold;
+      &:hover, &:focus-within { background: #f0f0f0; }
+    }
+    .filelist .notelink, .filelist .foldername-wrapper {
+      font-size: 13px;
+      font-weight: normal;
+    }
+    .folder, .foldername-wrapper {
+      margin-left: 0;
+      padding-left: 0;
+    }
+    .search-button {
+      background: #fff;
+      border: 1px solid #d0d0d0;
+      border-radius: 0.35rem;
+      box-shadow: none;
+      color: #333;
+      .search-keys { display: none; }
+    }
+    .filename, .foldername {
+      min-width: 0;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+    .filename { display: block; width: 100%; }
+    a:link { color: #333; text-decoration: none; }
+    a:visited { color: #666; }
+    a:hover { color: #739e39; text-decoration: underline; }
+    .active-note .filename,
+    a[aria-current="page"],
+    .inner-folder:has(.active-note) > .foldername-wrapper > a {
+      color: #739e39 !important;
+    }
+    .hyodo-sidebar-banner:hover img { opacity: .7; }
+  }
+
+  // 補助情報は本文下へ。右ナビゲーションとの重なりを避ける。
+  > aside > .sidebar {
+    position: relative !important;
+    inset: auto !important;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--dg-content-max-width);
+    height: auto;
+    margin: 40px auto 0;
+    padding: 20px 16px;
+    color: #222;
+    .sidebar-container { height: auto; flex-direction: column; }
+  }
+}
+
+@media (min-width: 1000px) {
+  body:not(.no-filetree):not(:has(.content.canvas-page)) {
+    > main.content,
+    > aside > .sidebar {
+      margin-left: var(--hyodo-layout-left);
+      margin-right: 0;
+    }
+    .filetree-wrapper {
+      // 本文＋間隔＋ナビゲーションの全体を中央に配置。
+      right: max(24px, calc((100% - var(--hyodo-layout-width)) / 2));
+    }
+  }
+}
+
+@media (max-width: 674px) {
+  body:not(:has(.content.canvas-page)) > main.content {
+    padding-top: var(--dg-content-padding-top-mobile);
+    // 画像の親要素には余白を設けず、文章だけに余白を付ける。
+    > header,
+    > :is(h1, h2, h3, h4, h5, h6, p, blockquote) {
+      padding-inline: 16px;
+    }
+    > :is(ul, ol) { margin-inline: 16px; }
+    > p:has(> picture:only-child),
+    > p:has(> img:only-child),
+    > p:has(> a:only-child > img:only-child),
+    > p:has(> a:only-child > picture:only-child) { padding-inline: 0; }
+    > .image-captions-figure:not(.image-captions-left):not(.image-captions-right) {
+      width: 100% !important;
+      > picture, > img, > picture > img { width: 100%; }
+    }
+    > p > picture, > p > img, > p > picture > img { width: 100%; }
+    .image-captions-caption { padding-inline: 16px; }
+  }
+}

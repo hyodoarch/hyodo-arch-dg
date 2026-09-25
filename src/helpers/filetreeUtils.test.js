@@ -13,6 +13,36 @@ function makeNote(filePathStem, data = {}) {
 }
 
 describe("filetreeUtils", () => {
+  describe("folder index order", () => {
+    const folders = (tree) => Object.keys(tree).filter((key) => tree[key].isFolder);
+
+    it("sorts numeric orders first, accepts zero and numeric strings, and ignores invalid values", () => {
+      const tree = getFileTree({ collections: { note: [
+        makeNote('/z/index', { order: '2' }),
+        makeNote('/a/index', { order: 10 }),
+        makeNote('/zero/index', { order: 0 }),
+        makeNote('/blank/index', { order: ' ' }),
+        makeNote('/bool/index', { order: false }),
+        makeNote('/invalid/index', { order: 'invalid' }),
+        makeNote('/missing/child', { order: -100 }),
+        makeNote('/infinite/index', { order: Infinity }),
+      ] } });
+      expect(folders(tree)).toEqual(['zero', 'z', 'a', 'blank', 'bool', 'infinite', 'invalid', 'missing']);
+    });
+
+    it("applies nested index metadata, breaks ties by name, and overrides navigation folder order only", () => {
+      const tree = getFileTree({ collections: { note: [
+        makeNote('/parent/b/index', { 'dg-note-properties': { order: 10 } }),
+        makeNote('/parent/a/index', { order: 10 }),
+        makeNote('/parent/z/index', { order: -1 }),
+        makeNote('/parent/ordinary'),
+      ] }, navigationOrder: { '/parent': ['b', 'ordinary', 'a', 'z'] } });
+      expect(folders(tree.parent)).toEqual(['z', 'a', 'b']);
+      expect(Object.keys(tree.parent).filter(key => key !== 'isFolder'))
+        .toEqual(['z', 'ordinary.md', 'a', 'b']);
+    });
+  });
+
   describe("getFileTree without navigation ordering", () => {
     it("sorts folders before files, then alphabetically", () => {
       const data = {
