@@ -27,6 +27,27 @@ const embed = alias => `![[${path}|${alias}]]`;
 const grid = (n, params = '') => '```image-grid-captions\ncolumns: ' + n + '\n' + params + '\n' + Array.from({length: n}, (_, i) => `![[${path}${i ? '' : '|外観'}]]`).join('\n') + '\n```';
 
 describe('Image Captions compatibility', () => {
+  it.each(['', 'left|312', 'right|312', 'center|312', 'Caption', 'Caption|right|405', '%|right|405', 'See <<HOME|home>>|left|312'])('DG Publish preserves the local rendering of %s', alias => {
+    const original = alias ? embed(alias) : `![[${path}]]`;
+    const label = (path + (alias ? '|' + alias : '')).replace(/\|/g, '\\|');
+    const published = `![${label}](${resolveImage(path)})`;
+    expect(md.render(published)).toBe(md.render(original));
+  });
+  it('retains dimensions of a size-only published embed without a caption', () => {
+    const html = parse(md.render(`![${path}\\|312x200](${resolveImage(path)})`));
+    expect(html.querySelector('figure')).toBeNull();
+    expect(html.querySelector('img').getAttribute('width')).toBe('312');
+    expect(html.querySelector('img').getAttribute('height')).toBe('200');
+  });
+  it('recognizes an encoded published URL and a shortest-path image reference', () => {
+    const html = parse(md.render(`![住宅 外観 01.svg\\|right\\|312](${resolveImage(path)})`));
+    expect(html.querySelector('figure').classList.contains('image-captions-right')).toBe(true);
+    expect(html.querySelector('figcaption')).toBeNull();
+  });
+  it('preserves intentional Markdown captions and external image labels', () => {
+    expect(parse(md.render('![other.jpg](/img/user/images/photo.jpg)')).querySelector('figcaption').text).toBe('other.jpg');
+    expect(parse(md.render('![photo.jpg](https://example.com/photo.jpg)')).querySelector('figcaption').text).toBe('photo.jpg');
+  });
   it.each(['left', 'right'])('supports captionless %s wrapping without an empty caption', alignment => {
     const html = parse(md.render(embed(`${alignment}|312`) + '\n\n## Heading\n\nText\n\n<br clear="all">'));
     expect(html.querySelector('figure').classList.contains(`image-captions-${alignment}`)).toBe(true);

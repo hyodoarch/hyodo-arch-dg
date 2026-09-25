@@ -2,6 +2,21 @@ const MarkdownIt = require('markdown-it');
 const { parseImageCaption } = require('./caption');
 const { resolveImage } = require('../imageAssets');
 
+// DG Publish prefixes the alias with the image path and escapes its separators.
+// Only remove that prefix when it identifies the published local image itself.
+function publishedAlias(token) {
+  if (token.meta?.captionEmbed) return null;
+  const src = token.attrGet('src') || '';
+  if (!src.startsWith('/img/user/')) return null;
+  const raw = token.content.replace(/\\\|/g, '|');
+  const [source, ...alias] = raw.split('|');
+  const decode = value => { try { return decodeURIComponent(value); } catch { return value; } };
+  const name = decode(source).replace(/^\.\//, '');
+  const target = decode(src.split(/[?#]/)[0].slice('/img/user/'.length));
+  if (!name || (target !== name && !target.endsWith('/' + name))) return null;
+  return alias.join('|');
+}
+
 function imageCaptions(md, options = {}) {
   const settings = { captionRegex: '', enableFilenamePlaceholders: true, ...options };
   const captionMd = new MarkdownIt({ html: false, linkify: true });
@@ -67,6 +82,15 @@ function imageCaptions(md, options = {}) {
       const meaningful = inline.children.filter(t => !['softbreak', 'hardbreak'].includes(t.type) && !(t.type === 'text' && !t.content.trim()));
       if (!meaningful.length || meaningful.some(t => t.type !== 'image')) continue;
       const parsed = meaningful.map(token => {
+        const alias = publishedAlias(token);
+        if (alias !== null) {
+          token.content = alias;
+          if (/^\d+(?:x\d+)?$/.test(alias)) {
+            const [width, height] = alias.split('x');
+            token.attrSet('width', width);
+            if (height) token.attrSet('height', height);
+          }
+        }
         if (!token.content || /^\d+(?:x\d+)?$/.test(token.content.trim())) return null;
         // Protect the alias separator inside <<Note|label>> from alignment parsing.
         const aliases = [];
