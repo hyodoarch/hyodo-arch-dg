@@ -24,3 +24,17 @@
 figure.image-captions-left { float: left; margin-right: 1em; }
 figure.image-captions-right { float: right; margin-left: 1em; }
 figure.image-captions-center { margin-left: auto; margin-right: auto; }
+
+// Keep a readable text column even on narrow phones. The Markdown clear marker
+// ends each original photo/text section in both Obsidian and Digital Garden.
+figure.image-captions-left, figure.image-captions-right {
+  max-width: 55%;
+  img, picture { width: 100%; }
+}
+br[clear="all"] { display: block; clear: both; }
+@media (max-width: 600px) {
+  figure.image-captions-left, figure.image-captions-right {
+    width: calc(var(--image-caption-width, 312px) * 2 / 3) !important;
+    max-width: 55%;
+  }
+}

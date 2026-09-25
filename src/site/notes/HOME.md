@@ -1,7 +1,6 @@
 ---
-{"dg-publish":true,"permalink":"/HOME/","tags":["gardenEntry"],"dg-note-properties":{}}
+{"dg-home":true,"dg-publish":true,"permalink":"/","tags":["gardenEntry"],"dg-note-properties":{"dg-home":true,"dg-publish":true}}
 ---
-
 ![山手のマンション・リノベーション](/img/user/images/top/yamate_IGP0510a.jpg)
 
 当建築設計事務所は、埼玉県川口市を拠点に活動する一級建築士事務所です。ローコストで実現するデザイン注文住宅、店舗やオフィスのデザイン、古民家やマンションのリノベーションの設計・監理を行っています。
@@ -16,7 +15,7 @@
 
 [～上記より以前の News はこちら](https://www.hyodo-arch.com/news.html)
 
-## [プロジェクトの紹介](/プロジェクトの紹介/)
+## プロジェクトの紹介
 
-- [[プロジェクトの紹介/北浦和のカフェ\|北浦和のカフェ]]
-- [[プロジェクトの紹介/春日部の家のリノベーション\|春日部の家のリノベーション]]
+- [[店舗・オフィス/北浦和のカフェ|北浦和のカフェ]]
+- [[戸建てリノベーション/春日部の家のリノベーション|春日部の家のリノベーション]]

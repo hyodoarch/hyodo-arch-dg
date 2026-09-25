@@ -1,8 +1,6 @@
 ---
-{"dg-publish":true,"dg-permalink":"/古民家リノベーション/","permalink":"/古民家リノベーション/","title":"古民家リノベーション","dg-note-properties":{"title":"古民家リノベーション","project-list":"古民家リノベーション"}}
+{"order":40,"dg-publish":true,"dg-permalink":"/old_house/","title":"古民家リノベーション","project-list":"古民家リノベーション","permalink":"/old_house/","tags":[],"dg-note-properties":{"order":40,"dg-publish":true,"dg-permalink":"/old_house/","title":"古民家リノベーション","project-list":"古民家リノベーション"}}
 ---
+# {{ title }}
 
-
-古民家リノベーションの事例をまとめました。
-
-事例をまとめたパンフレットがございます。ご計画の方は、お気軽にお問合せください。
+古民家リノベーションの事例です。

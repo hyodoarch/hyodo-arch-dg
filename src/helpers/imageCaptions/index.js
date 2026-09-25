@@ -56,8 +56,9 @@ function imageCaptions(md, options = {}) {
     if (parsed.height) clone.attrSet('height', parsed.height);
     const image = originalImage([clone], 0, opts, env, self);
     const cls = 'image-captions-figure' + (parsed.alignment ? ` image-captions-${parsed.alignment}` : '');
-    const width = /^\d+$/.test(parsed.width || '') ? ` style="width:${parsed.width}px"` : '';
-    return `<figure class="${cls}"${width}>${image}<figcaption class="image-captions-caption">${captionMd.renderInline(parsed.caption)}</figcaption></figure>\n`;
+    const width = /^\d+$/.test(parsed.width || '') ? ` style="width:${parsed.width}px;--image-caption-width:${parsed.width}px"` : '';
+    const caption = parsed.caption ? `<figcaption class="image-captions-caption">${captionMd.renderInline(parsed.caption)}</figcaption>` : '';
+    return `<figure class="${cls}"${width}>${image}${caption}</figure>\n`;
   };
   md.core.ruler.after('inline', 'image_captions', state => {
     for (let i = 1; i < state.tokens.length - 1; i++) {
@@ -78,7 +79,8 @@ function imageCaptions(md, options = {}) {
         }
         result.caption = result.caption.replace(/\uE000(\d+)\uE001/g, (_, n) => aliases[Number(n)]);
         result.imageAlt = result.imageAlt.replace(/\uE000(\d+)\uE001/g, (_, n) => aliases[Number(n)]);
-        return result.caption ? result : null;
+        if (!result.caption && result.alignment) result.imageAlt = '';
+        return result.caption || result.alignment ? result : null;
       });
       // Match Quartz: only replace paragraphs consisting entirely of captioned images.
       if (parsed.some(p => !p)) continue;

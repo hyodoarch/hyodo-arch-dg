@@ -1,9 +1,9 @@
 {% macro menuItem(fileOrFolderName, fileOrFolder, step, currentPath) %}
-    {%if fileOrFolder.isNote or fileOrFolder.isFolder%}
+    {%if (fileOrFolder.isNote or fileOrFolder.isFolder) and fileOrFolder.permalink != '/' and not (fileOrFolder.isNote and fileOrFolderName == 'index.md')%}
         <div x-show="isOpen" style="display:none" class="{{'filelist' if step>0}}">
             {%if fileOrFolder.isNote and not fileOrFolder.hide %}
                 <div @click.stop class="notelink {{ 'active-note' if fileOrFolder.permalink === permalink}}">
-                    <a data-note-icon="{{fileOrFolder.noteIcon}}" style="text-decoration: none;" class="filename" href="{{fileOrFolder.permalink}}">{{fileOrFolder.name}} </a>
+                    <a data-note-icon="{{fileOrFolder.noteIcon}}" class="filename" href="{{fileOrFolder.permalink}}"{% if fileOrFolder.permalink === permalink %} aria-current="page"{% endif %}>{{fileOrFolder.name}} </a>
                 </div>
             {% elif fileOrFolder.isFolder%}
                 {% set indexNote = fileOrFolder["index.md"] %}
@@ -26,7 +26,7 @@
                                 @click.stop
                                 href="{{indexNote.permalink}}"
                                 class="foldername"
-                                style="text-decoration: none; color: inherit;"
+                                {% if indexNote.permalink === permalink %}aria-current="page"{% endif %}
                             >
                                 {{fileOrFolderName}}
                             </a>
@@ -61,15 +61,9 @@
         {% for imp in dynamics.filetree.beforeTitle %}
             {% include imp %}
         {% endfor %}
-         {% if meta.siteLogoPath %}
-         <a href="/" style="text-decoration: none; display: flex; justify-content: center;">
-                   <img class="site-logo" src="{{meta.siteLogoPath}}" alt="{{meta.siteName}}">
+         <a class="hyodo-sidebar-banner" href="/" aria-label="兵藤善紀建築設計事務所 HOME">
+                   <img src="/img/user/images/common/hyodoarch-banner.png" width="222" height="74" alt="兵藤善紀建築設計事務所">
          </a>
-         {% else %}
-         <a href="/" style="text-decoration: none; text-align: center;">
-                   <h1 style="text-align:center;">{{meta.siteName}}</h1>
-         </a>
-         {% endif %}
          {% for imp in dynamics.filetree.afterTitle %}
             {% include imp %}
         {% endfor %}
@@ -81,6 +75,19 @@
                   {{menuItem(fileOrFolderName, fileOrFolder, 0, fileOrFolderName)}}
                {%- endfor -%}
          </div>
+         <aside class="hyodo-sidebar-links" aria-label="公式SNS・運営サイト">
+           <p>公式 Instagram</p>
+           <a href="https://www.instagram.com/hyodo_arch/" title="兵藤善紀建築設計事務所 Instagram">
+             <img src="/img/user/images/common/instagram_240.png" width="80" height="80" alt="Instagram">
+           </a>
+           <p>兵藤事務所が運営するサイト</p>
+           <a href="https://www.kurashinodogu.jp/" title="くらしの道具">
+             <img src="/img/user/images/common/kurashinodogu.png" alt="くらしの道具">
+           </a>
+           <a href="https://www.hyodo-arch.com/buryoshaki/" title="無聊写記">
+             <img src="/img/user/images/common/buryoshaki.png" alt="無聊写記">
+           </a>
+         </aside>
       </nav>
       </div>
     </div>

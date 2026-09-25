@@ -5,6 +5,10 @@ function userMarkdownSetup(md) {
   md.use(require('./imageGridCaptions').imageGridCaptions);
 }
 function userEleventySetup(eleventyConfig) {
+  const { noteTags } = require('./noteTemplate');
+  eleventyConfig.addNunjucksShortcode('noteTags', function () {
+    return noteTags(this.ctx, eleventyConfig.getFilter('tagSlug'));
+  });
   // The eleventyConfig parameter stands for the the config instantiated in /.eleventy.js.
   // Feel free to add any plugin you want here instead of /.eleventy.js
   eleventyConfig.on('eleventy.before', require('./imageAssets').clearImageIndex);

@@ -1,0 +1,49 @@
+// Keep the contact link outside the collapsible/scrolling navigation.
+body .hyodo-contact-dock {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: 0;
+  z-index: 11;
+  padding: 12px 0 max(16px, env(safe-area-inset-bottom));
+}
+body .hyodo-contact-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 12px 20px;
+  border: 1px solid #526f2c;
+  border-radius: 6px;
+  background: #526f2c;
+  color: #fff;
+  font: 15px/1.5 "Yu Mincho", "游明朝", serif;
+  text-decoration: none;
+  box-shadow: 0 2px 8px #0002;
+  &:visited { color: #fff; }
+  &:hover { color: #fff; background: #405822; text-decoration: none; }
+  &:focus-visible { outline: 3px solid #222; outline-offset: 3px; }
+  svg { flex-shrink: 0; }
+}
+@media (min-width: 1000px) {
+  body:not(.no-filetree):not(:has(.content.canvas-page)) {
+    .hyodo-contact-dock {
+      right: max(24px, calc((100% - var(--hyodo-layout-width)) / 2));
+      width: var(--dg-filetree-width);
+      background: #fff;
+    }
+    .filetree-wrapper {
+      height: calc(100% - 60px - max(16px, env(safe-area-inset-bottom)));
+    }
+  }
+}
+@media (max-width: 999px) {
+  body:has(.hyodo-contact-dock) {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+    .filetree-sidebar { padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
+  }
+}
+@media print {
+  body .hyodo-contact-dock { display: none; }
+}
