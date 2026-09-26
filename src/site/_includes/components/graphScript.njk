@@ -224,7 +224,7 @@ function renderGraph(graphData, containerId, isFullScreen) {
         const r = nodeRadius(n.id, degreeMap);
 
         const label = new Text(n.text, {
-            fontSize: 16,
+            fontSize: parseFloat(getCssVar('--dg-graph-label-size')) || 16,
             fill: textColor,
             fontFamily: bodyFont,
         });

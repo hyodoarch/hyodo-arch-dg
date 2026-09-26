@@ -79,6 +79,14 @@ body:not(:has(.content.canvas-page)) {
         display: block;
       }
     }
+    // 通常画像の直後に通常画像・回り込み画像が続く場合だけ空ける。
+    // :has()を入れ子にせず、次の段落内のpictureを直接指定する。
+    p:has(> picture:only-child):has(
+      + p > picture:only-child,
+      + figure.image-captions-figure
+    ) {
+      margin-bottom: 16px;
+    }
     :is(h1, h2, h3) {
       font-family: "Yu Mincho", "游明朝", serif;
       font-weight: 700;
@@ -193,6 +201,7 @@ body:not(:has(.content.canvas-page)) {
     height: auto;
     margin: 40px auto 0;
     padding: 20px 16px;
+    border-top-color: #ddd;
     color: #222;
     .sidebar-container { height: auto; flex-direction: column; }
   }
@@ -206,8 +215,30 @@ body:not(:has(.content.canvas-page)) {
       margin-right: 0;
     }
     .filetree-wrapper {
-      // 本文＋間隔＋ナビゲーションの全体を中央に配置。
-      right: max(24px, calc((100% - var(--hyodo-layout-width)) / 2));
+      // 内容幅222pxを維持し、その右30pxの外側に9px幅のスクロールバーを置く。
+      left: calc(var(--hyodo-layout-left) + var(--dg-content-max-width) + var(--hyodo-column-gap));
+      right: auto;
+      width: max-content;
+      padding-right: 30px;
+      align-items: flex-start;
+      overflow-y: auto;
+      scrollbar-width: auto;
+      scrollbar-color: auto;
+      color-scheme: light;
+      &::-webkit-scrollbar { width: 9px; }
+      &::-webkit-scrollbar-track { background: #f1f1f1; }
+      &::-webkit-scrollbar-thumb {
+        background-color: #aaa;
+        background-clip: padding-box;
+        border-inline: 2px solid transparent;
+        border-radius: 5px;
+      }
+      &::-webkit-scrollbar-thumb:hover { background-color: #888; }
+    }
+    .filetree-sidebar {
+      height: auto;
+      overflow: visible;
+      scrollbar-width: auto;
     }
   }
 }
@@ -232,4 +263,9 @@ body:not(:has(.content.canvas-page)) {
     > p > picture, > p > img, > p > picture > img { width: 100%; }
     .image-captions-caption { padding-inline: 16px; }
   }
+}
+
+// Keep the access map inside the content column on small screens.
+body main.content iframe[src^="https://www.google.com/maps/"] {
+  max-width: 100%;
 }
