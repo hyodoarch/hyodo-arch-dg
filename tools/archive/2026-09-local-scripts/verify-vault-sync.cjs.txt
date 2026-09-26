@@ -1,0 +1,21 @@
+const fs=require('node:fs');
+const assert=require('node:assert/strict');
+const {parse}=require('node-html-parser');
+const source='../古民家リノベーション/関口酒造母屋リノベーション.md';
+const marker='\n<span hidden data-vault-sync-check="local-source-save"></span>\n';
+const url='http://localhost:8080/projects/sekiguchi/';
+async function read(){return parse(await (await fetch(url)).text());}
+(async()=>{
+ const before=await read();
+ assert.equal(before.querySelector('main > h1').text,'関口酒造母屋リノベーション');
+ assert.equal(before.querySelector('main .note-tags a').text,'#古民家リノベーション');
+ assert.equal(before.querySelectorAll('main header h1, main header .header-tags').length,0);
+ fs.appendFileSync(source,marker);
+ try{
+  let updated=false;
+  for(let i=0;i<30;i++){await new Promise(r=>setTimeout(r,500));if((await read()).querySelector('[data-vault-sync-check]')){updated=true;break;}}
+  assert.ok(updated,'Source edits must reach live server automatically');
+ }finally{fs.writeFileSync(source,fs.readFileSync(source,'utf8').replace(marker,''));}
+ for(let i=0;i<30;i++){await new Promise(r=>setTimeout(r,500));if(!(await read()).querySelector('[data-vault-sync-check]')){console.log('PASS: live title/tags, source save automatically synced and rebuilt, temporary verification marker removed.');return;}}
+ throw Error('Restoration did not rebuild');
+})().catch(e=>{console.error(e);process.exitCode=1;});

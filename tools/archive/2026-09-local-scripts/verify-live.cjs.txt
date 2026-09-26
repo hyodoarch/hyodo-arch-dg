@@ -1,0 +1,47 @@
+const { chromium } = require('../../.obsidian-image-grid-captions-dev/node_modules/@playwright/test');
+const fs = require('node:fs/promises');
+const assert = require('node:assert/strict');
+const site = 'https://hyodo-arch-dg.pages.dev';
+(async () => {
+  const script = await fetch(site + '/scripts/image-grid-captions.js?verify=a626d32');
+  assert.equal(script.status, 200);
+  assert.ok((await script.text()).includes('parseCaptionBlocks'), 'Latest grid script has not propagated');
+  const browser = await chromium.launch({ channel: 'msedge', headless: true });
+  try {
+    const page = await browser.newPage();
+    const imageFailures = [];
+    page.on('response', response => {
+      if (response.url().startsWith(site + '/img/') && response.status() >= 400) imageFailures.push(response.url());
+    });
+    const measurements = [];
+    await page.goto(site + '/projects/sekiguchi/?verify=a626d32', { waitUntil: 'domcontentloaded' });
+    for (const width of [1366, 390]) {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.waitForFunction(() => {
+        const rows = [...document.querySelectorAll('.image-grid-captions')];
+        return rows.length === 8 && rows.every(row => {
+          const imgs = [...row.querySelectorAll('img.image-grid-captions__image')];
+          return row.dataset.ready && imgs.every(img => img.complete && img.naturalWidth > 0) &&
+            Math.abs(imgs.reduce((sum,img) => sum + img.getBoundingClientRect().width, 0) + Number(row.dataset.gap) * (imgs.length - 1) - row.getBoundingClientRect().width) < 1;
+        });
+      });
+      assert.ok(await page.locator('.image-captions-figure').count() > 0, 'Image Captions installed');
+      assert.equal(await page.locator('.image-grid-captions figcaption h3').count(), 2);
+      assert.equal(await page.locator('.image-grid-captions figcaption p').count(), 2);
+      const rows = await page.locator('.image-grid-captions').evaluateAll(elements => elements.map(row => {
+        const imgs = [...row.querySelectorAll('img.image-grid-captions__image')];
+        const heights = imgs.map(img => img.getBoundingClientRect().height);
+        return { columns: imgs.length, width: row.getBoundingClientRect().width,
+          equalHeights: heights.every(height => Math.abs(height - heights[0]) < .2),
+          noOverflow: [...row.querySelectorAll('figcaption')].every(el => el.scrollWidth <= el.clientWidth + 1) };
+      }));
+      assert.ok(rows.every(row => row.equalHeights && row.noOverflow));
+      measurements.push({ viewport: width, rows });
+      await page.locator('.image-grid-captions').first().screenshot({ path: `.cache/live-grid-${width}.png` });
+    }
+    assert.deepEqual(imageFailures, []);
+    const report = { passed: true, url: site + '/projects/sekiguchi/', imageCaptions: await page.locator('.image-captions-figure').count(), measurements };
+    await fs.writeFile('.cache/live-verification.json', JSON.stringify(report, null, 2));
+    console.log(JSON.stringify(report));
+  } finally { await browser.close(); }
+})().catch(error => { console.error(error); process.exitCode = 1; });

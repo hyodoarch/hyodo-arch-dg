@@ -1,0 +1,15 @@
+const fs=require('fs'),path=require('path');
+const root=path.resolve(__dirname,'../..'),project=path.resolve(__dirname,'..');
+const {report,downloads}=require('./project-import.json');
+for(const r of report){
+ const dst=path.join(project,'src/site/notes',r.target);
+ fs.mkdirSync(path.dirname(dst),{recursive:true});
+ if(!fs.existsSync(dst)) fs.copyFileSync(path.join(root,r.target),dst);
+}
+for(const [local] of downloads){
+ const dst=path.join(project,'src/site/img/user',local);
+ fs.mkdirSync(path.dirname(dst),{recursive:true});
+ fs.copyFileSync(path.join(root,local),dst);
+}
+const memo=['---','dg-publish: false','---','','# 作品10件のMarkdown移行記録','','確認日：2026-09-24。元ページの本文・見出し・画像を照合して移行。Markdownはカテゴリー別、画像は `images/作品別フォルダ/元ファイル名`。既存の `nekoradio`、`kasukabe`、`old-houses` は維持。画像はダウンロードした元ファイルをそのまま保存し、公開用の最適化はDGのビルド時に行います。','','| カテゴリー | ノート | 原文 | 本文画像数 |','| --- | --- | --- | --- |',...report.map(r=>`| ${r.category} | [[${r.target.slice(0,-3)}]] | [元ページ](https://www.hyodo-arch.com/projects/${r.slug}.html) | ${r.images} |`),'',`本文画像194点＋サムネイル10点（重複を除いた実ファイル203点）。`,'','## 記法と保存先','','- 冒頭画像の直後に `# {{ title }}` と `{% noteTags %}`。プロパティは関口酒造に合わせた7項目。','- 画像の列は `image-grid-captions`。元ページで説明を共有する写真は、グリッドの後に見出し・本文を残す。写真ごとに独立した説明がある場合はグリッド内に記述。','- 回り込みは `![[images/…|left|312]]` または `right|312`。区切りは `<br clear="all">`。モバイルは208px、本文の幅に対して最大55%。','- 原文の設計案・工事記録と当時の時制表現も保持。','- 既存の4作品は `プロジェクトの紹介/` から各カテゴリーへ移行。旧ファイルは作業用バックアップ `.hyodo-arch-dg-install/.cache/project-import-before/` に保管（恒久保存用ではない）。','- 新しい公開パスは `/projects/元ページのslug/`。現行サイトへの公開・pushは行っていない。','- DGの現在の作業コピー `.hyodo-arch-dg-install` にノート・画像を同期。元ノートと元画像が正本。','','## 復元・確認','','元ノートと `images/` をバックアップしてください。DG側の同期対象を再作成する場合は、この一覧のノートを `src/site/notes/` の同じ相対パスへコピーし、画像を `src/site/img/user/images/` にコピーして `npm run sync:vault` を実行します。カテゴリーインデックスの新規作成は今回の対象外です。',''];
+fs.writeFileSync(path.join(root,'_メモ置場/作品10件のMarkdown移行記録.md'),memo.join('\n'));

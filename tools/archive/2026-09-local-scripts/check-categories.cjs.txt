@@ -1,0 +1,28 @@
+const {chromium}=require('C:/Users/hyodo/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const fs=require('fs'),path=require('path');
+const categories=[['新築住宅',2],['マンションリノベーション',2],['戸建てリノベーション',2],['old_house',3],['店舗・オフィス',2]];
+(async()=>{
+ const browser=await chromium.launch({channel:'msedge',headless:true});
+ const page=await browser.newPage(); const failures=[];
+ await page.route('**/*',route=>new URL(route.request().url()).hostname==='localhost'?route.continue():route.abort());
+ for(const width of [1280,390]) {
+  await page.setViewportSize({width,height:1000});
+  for(const [category,count] of categories) {
+   await page.goto(`http://localhost:8081/${encodeURIComponent(category)}/`,{waitUntil:'networkidle'});
+   await page.locator('.folder-note-card img').evaluateAll(imgs=>imgs.forEach(i=>i.loading='eager'));
+   await page.waitForFunction(()=>[...document.querySelectorAll('.folder-note-card img')].every(i=>i.complete));
+   const result=await page.evaluate(()=>({
+    title:document.querySelector('main h1')?.textContent,
+    cards:[...document.querySelectorAll('.folder-note-card')].map(c=>({title:c.querySelector('h2')?.textContent.trim(),description:c.querySelector('.folder-note-description')?.textContent.trim(),thumbnail:c.querySelector('img')?.naturalWidth,columns:getComputedStyle(c).gridTemplateColumns})),
+    overflow:document.documentElement.scrollWidth>innerWidth,
+    duplicateIndex:[...document.querySelectorAll('.filetree-sidebar .filename')].filter(a=>['古民家リノベーション','新築住宅','マンションリノベーション','戸建てリノベーション','店舗・オフィス','index'].includes(a.textContent.trim())).map(a=>a.textContent),
+    categoryLinks:[...document.querySelectorAll('.filetree-sidebar .foldername')].map(a=>a.getAttribute('href'))
+   }));
+   console.log(width,category,JSON.stringify(result));
+   if(result.cards.length!==count||result.cards.some(c=>!c.description||!c.thumbnail)||result.overflow||result.duplicateIndex.length)failures.push({width,category,result});
+   if(category==='old_house')await page.screenshot({path:path.join(__dirname,`category-${width}.png`),fullPage:false});
+  }
+ }
+ fs.writeFileSync(path.join(__dirname,'category-check.json'),JSON.stringify(failures,null,2));
+ await browser.close();process.exitCode=failures.length?1:0;
+})().catch(e=>{console.error(e);process.exit(1)});

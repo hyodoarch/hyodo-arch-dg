@@ -1,0 +1,30 @@
+const {chromium}=require('../../.obsidian-image-grid-captions-dev/node_modules/@playwright/test');
+const assert=require('node:assert/strict');
+(async()=>{
+ const browser=await chromium.launch({channel:'msedge',headless:true});
+ try {
+  const page=await browser.newPage();
+  // External UI libraries are unrelated to CSS geometry; avoid network delays.
+  await page.route(/^https?:\/\/(?!localhost:8080)/,r=>r.abort());
+  for(const route of ['/', '/projects/sekiguchi/']) {
+   await page.goto('http://localhost:8080'+route,{waitUntil:'load'});
+   for(const width of [1366,1920,1000,768,390,320]) {
+    await page.setViewportSize({width,height:1000});
+    await page.waitForTimeout(150);
+    await page.locator('.filetree-wrapper').evaluate((el,w)=>el.style.setProperty('display',w>=1000?'flex':'none','important'),width);
+    const r=await page.evaluate(()=>{
+     const rect=s=>{const r=document.querySelector(s).getBoundingClientRect();return {left:r.left,right:r.right,width:r.width};};
+     const main=document.querySelector('main.content');
+     return {width:innerWidth,scroll:document.documentElement.scrollWidth,tree:rect('.filetree-wrapper'),main:rect('main.content'),image:rect('main.content img'),h1:getComputedStyle(main.querySelector('h1')).fontSize,p:getComputedStyle(main.querySelector('p')).fontSize,bg:getComputedStyle(document.body).backgroundColor};
+    });
+    assert.ok(r.scroll<=width+1,JSON.stringify(r));
+    assert.ok(Math.abs(r.main.width-Math.min(width,642))<1,JSON.stringify(r));
+    assert.equal(r.h1,'20px');assert.equal(r.p,'14px');assert.equal(r.bg,'rgb(255, 255, 255)');
+    if(width>=1000){assert.ok(Math.abs(r.main.left-(width-r.tree.right))<1,JSON.stringify(r));assert.ok(Math.abs(r.tree.left-r.main.right-40)<1,JSON.stringify(r));}
+    if(width<=674){assert.ok(Math.abs(r.image.width-width)<1,JSON.stringify(r));}
+    console.log(route,JSON.stringify(r));
+    if(width===1366||width===390)await page.screenshot({path:'.cache/main-'+(route==='/'?'home':'sekiguchi')+'-'+width+'.png'});
+   }
+  }
+ }finally{await browser.close();}
+})().catch(e=>{console.error(e);process.exitCode=1;});

@@ -1,0 +1,48 @@
+const { chromium } = require('../../.obsidian-image-grid-captions-dev/node_modules/@playwright/test');
+const fs = require('node:fs/promises');
+const path = require('node:path');
+const http = require('node:http');
+const assert = require('node:assert/strict');
+const root = path.resolve('dist');
+const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp', '.json': 'application/json' };
+const server = http.createServer(async (req, res) => {
+  try {
+    const requested = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+    const file = path.resolve(root, '.' + requested, requested.endsWith('/') ? 'index.html' : '');
+    if (!file.startsWith(root + path.sep)) { res.writeHead(403).end(); return; }
+    res.writeHead(200, { 'Content-Type': mime[path.extname(file)] || 'application/octet-stream' }).end(await fs.readFile(file));
+  } catch { res.writeHead(404).end(); }
+});
+(async () => {
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  let browser;
+  try {
+    browser = await chromium.launch({ channel: 'msedge', headless: true });
+    const page = await browser.newPage();
+    await page.goto(`http://127.0.0.1:${server.address().port}/projects/sekiguchi/`, {waitUntil:'load'});
+    const measurements = [];
+    for (const width of [1920, 1440, 1366, 390]) {
+      await page.setViewportSize({width, height:1000});
+      await page.waitForTimeout(300);
+      const result = await page.evaluate(() => {
+        const box = selector => {
+          const el = document.querySelector(selector);
+          const r = el.getBoundingClientRect();
+          return {left:r.left, right:r.right, top:r.top, bottom:r.bottom, width:r.width, display:getComputedStyle(el).display};
+        };
+        return {viewport:innerWidth, scrollWidth:document.documentElement.scrollWidth, content:box('body > .content'), sidebar:box('body > aside > .sidebar'), tree:box('.filetree-wrapper')};
+      });
+      assert.ok(result.scrollWidth <= width + 1, JSON.stringify(result));
+      if (width > 1400) {
+        assert.ok(result.sidebar.right < result.content.left, JSON.stringify(result));
+        assert.ok(result.tree.right <= result.sidebar.left, JSON.stringify(result));
+      }
+      measurements.push(result);
+      await page.screenshot({path:`.cache/sidebar-${width}.png`});
+    }
+    console.log(JSON.stringify(measurements));
+  } finally {
+    if(browser) await browser.close();
+    await new Promise(resolve => server.close(resolve));
+  }
+})().catch(error => {console.error(error); process.exitCode=1;});

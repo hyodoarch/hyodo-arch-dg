@@ -1,0 +1,39 @@
+const fs=require('fs');
+const paths=['古民家リノベーション/関口酒造母屋リノベーション.md','.hyodo-arch-dg-install/src/site/notes/古民家リノベーション/関口酒造母屋リノベーション.md'];
+const headings={
+'sugito_IGP3021.jpg':'事務所・土間から通りを見る',
+'sugito_IGP3056.jpg':'土間・事務所から住居エリアを見る',
+'sugito_IGP2968.jpg':'リビング',
+'sugito_IGP2982.jpg':'リビングから、土間、事務所を見る',
+'sugito_IGP3055.jpg':'中庭',
+'sugito_IGP3005.jpg':'縁側',
+'sugito_IGP2952.jpg':'寝室',
+'sugito_IGP2955.jpg':'洗面室',
+'sugito-before_2013-09-18-12.40.jpg':'改装前の母屋外観',
+'sugito-before_1F_2013-09-18-12.39.jpg':'改装前の事務所',
+'sugito-before_1F_2013-09-18-12.31.jpg':'改装前のリビング',
+'sugito-before_DSCN3293.jpg':'内部解体直前の様子',
+'sugito-before_DSCN3366.jpg':'梁・柱を残す解体作業',
+'sugito-before_DSCN3624.jpg':'土台の入れ替え',
+'sugito-before_DSCN3938.jpg':'新旧の下屋の接合部',
+'sugito-before_DSCN5526.jpg':'外壁の仕上がり'
+};
+for(const file of paths){
+ let src=fs.readFileSync(file,'utf8').replace(/\r\n/g,'\n');
+ let count=0;
+ src=src.replace(/```image-grid-captions\n[\s\S]*?```/g,block=>block.replace(/!\[\[([^|]+)\|([\s\S]*?)\]\]/g,(_,image,caption)=>{
+   const name=image.split('/').pop(),heading=headings[name];
+   if(!heading)throw Error(name);
+   let body=caption.replace(/^###? [^\n]*\n/,'');
+   if(body===caption && caption.startsWith(heading+'。'))body=caption.slice(heading.length+1);
+   count++;
+   return `![[${image}|## ${heading}\n${body}]]`;
+ }));
+ if(count!==16)throw Error('Expected 16 grids: '+count);
+ // Only ordinary, standalone images outside grid blocks have these five filenames.
+ const files='sugito_IGP(?:2925|2971|3046|3010|3086)\\.jpg';
+ src=src.replace(new RegExp('!\\[\\[(images/sekiguchi/'+files+')(?:\\|[^\\]\\n]*)?\\]\\]','g'),'![[$1]]');
+ src=src.replace(new RegExp('!\\[[^\\]\\n]*\\]\\(/img/user/(images/sekiguchi/'+files+')\\)','g'),'![[$1]]');
+ fs.writeFileSync(file,src);
+ console.log(file, count+' H2 captions');
+}

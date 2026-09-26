@@ -1,0 +1,37 @@
+const { chromium } = require('../../.obsidian-image-grid-captions-dev/node_modules/@playwright/test');
+const assert = require('node:assert/strict');
+(async () => {
+  const browser = await chromium.launch({ channel: 'msedge', headless: true });
+  try {
+    const page = await browser.newPage({ viewport: { width: 1366, height: 1000 } });
+    await page.goto('http://localhost:8080/projects/sekiguchi/', { waitUntil: 'networkidle' });
+    await page.locator('.filetree-wrapper').waitFor({ state: 'visible' });
+    for (const row of await page.locator('.foldername-wrapper').all()) {
+      const open = await row.locator('[data-lucide="chevron-right"]').isVisible();
+      if (open) await row.click({ position: { x: 4, y: 8 } });
+    }
+    const result = await page.evaluate(() => {
+      const tree = document.querySelector('.filetree-wrapper');
+      const nav = document.querySelector('.filetree-sidebar');
+      const img = document.querySelector('.hyodo-sidebar-banner img');
+      const current = document.querySelector('.active-note .filename');
+      return { width: tree.getBoundingClientRect().width, navWidth: nav.getBoundingClientRect().width,
+        background: getComputedStyle(tree).backgroundColor, imageLoaded: img.complete && img.naturalWidth > 0,
+        imageWidth: img.getBoundingClientRect().width, current: getComputedStyle(current).color,
+        scroll: document.documentElement.scrollWidth, viewport: innerWidth };
+    });
+    assert.equal(result.width, 222); assert.equal(result.navWidth, 222);
+    assert.equal(result.background, 'rgb(255, 255, 255)'); assert.ok(result.imageLoaded);
+    assert.equal(result.imageWidth, 222); assert.equal(result.current, 'rgb(115, 158, 57)');
+    assert.ok(result.scroll <= result.viewport);
+    const row = page.locator('.notelink:visible').first();
+    await row.hover();
+    const hover = await row.evaluate(el => ({ background: getComputedStyle(el).backgroundColor, radius: getComputedStyle(el).borderRadius }));
+    assert.equal(hover.background, 'rgb(240, 240, 240)'); assert.equal(hover.radius, '5px');
+    await page.screenshot({ path: '.cache/sidebar-style-1366.png', fullPage: false });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.locator('.filetree-wrapper').waitFor({ state: 'hidden' });
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+    console.log(JSON.stringify({ result, hover, mobileOverflow: false }));
+  } finally { await browser.close(); }
+})().catch(e => { console.error(e); process.exitCode = 1; });

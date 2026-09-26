@@ -1,0 +1,18 @@
+const fs=require('fs'),path=require('path'),{parse}=require('node-html-parser');
+const root=path.resolve(__dirname,'../..');
+const {report,downloads}=require('./project-import.json');
+let errors=[];
+ const norm=s=>s.replace(/\[([^\]]+)\]\(<[^>]+>\)/g,'$1').replace(/\s+/g,'').replace(/&nbsp;/g,'');
+for(const r of report){
+ const raw=fs.readFileSync(path.join(process.env.TEMP,r.slug+'.html'),'utf8');
+ const article=parse('<article>'+raw.split('<article>')[1].split('</article>')[0]+'</article>').querySelector('article');
+ const md=fs.readFileSync(path.join(root,r.target),'utf8');
+ const missingImages=article.querySelectorAll('img').map(i=>path.basename(i.getAttribute('src'))).filter(p=>!md.includes(p));
+ const missingText=article.querySelectorAll('p,h1,h2,h3,li,dt,dd').filter(p=>!p.querySelector('img')).map(p=>p.text.trim()).filter(Boolean).filter(t=>t!==r.title && !norm(md).includes(norm(t)));
+ console.log(r.slug,JSON.stringify({missingImages,missingText}));
+ if(missingImages.length || missingText.length)errors.push(r.slug);
+ if((md.match(/^# /gm)||[]).length!==1) errors.push(r.slug+' title');
+}
+for(const [local] of downloads){if(!fs.existsSync(path.join(root,local)))errors.push(local);}
+console.log('Total assets:',downloads.length,'Errors:',errors);
+process.exitCode=errors.length?1:0;

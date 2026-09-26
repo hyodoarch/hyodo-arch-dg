@@ -1,0 +1,38 @@
+const fs=require('fs'),path=require('path'),http=require('http');
+const {chromium}=require('C:/Users/hyodo/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const {report}=require('./project-import.json');
+const project=path.resolve(__dirname,'..'), preview=path.join(__dirname,'project-preview');
+const server=http.createServer((req,res)=>{
+ let rel=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
+ if(rel.endsWith('/'))rel+='index.html';
+ let p=path.join(preview,rel);
+ if(rel.startsWith('/styles/') || rel.startsWith('/img/optimized/'))p=path.join(project,'dist',rel);
+ if(!p.startsWith(project+path.sep)||!fs.existsSync(p)){res.writeHead(404);return res.end();}
+ const ext=path.extname(p);res.setHeader('Content-Type',({'.html':'text/html','.css':'text/css','.js':'text/javascript','.svg':'image/svg+xml','.jpg':'image/jpeg','.webp':'image/webp','.png':'image/png'})[ext]||'application/octet-stream');fs.createReadStream(p).pipe(res);
+});
+(async()=>{
+ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+ const browser=await chromium.launch({headless:true,channel:'msedge'});
+ const page=await browser.newPage();let failures=[];
+ for(const width of [1280,390]){
+  await page.setViewportSize({width,height:900});
+  for(const r of report){
+   await page.goto(`http://127.0.0.1:${server.address().port}/projects/${r.slug}/`,{waitUntil:'networkidle'});
+   await page.locator('main img').evaluateAll(imgs=>imgs.forEach(i=>i.loading='eager'));
+   await page.waitForFunction(()=>[...document.querySelectorAll('main img')].every(i=>i.complete));
+   const stats=await page.evaluate(()=>({
+    title:document.querySelector('main h1')?.textContent,
+    headings:document.querySelectorAll('main h1').length,
+    broken:[...document.querySelectorAll('main img')].filter(i=>!i.naturalWidth).map(i=>i.src),
+    overflow:document.documentElement.scrollWidth>innerWidth,
+    floats:[...document.querySelectorAll('main .image-captions-left,main .image-captions-right')].map(f=>({float:getComputedStyle(f).float,width:f.getBoundingClientRect().width})),
+    grids:document.querySelectorAll('main .image-grid-captions').length
+   }));
+   console.log(width,r.slug,JSON.stringify(stats));
+   if(stats.headings!==1||stats.broken.length||stats.overflow)failures.push([width,r.slug,stats]);
+   if(['kitaurawa_cafe','ushibori_dozo'].includes(r.slug))await page.screenshot({path:path.join(__dirname,`review-${r.slug}-${width}.png`),fullPage:true});
+  }
+ }
+ fs.writeFileSync(path.join(__dirname,'browser-check.json'),JSON.stringify(failures,null,2));
+ await browser.close();server.close();if(failures.length)process.exitCode=1;
+})().catch(e=>{console.error(e);server.close();process.exitCode=1;});

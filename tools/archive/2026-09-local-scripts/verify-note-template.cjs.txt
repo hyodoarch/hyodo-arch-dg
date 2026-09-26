@@ -1,0 +1,30 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const {parse}=require('node-html-parser');
+const Eleventy=require('@11ty/eleventy').default;
+(async()=>{
+ const e=new Eleventy('src/site','.cache/note-template-preview',{
+  configPath:'.eleventy.js',
+  config: c=>{
+   for(const [name,props] of [['fallback',{}],['explicit',{title:'指定したタイトル'}],['properties',{'dg-note-properties':{title:'プロパティのタイトル'}}],['empty',{tags:['note']}]] ){
+    c.addTemplate('notes/'+name+'.md','# {{ title }}\n\n{% noteTags %}\n\n本文です。\n',{tags:['note','古民家リノベーション','建築/木造'],...props, permalink:'/__check/'+name+'/', layout:'layouts/note.njk'});
+   }
+  }
+ });
+ const pages=await e.toJSON();
+ // gardenEntry would force a home permalink, so fixtures use note tags only below.
+ const fixtures=pages.filter(p=>/\/(fallback|explicit|properties|empty)\.md$/.test(p.inputPath));
+ assert.equal(fixtures.length,4);
+ for(const item of fixtures){
+  const name=item.inputPath.split('/').pop().replace('.md','');
+  const doc=parse(item.content), main=doc.querySelector('main');
+  const expected={fallback:'fallback',explicit:'指定したタイトル',properties:'プロパティのタイトル',empty:'empty'}[name];
+  assert.equal(main.querySelector('h1').text,expected);
+  assert.equal(main.querySelectorAll('header h1, header .header-tags').length,0);
+  assert.equal(main.querySelectorAll('.note-tags a').length,name==='empty'?0:2);
+  assert.equal(main.querySelectorAll('.note-tags a a').length,0);
+  if(name!=='empty')assert.equal(main.querySelectorAll('.note-tags a')[1].getAttribute('href'),'/tags/建築-木造/');
+ }
+ console.log('PASS: title fallback, explicit/property title, linked tags, hidden internal tags, empty tags, no duplicate header or nested links.');
+})().catch(e=>{console.error(e);process.exitCode=1;});
+

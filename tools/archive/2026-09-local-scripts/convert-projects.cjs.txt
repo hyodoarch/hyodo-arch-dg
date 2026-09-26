@@ -1,0 +1,98 @@
+const fs = require('fs');
+const path = require('path');
+const {parse} = require('node-html-parser');
+const root = path.resolve(__dirname, '../..');
+const temp = process.env.TEMP;
+const items = [
+ ['honbasu','新築住宅','honbasu'],['tozuka','新築住宅','tozuka'],
+ ['yamashita','マンションリノベーション','yamashita'],['hanno','マンションリノベーション','hanno'],
+ ['kasukabe','戸建てリノベーション','kasukabe'],['kowashi','戸建てリノベーション','kowashi'],
+ ['ushibori_dozo','古民家リノベーション','old-houses'],['ushibori_omoya','古民家リノベーション','old-houses'],
+ ['kitaurawa_cafe','店舗・オフィス','nekoradio'],['sherry','店舗・オフィス','sherry']
+];
+const index = parse(fs.readFileSync(path.join(temp,'hyodo-projects.html'),'utf8'));
+const downloads = new Map();
+const report = [];
+function clean(s) { return s.replace(/\r/g,'').replace(/[\t ]+/g,' ').trim(); }
+function inline(n) {
+ if(n.nodeType === 3) return n.text;
+ if(n.tagName === 'BR') return '\n';
+ const text = (n.childNodes || []).map(inline).join('');
+ if(n.tagName === 'A' && !n.querySelector('img')) return `[${text}](<${new URL(n.getAttribute('href'), 'https://www.hyodo-arch.com/').href}>)`;
+ if(['STRONG','B'].includes(n.tagName)) return `**${text}**`;
+ return text;
+}
+for (const [slug, category, folder] of items) {
+ const raw = fs.readFileSync(path.join(temp,slug+'.html'),'utf8');
+ const doc = parse(raw.replace(/<br\s*\/?>(?=[^<>]*")/gi, ' '));
+ const articleRaw=raw.split('<article>')[1].split('</article>')[0];
+ // Legacy pages include unclosed section tags; normalize section boundaries first.
+ const sections=articleRaw.split(/<section[^>]*>/).slice(1).map(s=>'<section>'+s.replace(/<\/section>/g,'')+'</section>');
+ const article = parse('<article>'+sections.join('')+'</article>').querySelector('article');
+ const title = article.querySelector('h1').text.trim();
+ const firstH1 = article.querySelector('h1'); firstH1.remove();
+ const images = article.querySelectorAll('img');
+ function imagePath(img) {
+   const src = img.getAttribute('src');
+   const local = `images/${folder}/${path.basename(src)}`;
+   const url = new URL(src,'https://www.hyodo-arch.com/').href;
+   if(downloads.has(local) && downloads.get(local)!==url) throw Error('Image collision '+local);
+   downloads.set(local,url);
+   return local;
+ }
+ function img(n,extra='') {return `![[${imagePath(n)}${extra}]]`;}
+ function convert(n) {
+   if(n.nodeType === 3 || ['SCRIPT','STYLE'].includes(n.tagName)) return '';
+   if(n.tagName === 'IMG') return img(n)+'\n\n';
+   if(n.tagName === 'A' && n.querySelector('img')) return img(n.querySelector('img'))+'\n\n';
+   if(/^H[1-6]$/.test(n.tagName)) return '#'.repeat(Math.max(2,Number(n.tagName[1])))+' '+clean(inline(n))+'\n\n';
+   if(n.tagName === 'P') return n.querySelector('img') ? n.childNodes.map(convert).join('') : clean(inline(n))+'\n\n';
+   if(n.tagName === 'LI') return '- '+clean(inline(n))+'\n';
+   if(n.tagName === 'DT') return '- **'+clean(inline(n))+'**：';
+   if(n.tagName === 'DD') return clean(inline(n))+'\n';
+   return (n.childNodes||[]).map(convert).join('');
+ }
+ let blocks=[]; let floats=0; let grids=0;
+ const hero = images[0];
+ for(const section of article.querySelectorAll('section')) {
+   if(section.parentNode !== article) continue;
+   const ims=section.querySelectorAll('img');
+   const cols=section.children.filter(x=>x.tagName==='DIV' && /(?:^|\s)[sml]\d?-col/.test(x.classNames));
+   // Preserve descriptions within their original image columns; otherwise keep full-width prose.
+   if(ims.length>=2 && ims.length<=4 && cols.length===ims.length && cols.every(c=>c.querySelectorAll('img').length===1)) {
+     blocks.push('```image-grid-captions\ncolumns: '+ims.length+'\ngap: 8\n\n'+cols.map(c=>{
+       const im=c.querySelector('img'); const ref=img(im); im.closest('p')?.remove();
+       const caption=convert(c).trim();
+       return caption ? ref.slice(0,-2)+'|'+caption+']]' : ref;
+     }).join('\n')+'\n```');
+     for(const c of cols)c.remove();
+     blocks.push(convert(section).trim());grids++;
+   } else if(ims.length===1 && ims[0]!==hero && cols.length && clean(section.text)) {
+     const im=ims[0]; const col=cols.find(c=>c.querySelectorAll('img').includes(im));
+     if(col) {
+       const align=col.classList.contains('right-col')?'right':'left';
+       blocks.push(img(im,`|${align}|312`)); im.closest('p')?.remove();
+       blocks.push(convert(section).trim(),'<br clear="all">'); floats++;
+     } else blocks.push(convert(section).trim());
+   } else blocks.push(convert(section).trim());
+ }
+ let body=blocks.filter(Boolean).join('\n\n');
+ const heroRef=img(hero);
+ body=body.replace(heroRef,heroRef+'\n\n# {{ title }}\n{% noteTags %}');
+ const card=index.querySelectorAll('a').find(a=>a.getAttribute('href')===`projects/${slug}.html` && a.querySelector('img'));
+ const thumbnail=card?imagePath(card.querySelector('img')):imagePath(hero);
+ const description=clean(raw.match(/<meta name="description" content="([\s\S]*?)"/)[1].replace(/<br\s*\/?>/gi,' '));
+ const target=`${category}/${title}.md`;
+ const meta=`---\ndg-publish: true\ndg-permalink: /projects/${slug}/\nthumbnail: ${JSON.stringify('[['+thumbnail+']]')}\ndescription: ${JSON.stringify(description)}\ntags:\n  - ${category}\norder: ${category==='古民家リノベーション'? (slug==='ushibori_dozo'?20:30) : (items.findIndex(x=>x[0]===slug)%2+1)*10}\nsource-url: https://www.hyodo-arch.com/projects/${slug}.html\n---\n`;
+ fs.mkdirSync(path.dirname(path.join(root,target)),{recursive:true});
+ fs.writeFileSync(path.join(root,target),meta+body+'\n');
+ report.push({slug,title,category,target,images:images.length,grids,floats});
+}
+fs.writeFileSync(path.join(__dirname,'project-import.json'),JSON.stringify({report,downloads:[...downloads]},null,2));
+let curl='';
+for(const [local,url] of downloads) {
+ const target=path.join(root,local); fs.mkdirSync(path.dirname(target),{recursive:true});
+ if(!fs.existsSync(target)) curl+=`url = "${url}"\noutput = "${target.replace(/\\/g,'/')}"\n`;
+}
+fs.writeFileSync(path.join(__dirname,'images.curl'),curl);
+console.log(JSON.stringify(report,null,2));
