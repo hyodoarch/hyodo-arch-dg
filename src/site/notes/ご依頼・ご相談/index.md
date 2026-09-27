@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"dg-permalink":"/ご依頼・ご相談/","permalink":"/ご依頼・ご相談/","title":"ご依頼・ご相談","dg-note-properties":{"order":60,"title":"ご依頼・ご相談"}}
+{"dg-publish":true,"dg-permalink":"/consultation","permalink":"/consultation/","title":"ご依頼・ご相談","dg-note-properties":{"order":60,"title":"ご依頼・ご相談","source-url":"https://www.hyodo-arch.com/consultation/"}}
 ---
 
 # {{ title }}
@@ -15,20 +15,3 @@
 
 - 土地探し、敷地の測量、古家の解体、不動産の売却などについての建築設計の視点からのアドバイス。 
 
-## [[ご依頼・ご相談/設計の流れ\|設計の流れ]]
-
-![設計の流れ サムネイル](/img/user/images/common/flow-IMGP4406.jpg)
-
-ご相談から設計 ― 着工 ― お引き渡しまでの流れを順を追ってご説明します。設計やデザインだけではなく、法律、施工、予算計画等、建築計画に関する全ての相談に応じます。
-
-## [[ご依頼・ご相談/設計料について\|設計料について]]
-
-![設計料について サムネイル](/img/user/images/house/ic-ueda-_IGP1490.jpg)
-
-設計料とは、設計・工事監理料のことで、「設計の流れ」の業務内容が全て含まれています。建物の種類によって設計料が異なりますので、詳しくは下記をご覧ください。ご不明な点は、電話やメールでお問合せください。
-
-## [[ご依頼・ご相談/よくある質問\|よくある質問]]
-
-![よくある質問 サムネイル](/img/user/images/common/faq-f036_15.jpg)
-
-住宅、店舗、オフィス、リノベーションなど、建築設計に関するよくある質問を Q&A 形式にまとめましたので、ご参考にしてください。

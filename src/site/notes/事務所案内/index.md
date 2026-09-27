@@ -2,7 +2,6 @@
 {"dg-publish":true,"dg-permalink":"/office_info","permalink":"/office_info/","title":"事務所案内","dg-note-properties":{"order":70,"title":"事務所案内"}}
 ---
 
-# {{ title }}
 
 ![images/common/profile-IMGP4364.jpg](/img/user/images/common/profile-IMGP4364.jpg)
 
