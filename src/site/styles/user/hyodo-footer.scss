@@ -60,6 +60,29 @@ body:not(:has(.content.canvas-page)) {
         }
       }
     }
+
+    @media (width < 1000px) {
+      box-sizing: border-box;
+      padding-inline: 9px;
+
+      .hyodo-office-info a.hyodo-phone-button {
+        display: inline-block;
+        box-sizing: border-box;
+        padding: 2px 10px;
+        border: 1px solid #4e6799;
+        border-radius: 6px;
+        background: transparent;
+        color: #4e6799;
+        font: inherit;
+        text-decoration: none;
+
+        &:hover { background: rgba(78, 103, 153, 0.08); }
+        &:focus-visible { outline: 2px solid #4e6799; outline-offset: 3px; }
+      }
+
+      .graph { align-self: flex-start; }
+      .sidebar-container:has(> .graph) > .graph { justify-self: start; }
+    }
   }
 }
 
