@@ -303,9 +303,9 @@ body:not(:has(.content.canvas-page)) {
     // 画像の親要素には余白を設けず、文章だけに余白を付ける。
     > header,
     > :is(h1, h2, h3, h4, h5, h6, p, blockquote) {
-      padding-inline: 16px;
+      padding-inline: 9px;
     }
-    > :is(ul, ol) { margin-inline: 16px; }
+    > :is(ul, ol) { margin-inline: 9px; }
     > p:has(> picture:only-child),
     > p:has(> img:only-child),
     > p:has(> a:only-child > img:only-child),
@@ -315,7 +315,7 @@ body:not(:has(.content.canvas-page)) {
       > picture, > img, > picture > img { width: 100%; }
     }
     > p > picture, > p > img, > p > picture > img { width: 100%; }
-    .image-captions-caption { padding-inline: 16px; }
+    .image-captions-caption { padding-inline: 9px; }
   }
 }
 
