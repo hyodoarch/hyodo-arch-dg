@@ -1,0 +1,63 @@
+// Mobile controls float independently; the transparent space stays interactive.
+@media (width < 1000px) {
+  body:not(.no-filetree):has(.hyodo-mobile-navbar) {
+    --hyodo-mobile-top: max(12px, env(safe-area-inset-top));
+    --hyodo-mobile-side: 15px;
+    padding-bottom: 0;
+
+    > main.content {
+      padding-top: calc(var(--hyodo-mobile-top) + 48px + 15px);
+    }
+
+    .hyodo-contact-dock {
+      top: var(--hyodo-mobile-top);
+      left: max(var(--hyodo-mobile-side), env(safe-area-inset-left));
+      right: auto;
+      bottom: auto;
+      padding: 0;
+    }
+
+    .navbar.hyodo-mobile-navbar {
+      top: var(--hyodo-mobile-top);
+      right: max(var(--hyodo-mobile-side), env(safe-area-inset-right));
+      left: auto;
+      width: 48px;
+      height: 48px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      z-index: 12;
+      pointer-events: none;
+    }
+
+    .hyodo-mobile-menu {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      width: 48px;
+      height: 48px;
+      min-height: 48px;
+      margin: 0;
+      padding: 0;
+      border: 1px solid #ddd;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.65);
+      color: #444;
+      box-shadow: 0 2px 8px #0002;
+      cursor: pointer;
+      pointer-events: auto;
+      &:hover { background: rgba(245, 245, 245, 0.8); }
+      &:focus-visible { outline: 2px solid #526f2c; outline-offset: 3px; }
+    }
+
+    .filetree-sidebar {
+      padding-top: calc(var(--hyodo-mobile-top) + 48px + 15px);
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
+    }
+  }
+}
+@media print {
+  body .hyodo-mobile-navbar { display: none; }
+}
