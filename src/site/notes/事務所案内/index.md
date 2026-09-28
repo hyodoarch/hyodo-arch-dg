@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"dg-permalink":"/office_info","permalink":"/office_info/","title":"事務所案内","dg-note-properties":{"order":70,"title":"事務所案内"}}
+{"dg-publish":true,"dg-permalink":"/office_info","permalink":"/office_info/","title":"事務所案内","dg-note-properties":{"order":1010,"title":"事務所案内"}}
 ---
 
 

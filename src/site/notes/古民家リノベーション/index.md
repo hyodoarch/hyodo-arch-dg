@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"dg-permalink":"/old_house/","permalink":"/old_house/","title":"古民家リノベーション","dg-note-properties":{"order":40,"title":"古民家リノベーション","project-list":"古民家リノベーション"}}
+{"dg-publish":true,"dg-permalink":"/old_house/","permalink":"/old_house/","title":"古民家リノベーション","dg-note-properties":{"order":1040,"title":"古民家リノベーション","project-list":"古民家リノベーション"}}
 ---
 
 # {{ title }}

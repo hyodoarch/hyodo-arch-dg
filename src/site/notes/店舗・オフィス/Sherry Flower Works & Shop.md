@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"dg-permalink":"/projects/sherry/","permalink":"/projects/sherry/","tags":["店舗・オフィス"],"dg-note-properties":{"thumbnail":"[[images/sherry/ic_sherry_gDSC04563.jpg]]","description":"埼玉県川口市に計画したフラワー・スタジオです。花材が華やかに見えるようにモノトーンを基調としました。1階が花卉の販売、2階がフラワースタジオになっています。","tags":["店舗・オフィス"],"order":20,"source-url":"https://www.hyodo-arch.com/projects/sherry.html"}}
+{"dg-publish":true,"dg-permalink":"/projects/sherry/","permalink":"/projects/sherry/","tags":["店舗・オフィス"],"dg-note-properties":{"thumbnail":"[[images/sherry/ic_sherry_gDSC04563.jpg]]","description":"埼玉県川口市に計画したフラワー・スタジオです。花材が華やかに見えるようにモノトーンを基調としました。1階が花卉の販売、2階がフラワースタジオになっています。","tags":["店舗・オフィス"],"order":50,"source-url":"https://www.hyodo-arch.com/projects/sherry.html"}}
 ---
 
 ![images/sherry/sherry-11_g20240202_044036133_iOS.jpg](/img/user/images/sherry/sherry-11_g20240202_044036133_iOS.jpg)

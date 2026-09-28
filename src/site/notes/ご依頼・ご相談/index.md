@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"dg-permalink":"/consultation","permalink":"/consultation/","title":"ご依頼・ご相談","dg-note-properties":{"order":60,"title":"ご依頼・ご相談","source-url":"https://www.hyodo-arch.com/consultation/"}}
+{"dg-publish":true,"dg-permalink":"/consultation","permalink":"/consultation/","title":"ご依頼・ご相談","dg-note-properties":{"order":1020,"title":"ご依頼・ご相談","source-url":"https://www.hyodo-arch.com/consultation/"}}
 ---
 
 # {{ title }}
