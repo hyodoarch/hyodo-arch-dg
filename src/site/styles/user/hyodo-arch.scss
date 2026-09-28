@@ -67,9 +67,31 @@ body:not(:has(.content.canvas-page)) {
       line-height: 1.8;
     }
     p { margin-block: 0 18px; }
-    // 本文と同じ文字サイズ。表・ヘッダー・交互行を透明にし、文字色は維持。
+    // Obsidianと同じ回り込み・リスト間隔。テーマの黄色いマーカーを解除。
+    --list-marker-color: #ababab;
+    --list-marker-color-hover: #ababab;
+    :is(ul, ol) {
+      display: flow-root;
+      clear: none;
+      margin-block: 0;
+      padding-inline-start: 0;
+      color: inherit;
+      > li {
+        margin-inline-start: 3ch;
+        padding-block: 0.075em;
+        color: inherit;
+        &::marker { color: var(--list-marker-color); }
+      }
+      :is(ul, ol) > li { margin-inline-start: var(--list-indent); }
+    }
+    :is(p, ul, ol):has(+ :is(table, .table-wrapper)) {
+      margin-bottom: 14px;
+    }
+    .table-wrapper { margin: 0; padding: 0; }
+    // 本文と同じ文字サイズ。背景は透明のまま、ヘッダー文字を明色から戻す。
     table {
       font-size: inherit;
+      margin-top: 0;
       border: 0;
       background: transparent;
       :is(thead, tbody, tfoot, tr, th, td) {
@@ -77,6 +99,13 @@ body:not(:has(.content.canvas-page)) {
         background: transparent;
       }
       :is(th, td) { font-size: inherit; }
+      th { color: #222; }
+      // セル内の明示的な改行にだけ、通常の行間へ0.5emを加える。
+      td br {
+        display: block;
+        content: "";
+        margin-bottom: 0.5em;
+      }
     }
     figcaption { margin-top: 0; }
     // 画像の段落には下余白を付けない。インライン画像のベースライン余白も除く。
@@ -107,6 +136,10 @@ body:not(:has(.content.canvas-page)) {
     h1 { font-size: 20px !important; margin-block: 6px 6px; }
     h2 { font-size: 16px !important; margin-block: 5px 6px; }
     h3 { font-size: 14px !important; margin-block: 4px 3px; }
+    figure:is(.image-captions-left, .image-captions-right) + :is(h1, h2, h3) {
+      margin-top: 0;
+      padding-top: 0;
+    }
     div.note-tags { margin-bottom: 9px; }
     // 無聊写記の記事タイトル下のタグに合わせる。
     div.note-tags a.tag {
