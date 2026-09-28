@@ -92,6 +92,7 @@ body:not(:has(.content.canvas-page)) {
     table {
       font-size: inherit;
       margin-top: 0;
+      margin-bottom: 32px;
       border: 0;
       background: transparent;
       :is(thead, tbody, tfoot, tr, th, td) {
