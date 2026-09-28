@@ -29,7 +29,7 @@ body main.content .folder-note-body {
   .folder-note-description { margin: 0; overflow-wrap: anywhere; }
 }
 @media (max-width: 674px) {
-  body main.content .folder-note-list { margin-inline: 16px; }
+  body main.content .folder-note-list { margin-left: 0; margin-right: 9px; }
   body main.content .folder-note-card {
     grid-template-columns: minmax(0, 23.125%) minmax(0, 1fr);
     gap: 2.5%;
