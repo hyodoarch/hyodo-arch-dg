@@ -108,6 +108,12 @@
         overflow-wrap: normal;
         line-height: 1.8;
       }
+      // 8px indent + 1px guide + 15px padding = the folder label's 24px offset.
+      .filelist {
+        margin-left: 8px;
+        border-left: 1px solid #ccc;
+        > .notelink > .filename { padding-left: 15px; }
+      }
       .foldername-wrapper {
         display: flex;
         gap: 0;
