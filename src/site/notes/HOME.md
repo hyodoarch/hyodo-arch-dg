@@ -8,7 +8,7 @@ autoplay: true
 speed: 1000
 autoPlayDuration: 3000
 nav: true
-arrow: ture
+arrow: true
 
 ![[images/top/top-IMGP0361.jpg]]
 ![[images/top/h-kurume-04_DSC01363.jpg]]
