@@ -139,6 +139,11 @@ body:not(:has(.content.canvas-page)) {
     h1 { font-size: 20px !important; margin-block: 6px 6px; }
     h2 { font-size: 16px !important; margin-block: 5px 6px; }
     h3 { font-size: 14px !important; margin-block: 4px 3px; }
+    // 一覧の先頭見出しをサムネイル上端に揃える（PC・モバイル共通）。
+    .folder-note-body > :is(h1, h2, h3):first-child {
+      margin-top: 0;
+      padding-top: 0;
+    }
     figure:is(.image-captions-left, .image-captions-right) + :is(h1, h2, h3) {
       margin-top: 0;
       padding-top: 0;
