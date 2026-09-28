@@ -17,7 +17,7 @@ it('uses the real Digital Garden Markdown, link and picture pipeline', async () 
   require('../../../.eleventy.js')(config);
   const source = '![[images/top/yamate_IGP0510a.jpg|See <<HOME|home>>|right|405]]\n\n' +
     '```image-grid-captions\ncolumns: 2\n![[images/top/yamate_IGP0510a.jpg|## A "quoted" & <caption> #tag\n本文 <script>x</script> #tag\n\n第二段落\n]]\n![[images/top/yamate_IGP0510a.jpg|### 材料]]\n```';
-  let html = '<main class="cm-s-obsidian">' + md.render(source) + '</main>';
+  let html = '<main class="cm-s-obsidian">' + md.render(source + '\n\n```slideshow\n![[images/top/yamate_IGP0510a.jpg]]\n```') + '</main>';
   html = filters.get('taggify')(filters.get('link')(html));
   const context = { page: { inputPath: 'src/site/notes/test.md', outputPath: 'test.html' } };
   for (const name of ['dataview-js-links', 'picture']) html = await transforms.get(name).call(context, html);
@@ -26,6 +26,8 @@ it('uses the real Digital Garden Markdown, link and picture pipeline', async () 
   expect(result.querySelector('.image-captions-figure img').getAttribute('width')).toBe('405');
   expect(result.querySelectorAll('.image-grid-captions figure')).toHaveLength(2);
   expect(result.querySelectorAll('.image-grid-captions picture img')).toHaveLength(2);
+  expect(result.querySelectorAll('.dg-slideshow picture img')).toHaveLength(1);
+  expect(result.querySelector('.dg-slideshow__slide').getAttribute('aria-hidden')).toBe('false');
   expect(result.querySelector('.image-grid-captions img').getAttribute('alt')).toBe('A "quoted" & <caption> #tag 本文 <script>x</script> #tag 第二段落');
   expect(result.querySelector('.image-grid-captions figcaption a')).toBeNull();
   expect(result.querySelector('.image-grid-captions figcaption h2').text).toBe('A "quoted" & <caption> #tag');

@@ -3,6 +3,7 @@ function userMarkdownSetup(md) {
   // Feel free to add any plugin you want here instead of /.eleventy.js
   md.use(require('./imageCaptions').imageCaptions);
   md.use(require('./imageGridCaptions').imageGridCaptions);
+  md.use(require('./slideshow'));
 }
 function userEleventySetup(eleventyConfig) {
   const { noteTags } = require('./noteTemplate');
