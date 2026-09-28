@@ -1,5 +1,12 @@
 <nav class="navbar hyodo-mobile-navbar" aria-label="モバイルメニュー">
-  <button class="hyodo-mobile-menu" type="button" aria-label="メニューを開閉" :aria-expanded="showFilesMobile.toString()" @click="showFilesMobile=!showFilesMobile" @keydown.escape.window="showFilesMobile=false">
-    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+  {% if settings.dgEnableSearch === true %}
+  <button class="hyodo-mobile-search" type="button" x-show="showFilesMobile" style="display: none;" aria-label="検索を開く" @click="toggleSearch()">
+    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+    <span>検索</span>
+  </button>
+  {% endif %}
+  <button class="hyodo-mobile-menu" type="button" aria-label="メニューを開く" :aria-label="showFilesMobile ? 'メニューを閉じる' : 'メニューを開く'" :aria-expanded="showFilesMobile.toString()" @click="showFilesMobile=!showFilesMobile" @keydown.escape.window="showFilesMobile=false">
+    <svg x-show="!showFilesMobile" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    <svg x-show="showFilesMobile" style="display: none;" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m6 6 12 12M18 6 6 18"/></svg>
   </button>
 </nav>

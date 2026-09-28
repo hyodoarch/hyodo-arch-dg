@@ -30,7 +30,8 @@
       top: var(--hyodo-mobile-top);
       right: max(var(--hyodo-mobile-side), env(safe-area-inset-right));
       left: auto;
-      width: 36px;
+      width: auto;
+      gap: 8px;
       height: 36px;
       padding: 0;
       border: 0;
@@ -40,7 +41,8 @@
       pointer-events: none;
     }
 
-    .hyodo-mobile-menu {
+    .hyodo-mobile-menu,
+    .hyodo-mobile-search {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -62,7 +64,24 @@
       &:focus-visible { outline: 2px solid #526f2c; outline-offset: 3px; }
     }
 
+    .hyodo-mobile-search {
+      width: auto;
+      padding: 0 12px;
+      gap: 6px;
+      border-radius: 18px;
+      font: 14px/20px "Yu Mincho", "游明朝", serif;
+    }
+
+    .filetree-wrapper {
+      width: min(266px, 100vw);
+      min-width: 0;
+      background: rgba(255, 255, 255, 0.85);
+    }
+
     .filetree-sidebar {
+      width: 100%;
+      background: transparent;
+      > .search-button { display: none; }
       padding-top: calc(var(--hyodo-mobile-top) + 36px + 7px);
       padding-bottom: max(16px, env(safe-area-inset-bottom));
     }
