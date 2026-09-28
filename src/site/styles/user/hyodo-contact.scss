@@ -14,19 +14,20 @@ body .hyodo-contact-button {
   justify-content: center;
   gap: 12px;
   box-sizing: border-box;
-  width: 180px;
+  width: 160px;
+  margin-left: auto;
   min-height: 48px;
   pointer-events: auto;
   padding: 0 20px;
-  border: 1px solid #526f2c;
-  border-radius: 6px;
-  background: rgba(82, 111, 44, 0.8);
+  border: none;
+  border-radius: 24px;
+  background: rgba(79, 183, 67, 0.8);
   color: #fff;
   font: 15px/1.5 "Yu Mincho", "游明朝", serif;
   text-decoration: none;
   box-shadow: 0 2px 8px #0002;
   &:visited { color: #fff; }
-  &:hover, &:focus-visible { color: #fff; background: rgba(82, 111, 44, 0.95); text-decoration: none; }
+  &:hover, &:focus-visible { color: #fff; background: rgba(79, 183, 67, 0.95); text-decoration: none; }
   &:focus-visible { outline: 3px solid #222; outline-offset: 3px; }
   svg { flex-shrink: 0; }
 }
