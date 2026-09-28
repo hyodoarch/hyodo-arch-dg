@@ -5,7 +5,9 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const md = require('markdown-it')();
 require('../../src/helpers/userSetup').userMarkdownSetup(md);
 const source = '```slideshow\n![[images/top/yamate_IGP0510a.jpg]]\n![[images/top/yamate_IGP0510a.jpg|2枚目]]\n```';
-const html = md.render(source + '\n\n' + source + '\n\n```slideshow\n![[images/top/yamate_IGP0510a.jpg]]\n```\n\n```javascript\nconst x = 1;\n```');
+const configured = source.replace('slideshow\n', 'slideshow\nautoplay: true\nspeed: 250\nautoPlayDuration: 4200\nnav: true\narrow: true\n');
+const hiddenAutoplay = source.replace('slideshow\n', 'slideshow\nautoplay: true\n');
+const html = md.render([configured, source, '```slideshow\n![[images/top/yamate_IGP0510a.jpg]]\n```', hiddenAutoplay, source.replace('slideshow\n', 'slideshow\nnav: true\n'), source.replace('slideshow\n', 'slideshow\narrow: true\n'), '```javascript\nconst x = 1;\n```'].join('\n\n'));
 (async () => {
   const browser = await chromium.launch({ channel: process.env.BROWSER_CHANNEL || 'msedge', headless: true });
   try {
@@ -19,34 +21,60 @@ const html = md.render(source + '\n\n' + source + '\n\n```slideshow\n![[images/t
     });
     await page.goto('http://slideshow.test/');
     await page.addStyleTag({ path: 'dist/styles/user/slideshow.css' });
-    await page.clock.install();
+    const clockStart = new Date('2026-09-28T00:00:00Z');
+    await page.clock.install({ time: clockStart });
+    await page.clock.pauseAt(clockStart);
     await page.addScriptTag({ path: 'src/site/scripts/slideshow.js' });
     const first = page.locator('.dg-slideshow').nth(0), second = page.locator('.dg-slideshow').nth(1);
     const active = root => root.locator('.is-active').getAttribute('aria-label');
-    assert.equal(await first.locator('button').count(), 5);
+    const hidden = page.locator('.dg-slideshow').nth(3);
+    assert.equal(await first.locator('button').count(), 4);
+    assert.equal(await second.locator('button').count(), 0);
+    assert.equal(await hidden.locator('button').count(), 0);
+    assert.equal(await page.locator('.dg-slideshow').nth(4).locator('button').count(), 2);
+    assert.equal(await page.locator('.dg-slideshow').nth(5).locator('button').count(), 2);
+    assert.equal(await page.getByRole('button', { name: '自動再生の切替' }).count(), 0);
+    assert.equal(await first.locator('.dg-slideshow__slide').first().evaluate(el => getComputedStyle(el).transitionDuration), '0.25s');
+    assert.equal(await second.locator('.dg-slideshow__slide').first().evaluate(el => getComputedStyle(el).transitionDuration), '1s');
     assert.equal(await page.locator('.dg-slideshow').nth(2).locator('button').count(), 0);
     await page.mouse.move(0, 0);
-    await page.clock.fastForward(5100);
+    await page.clock.runFor(2999);
+    assert.equal(await active(first), '1 / 2'); assert.equal(await active(hidden), '1 / 2');
+    await page.clock.runFor(1);
+    assert.equal(await active(hidden), '2 / 2');
+    await page.clock.runFor(1199); assert.equal(await active(first), '1 / 2');
+    await page.clock.runFor(1);
     assert.equal(await active(first), '2 / 2');
+    assert.equal(await active(second), '1 / 2');
     await first.getByRole('button', { name: '次の画像', exact: true }).click();
-    assert.equal(await active(first), '1 / 2'); assert.equal(await active(second), '2 / 2');
+    assert.equal(await active(first), '1 / 2'); assert.equal(await active(second), '1 / 2');
     await first.getByRole('button', { name: '画像 2 を表示' }).click();
     assert.equal(await active(first), '2 / 2');
     await page.keyboard.press('ArrowLeft'); assert.equal(await active(first), '1 / 2');
-    await first.getByRole('button', { name: '自動再生の切替' }).click();
-    await page.locator('body').click({ position: { x: 1, y: 1 } }); await page.mouse.move(0, 0);
+    // Focus/hover pause playback while controls are being used.
     await page.clock.fastForward(10000); assert.equal(await active(first), '1 / 2');
+    await page.evaluate(() => document.activeElement.blur()); await page.mouse.move(0, 0);
+    await page.clock.runFor(0); await page.clock.fastForward(4200);
+    assert.equal(await active(first), '2 / 2');
     // Dispatch touch pointers to test swipe threshold and direction.
     await first.locator('.dg-slideshow__stage').evaluate(stage => {
       stage.setPointerCapture = () => {};
       stage.dispatchEvent(new PointerEvent('pointerdown', { pointerType: 'touch', pointerId: 1, clientX: 200, clientY: 100 }));
       stage.dispatchEvent(new PointerEvent('pointerup', { pointerType: 'touch', pointerId: 1, clientX: 80, clientY: 110 }));
     });
-    assert.equal(await active(first), '2 / 2');
+    assert.equal(await active(first), '1 / 2');
+    await page.clock.fastForward(4200); assert.equal(await active(first), '1 / 2');
+    // Navigation-free blocks remain keyboard-operable.
+    await second.focus(); await page.keyboard.press('ArrowRight'); assert.equal(await active(second), '2 / 2');
+    await page.clock.fastForward(5000); assert.equal(await active(second), '2 / 2');
+    await page.evaluate(() => {
+      window.reducedReady = new Promise(resolve => matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', resolve, { once: true }));
+    });
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.waitForFunction(() => document.querySelector('.dg-slideshow__controls > button').disabled);
-    await page.clock.fastForward(10000); assert.equal(await active(first), '2 / 2');
-    assert.equal(await first.getByRole('button', { name: '自動再生の切替' }).isDisabled(), true);
+    await page.evaluate(() => window.reducedReady.then(() => true));
+    const reducedSlide = await active(hidden);
+    await page.clock.fastForward(3000); assert.equal(await active(hidden), reducedSlide);
+    assert.equal(await first.locator('.dg-slideshow__slide').first().evaluate(el => getComputedStyle(el).transitionDuration), '0s');
     fs.mkdirSync('.cache/slideshow', { recursive: true });
     for (const width of [1440, 390]) {
       await page.setViewportSize({ width, height: 1000 });
@@ -56,6 +84,6 @@ const html = md.render(source + '\n\n' + source + '\n\n```slideshow\n![[images/t
     }
     assert.equal(await page.locator('pre').innerText(), 'const x = 1;\n');
     assert.deepEqual(errors, []);
-    console.log('PASS: autoplay, independent blocks, buttons/dots/keyboard, pause, swipe, reduced motion, single image, desktop/mobile, images, code blocks');
+    console.log('PASS: five settings/defaults, independent blocks, interval/speed, optional navigation, keyboard, focus/hover pause, swipe stops autoplay, reduced motion, single image, desktop/mobile, images, code blocks');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

@@ -4,16 +4,15 @@
   clear: both;
   margin: 1rem 0;
   &__stage { position: relative; aspect-ratio: 3 / 2; overflow: hidden; background: #f3f3f3; touch-action: pan-y; }
-  &__slide { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 650ms ease; }
+  &__slide { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity var(--dg-slideshow-speed, 1000ms) ease; }
   &__slide.is-active { opacity: 1; pointer-events: auto; }
   &__slide picture { display: block; width: 100%; height: 100%; }
   &__slide img { display: block; width: 100% !important; height: 100% !important; max-width: 100%; object-fit: contain; margin: 0 !important; float: none !important; }
   button { cursor: pointer; min-width: 44px; min-height: 44px; border: 0; border-radius: 4px; background: #fff; color: #222; }
   button:focus-visible { outline: 2px solid #285b9d; outline-offset: 2px; }
-  &__previous, &__next { position: absolute; top: calc(50% - 44px); font-size: 28px; opacity: .85; }
+  &__previous, &__next { position: absolute; top: 50%; transform: translateY(-50%); font-size: 28px; opacity: .85; }
   &__previous { left: 8px; }
   &__next { right: 8px; }
-  &__controls { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px; }
   &__dots { display: flex; flex-wrap: wrap; justify-content: center; }
   &__dots button { position: relative; background: transparent; }
   &__dots button::after { content: ''; display: block; width: 8px; height: 8px; border-radius: 50%; background: #bbb; margin: auto; }
@@ -21,4 +20,4 @@
   &__error { overflow-wrap: anywhere; }
 }
 @media (prefers-reduced-motion: reduce) { .dg-slideshow__slide { transition: none; } }
-@media print { .dg-slideshow { &__controls, &__previous, &__next { display: none; } } }
+@media print { .dg-slideshow { &__dots, &__previous, &__next { display: none; } } }
