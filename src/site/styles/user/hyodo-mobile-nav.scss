@@ -1,12 +1,12 @@
 // Mobile controls float independently; the transparent space stays interactive.
 @media (width < 1000px) {
   body:not(.no-filetree):has(.hyodo-mobile-navbar) {
-    --hyodo-mobile-top: max(12px, env(safe-area-inset-top));
+    --hyodo-mobile-top: max(7px, env(safe-area-inset-top));
     --hyodo-mobile-side: 15px;
     padding-bottom: 0;
 
     > main.content {
-      padding-top: calc(var(--hyodo-mobile-top) + 48px + 15px);
+      padding-top: calc(var(--hyodo-mobile-top) + 36px + 7px);
     }
 
     .hyodo-contact-dock {
@@ -17,12 +17,21 @@
       padding: 0;
     }
 
+    .hyodo-contact-button {
+      width: auto;
+      min-height: 36px;
+      padding: 8px 16px;
+      gap: 8px;
+      line-height: 20px;
+      border-radius: 18px;
+    }
+
     .navbar.hyodo-mobile-navbar {
       top: var(--hyodo-mobile-top);
       right: max(var(--hyodo-mobile-side), env(safe-area-inset-right));
       left: auto;
-      width: 48px;
-      height: 48px;
+      width: 36px;
+      height: 36px;
       padding: 0;
       border: 0;
       background: transparent;
@@ -36,9 +45,9 @@
       align-items: center;
       justify-content: center;
       box-sizing: border-box;
-      width: 48px;
-      height: 48px;
-      min-height: 48px;
+      width: 36px;
+      height: 36px;
+      min-height: 36px;
       margin: 0;
       padding: 0;
       border: 1px solid #ddd;
@@ -46,6 +55,7 @@
       background: rgba(255, 255, 255, 0.65);
       color: #444;
       box-shadow: 0 2px 8px #0002;
+      svg { width: 18px; height: 18px; }
       cursor: pointer;
       pointer-events: auto;
       &:hover { background: rgba(245, 245, 245, 0.8); }
@@ -53,7 +63,7 @@
     }
 
     .filetree-sidebar {
-      padding-top: calc(var(--hyodo-mobile-top) + 48px + 15px);
+      padding-top: calc(var(--hyodo-mobile-top) + 36px + 7px);
       padding-bottom: max(16px, env(safe-area-inset-bottom));
     }
   }
