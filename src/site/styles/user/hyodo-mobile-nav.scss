@@ -79,6 +79,9 @@
     }
 
     .filetree-sidebar {
+      box-sizing: border-box;
+      padding-left: 15px;
+      padding-right: 0;
       width: 100%;
       background: transparent;
       > .search-button { display: none; }
