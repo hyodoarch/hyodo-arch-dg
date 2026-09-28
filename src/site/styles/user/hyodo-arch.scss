@@ -88,7 +88,7 @@ body:not(:has(.content.canvas-page)) {
       margin-bottom: 14px;
     }
     .table-wrapper { margin: 0; padding: 0; }
-    // 本文と同じ文字サイズ。背景は透明のまま、ヘッダー文字を明色から戻す。
+    // 本文と同じ文字サイズ・透明背景。Webでは表見出しを表示しない。
     table {
       font-size: inherit;
       margin-top: 0;
@@ -99,7 +99,9 @@ body:not(:has(.content.canvas-page)) {
         background: transparent;
       }
       :is(th, td) { font-size: inherit; }
-      th { color: #222; }
+      // Markdownのヘッダーは行ごと隠し、空の行も残さない。
+      // HTMLで直接記述されたthも同じ方針にする。
+      thead, th { display: none; }
       // セル内の明示的な改行にだけ、通常の行間へ0.5emを加える。
       td br {
         display: block;
