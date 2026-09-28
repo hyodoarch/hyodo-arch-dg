@@ -27,8 +27,9 @@ function noteCards(items) {
   return items
     .map(item => {
       const rawOrder = property(item.data, 'order');
-      const order = rawOrder !== '' && rawOrder != null && Number.isFinite(Number(rawOrder))
-        ? Number(rawOrder) : Infinity;
+      const order = (typeof rawOrder === 'number' ||
+        (typeof rawOrder === 'string' && rawOrder.trim() !== '')) && Number.isFinite(Number(rawOrder))
+        ? Number(rawOrder) : -Infinity;
       return {
         title: noteTitle({...item.data, page: item.data.page || {inputPath: item.filePathStem + '.md'}}),
         url: item.url,
@@ -37,7 +38,7 @@ function noteCards(items) {
         order,
       };
     })
-    .sort((a, b) => a.order - b.order || a.title.localeCompare(b.title, 'ja'));
+    .sort((a, b) => b.order - a.order || a.title.localeCompare(b.title, 'ja'));
 }
 
 function folderNotes(data) {

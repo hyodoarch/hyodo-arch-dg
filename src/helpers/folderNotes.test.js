@@ -17,10 +17,15 @@ describe('category index', () => {
   it('reads metadata, orders numerically and falls back to the filename', () => {
     const notes = [item('最後'), item('二番', {order: '20'}), item('一番', {order: 10, title: '別タイトル', description: '段落1\n\r\n段落2'})];
     const result = folderNotes(page(notes));
-    expect(result.map(n=>n.title)).toEqual(['別タイトル','二番','最後']);
-    expect(result[0].description).toBe('段落1 段落2');
+    expect(result.map(n=>n.title)).toEqual(['二番','別タイトル','最後']);
+    expect(result[1].description).toBe('段落1 段落2');
     notes[2].data['dg-note-properties'].description = '更新後';
-    expect(folderNotes(page(notes))[0].description).toBe('更新後');
+    expect(folderNotes(page(notes))[1].description).toBe('更新後');
+  });
+  it('sorts descending with zero and negatives, keeps invalid values last and titles ascending on ties', () => {
+    const notes = [item('え', {order: ' '}), item('あ', {order: 2}), item('い', {order: '2'}),
+      item('zero', {order: 0}), item('negative', {order: -1}), item('う'), item('お', {order: false})];
+    expect(folderNotes(page(notes)).map(n => n.title)).toEqual(['あ', 'い', 'zero', 'negative', 'う', 'え', 'お']);
   });
   it('supports local wiki thumbnails and rejects unsafe URL schemes', () => {
     expect(thumbnailUrl('[[images/sekiguchi/ic-sugito_IGP3086.jpg]]')).toBe('/img/user/images/sekiguchi/ic-sugito_IGP3086.jpg');

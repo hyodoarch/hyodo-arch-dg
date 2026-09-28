@@ -13,6 +13,37 @@ function makeNote(filePathStem, data = {}) {
 }
 
 describe("filetreeUtils", () => {
+  describe("ordinary note order", () => {
+    const notes = (tree) => Object.keys(tree).filter(key => tree[key].isNote && key !== 'index.md');
+
+    it("sorts numeric values before missing or invalid orders, with Japanese title ties", () => {
+      const tree = getFileTree({ collections: { note: [
+        makeNote('/works/index', { order: -100 }),
+        makeNote('/works/z', { order: '2', title: 'あ' }),
+        makeNote('/works/a', { order: 10 }),
+        makeNote('/works/tie', { order: 2, title: 'い' }),
+        makeNote('/works/zero', { order: 0 }),
+        makeNote('/works/negative', { 'dg-note-properties': { order: -1 } }),
+        makeNote('/works/missing', { title: 'う' }),
+        makeNote('/works/invalid', { order: 'bad', title: 'え' }),
+        makeNote('/works/blank', { order: ' ', title: 'お' }),
+      ] } });
+      expect(notes(tree.works)).toEqual(['a.md', 'z.md', 'tie.md', 'zero.md', 'negative.md', 'missing.md', 'invalid.md', 'blank.md']);
+    });
+
+    it("applies recursively, overrides navigation and pinning, and preserves folder slots", () => {
+      const tree = getFileTree({ collections: { note: [
+        makeNote('/works/first', { order: 1 }),
+        makeNote('/works/last', { order: 20, pinned: true }),
+        makeNote('/works/sub/index', { order: 5 }),
+        makeNote('/works/sub/a', { order: 10 }),
+        makeNote('/works/sub/z', { order: 1 }),
+      ] }, navigationOrder: { '/works': ['last', 'sub', 'first'] } });
+      expect(Object.keys(tree.works).filter(key => key !== 'isFolder')).toEqual(['last.md', 'sub', 'first.md']);
+      expect(notes(tree.works.sub)).toEqual(['a.md', 'z.md']);
+    });
+  });
+
   describe("folder index order", () => {
     const folders = (tree) => Object.keys(tree).filter((key) => tree[key].isFolder);
 
@@ -27,7 +58,7 @@ describe("filetreeUtils", () => {
         makeNote('/missing/child', { order: -100 }),
         makeNote('/infinite/index', { order: Infinity }),
       ] } });
-      expect(folders(tree)).toEqual(['zero', 'z', 'a', 'blank', 'bool', 'infinite', 'invalid', 'missing']);
+      expect(folders(tree)).toEqual(['a', 'z', 'zero', 'blank', 'bool', 'infinite', 'invalid', 'missing']);
     });
 
     it("applies nested index metadata, breaks ties by name, and overrides navigation folder order only", () => {
@@ -37,9 +68,9 @@ describe("filetreeUtils", () => {
         makeNote('/parent/z/index', { order: -1 }),
         makeNote('/parent/ordinary'),
       ] }, navigationOrder: { '/parent': ['b', 'ordinary', 'a', 'z'] } });
-      expect(folders(tree.parent)).toEqual(['z', 'a', 'b']);
+      expect(folders(tree.parent)).toEqual(['a', 'b', 'z']);
       expect(Object.keys(tree.parent).filter(key => key !== 'isFolder'))
-        .toEqual(['z', 'ordinary.md', 'a', 'b']);
+        .toEqual(['a', 'ordinary.md', 'b', 'z']);
     });
   });
 

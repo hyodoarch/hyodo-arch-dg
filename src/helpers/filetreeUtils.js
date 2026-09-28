@@ -1,3 +1,5 @@
+const { noteTitle } = require('./noteTemplate');
+
 // Natural sort comparison - handles numbers anywhere in the string
 const naturalCompare = (a, b) => {
   const aLower = a.toLowerCase();
@@ -77,17 +79,32 @@ const sortTree = (unsorted, navigationOrder, currentPath) => {
 
   // Folder order belongs to its index note. Keep ordinary note positions intact.
   const folderKeys = orderedKeys.filter((key) => unsorted[key].isFolder);
-  const folderOrder = (key) => unsorted[key]["index.md"]?.order ?? Infinity;
+  const folderOrder = (key) => unsorted[key]["index.md"]?.order ?? -Infinity;
   if (folderKeys.some((key) => Number.isFinite(folderOrder(key)))) {
     folderKeys.sort((a, b) => {
       const aOrder = folderOrder(a);
       const bOrder = folderOrder(b);
-      return aOrder === bOrder ? naturalCompare(a, b) : aOrder < bOrder ? -1 : 1;
+      return aOrder === bOrder ? naturalCompare(a, b) : aOrder > bOrder ? -1 : 1;
     });
     let folderIndex = 0;
     orderedKeys = orderedKeys.map((key) =>
       unsorted[key].isFolder ? folderKeys[folderIndex++] : key
     );
+  }
+
+  // Sort ordinary notes within their existing slots, leaving folders and index
+  // notes in place. Explicit numeric order takes precedence over navigationOrder
+  // and pinned positions; folders without note orders keep the legacy ordering.
+  const isOrderedNote = (key) => unsorted[key].isNote && key !== 'index.md';
+  const noteKeys = orderedKeys.filter(isOrderedNote);
+  if (noteKeys.some((key) => Number.isFinite(unsorted[key].order))) {
+    noteKeys.sort((a, b) => {
+      const aOrder = unsorted[a].order ?? -Infinity;
+      const bOrder = unsorted[b].order ?? -Infinity;
+      return bOrder - aOrder || unsorted[a].sortTitle.localeCompare(unsorted[b].sortTitle, 'ja');
+    });
+    let noteIndex = 0;
+    orderedKeys = orderedKeys.map((key) => isOrderedNote(key) ? noteKeys[noteIndex++] : key);
   }
 
   const orderedTree = orderedKeys.reduce((obj, key) => {
@@ -157,11 +174,13 @@ function getPermalinkMeta(note, key) {
     //ignore
   }
 
-  const rawOrder = note.data.order ?? note.data["dg-note-properties"]?.order;
+  const rawOrder = note.data["dg-note-properties"]?.order ?? note.data.order;
   const order = (typeof rawOrder === "number" ||
     (typeof rawOrder === "string" && rawOrder.trim() !== "")) &&
     Number.isFinite(Number(rawOrder)) ? Number(rawOrder) : undefined;
-  return [{ permalink, name, noteIcon, hide, pinned, order }, folders];
+  const sortTitle = noteTitle({ ...note.data,
+    page: note.data.page || { inputPath: note.filePathStem + '.md' } });
+  return [{ permalink, name, noteIcon, hide, pinned, order, sortTitle }, folders];
 }
 
 function assignNested(obj, keyPath, value) {
