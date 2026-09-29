@@ -66,14 +66,13 @@ body:not(:has(.content.canvas-page)) {
       font-size: 14px !important;
       line-height: 1.8;
     }
-    p { margin-block: 0 18px; }
+    :is(p, ul, ol) { margin-block: 0 18px; }
     // Obsidianと同じ回り込み・リスト間隔。テーマの黄色いマーカーを解除。
     --list-marker-color: #ababab;
     --list-marker-color-hover: #ababab;
     :is(ul, ol) {
       display: flow-root;
       clear: none;
-      margin-block: 0;
       padding-inline-start: 0;
       color: inherit;
       > li {
@@ -82,6 +81,7 @@ body:not(:has(.content.canvas-page)) {
         color: inherit;
         &::marker { color: var(--list-marker-color); }
       }
+      :is(ul, ol) { margin-block: 0; }
       :is(ul, ol) > li { margin-inline-start: var(--list-indent); }
     }
     :is(p, ul, ol):has(+ :is(table, .table-wrapper)) {
