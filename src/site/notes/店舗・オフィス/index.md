@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"dg-permalink":"/店舗・オフィス/","permalink":"/店舗・オフィス/","title":"店舗・オフィス","dg-note-properties":{"order":1030,"title":"店舗・オフィス","project-list":"店舗・オフィス"}}
+{"dg-publish":true,"dg-permalink":"/shop-office/","permalink":"/shop-office/","title":"店舗・オフィス","dg-note-properties":{"order":1030,"title":"店舗・オフィス","project-list":"店舗・オフィス"}}
 ---
 
 # {{ title }}
