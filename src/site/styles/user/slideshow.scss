@@ -2,7 +2,7 @@
   position: relative;
   width: 100%;
   clear: both;
-  margin: 1rem 0;
+  margin: 0 0 1rem;
   &__stage { position: relative; aspect-ratio: 3 / 2; overflow: hidden; background: #f3f3f3; touch-action: pan-y; }
   &__slide { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity var(--dg-slideshow-speed, 1000ms) ease; }
   &__slide.is-active { opacity: 1; pointer-events: auto; }
@@ -10,14 +10,35 @@
   &__slide img { display: block; width: 100% !important; height: 100% !important; max-width: 100%; object-fit: contain; margin: 0 !important; float: none !important; }
   button { cursor: pointer; min-width: 44px; min-height: 44px; border: 0; border-radius: 4px; background: #fff; color: #222; }
   button:focus-visible { outline: 2px solid #285b9d; outline-offset: 2px; }
-  &__previous, &__next { position: absolute; top: 50%; transform: translateY(-50%); font-size: 28px; opacity: .85; }
+  &__previous, &__next { display: none; position: absolute; top: 50%; transform: translateY(-50%); font-size: 28px; }
   &__previous { left: 8px; }
   &__next { right: 8px; }
   &__dots { display: flex; flex-wrap: wrap; justify-content: center; }
-  &__dots button { position: relative; background: transparent; }
-  &__dots button::after { content: ''; display: block; width: 8px; height: 8px; border-radius: 50%; background: #bbb; margin: auto; }
-  &__dots button[aria-current=true]::after { background: #333; }
+  // 36px centers leave 24px between the 12px circles; keep a 44px-tall hit area.
+  .dg-slideshow__dots button {
+    position: relative;
+    flex: 0 0 36px;
+    width: 36px;
+    min-width: 36px;
+    height: 44px;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  &__dots button::after { content: ''; display: block; width: 12px; height: 12px; border-radius: 50%; background: #bbb; margin: auto; }
+  &__dots button[aria-current=true]::after { background: #739e39; }
   &__error { overflow-wrap: anywhere; }
+}
+@media (hover: hover) and (pointer: fine) {
+  .dg-slideshow {
+    &__previous, &__next { display: inline-flex; opacity: 0; pointer-events: none; }
+    &__stage:hover, &:focus-within {
+      .dg-slideshow__previous, .dg-slideshow__next { opacity: .85; pointer-events: auto; }
+    }
+  }
 }
 @media (prefers-reduced-motion: reduce) { .dg-slideshow__slide { transition: none; } }
 @media print { .dg-slideshow { &__dots, &__previous, &__next { display: none; } } }

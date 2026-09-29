@@ -23,7 +23,7 @@ arrow: false
 | speed | 1000 | フェード時間（ミリ秒）。0は瞬時切替 |
 | autoPlayDuration | 3000 | 切替開始から次の切替開始までの時間（ミリ秒） |
 | nav | false | 下部ドットの表示 |
-| arrow | false | 左右ボタンの表示 |
+| arrow | false | 左右ボタンを有効化（マウスで画像にホバー中・キーボードフォーカス中のみ表示。タッチ端末では非表示） |
 
 真偽値は小文字のtrue/false、時間は整数（speedは0以上、autoPlayDurationは1以上、いずれも2147483647以下）。不明な設定・重複・不正な値はエラー表示します。speedが間隔以上だとフェード途中で次の切替が始まるので、通常は間隔より短く指定します。
 
@@ -38,5 +38,7 @@ arrow: false
 Obsidian DG Publishとの互換対応は、Vaultの `.obsidian/plugins/digitalgarden/main.js` にある既存画像収集を `hyodoCodeBlockImagePaths` としてグリッドと共用。使用中画像の保持・アップロード・重複排除・ハッシュ比較を既存処理に任せ、コードブロック本文は維持します。DG更新で消えるローカル修正のため、同ディレクトリの `local-patches/` の差分とテストを保管してください。実Publishは公開操作になるため今回実行しません。反映にはObsidian再起動またはDG再読み込みが必要です。
 
 2026-09-28の設定対応・一時停止ボタン削除はサイト側だけの変更です。Obsidianプラグインは変更していないため、この更新のためのObsidian再起動は不要です。既存の画像収集は設定行を読み飛ばします。
+
+2026-09-29：タッチ端末では左右矢印を非表示にし、横スワイプまたはドットのタップで切り替えます。ドットは直径12px、円の端から端まで24px（中心間36px）、現在の画像は本文リンクと同じ緑色 `#739e39`、その他は `#bbb`。四角い背景・枠・影は表示せず、透明な操作領域とキーボードのフォーカス表示を残します。狭い幅では折り返します。スライドショーの上marginは0、下marginは従来の1remです。
 
 検証: `npm test`、`npm run build`、`node tools/local-verification/check-slideshow.cjs`。最後のコマンドは `PLAYWRIGHT_MODULE` にPlaywrightの場所を設定して実行します。

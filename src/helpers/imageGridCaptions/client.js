@@ -15,11 +15,15 @@ function getLightbox(doc) {
     overlay.hidden = true;
     const image = doc.createElement("img");
     image.className = "image-grid-captions__lightbox-image";
+    const updateOrientation = ()=>{
+        overlay.classList.toggle("is-landscape", image.naturalWidth > image.naturalHeight && image.naturalHeight > 0);
+    };
+    image.addEventListener("load", updateOrientation);
     const closeButton = doc.createElement("button");
     closeButton.className = "image-grid-captions__lightbox-close";
     closeButton.type = "button";
     closeButton.setAttribute("aria-label", "拡大表示を閉じる");
-    closeButton.textContent = "×";
+    closeButton.innerHTML = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m6 6 12 12M18 6 6 18"/></svg>';
     overlay.append(image, closeButton);
     doc.body.append(overlay);
     let trigger = null;
@@ -50,8 +54,10 @@ function getLightbox(doc) {
         open (source, sourceTrigger) {
             trigger = sourceTrigger;
             previousOverflow = doc.body.style.overflow;
+            overlay.classList.remove("is-landscape");
             image.src = source.src;
             image.alt = source.alt;
+            if (image.complete) updateOrientation();
             overlay.hidden = false;
             doc.body.style.overflow = "hidden";
             closeButton.focus();

@@ -321,6 +321,8 @@ body:not(:has(.content.canvas-page)) {
     }
     > p > picture, > p > img, > p > picture > img { width: 100%; }
     .image-captions-caption { padding-inline: 9px; }
+    .image-grid-captions__caption { padding-left: 9px; }
+    > div.note-tags { margin-left: 9px; }
   }
 }
 

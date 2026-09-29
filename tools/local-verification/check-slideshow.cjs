@@ -46,6 +46,7 @@ const html = md.render([configured, source, '```slideshow\n![[images/top/yamate_
     await page.clock.runFor(1);
     assert.equal(await active(first), '2 / 2');
     assert.equal(await active(second), '1 / 2');
+    await first.locator('.dg-slideshow__stage').hover();
     await first.getByRole('button', { name: '次の画像', exact: true }).click();
     assert.equal(await active(first), '1 / 2'); assert.equal(await active(second), '1 / 2');
     await first.getByRole('button', { name: '画像 2 を表示' }).click();
