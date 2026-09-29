@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const matter = require('gray-matter');
+const { syncCommonImages } = require('./common-images.cjs');
 const YAML = require(require.resolve('js-yaml', { paths: [require.resolve('gray-matter')] }));
 const project = path.resolve(__dirname, '..');
 const notes = path.join(project, 'src/site/notes');
@@ -19,7 +20,15 @@ function* files(dir) {
 }
 
 function sync() {
-  if (!fs.existsSync(path.join(vault, '.obsidian'))) return;
+  try {
+    if (!fs.existsSync(path.join(vault, '.obsidian'))) throw new Error('Set DG_VAULT_PATH to an Obsidian vault before syncing.');
+    for (const image of syncCommonImages(project, vault)) console.log('[vault-sync] ' + image);
+  } catch (error) {
+    console.error('[vault-sync] ' + error.message);
+    if (!process.argv.includes('--watch')) process.exitCode = 1;
+    return;
+  }
+  if (process.argv.includes('--common-only')) return;
   for (const target of files(notes)) {
     const relative = path.relative(notes, target);
     const source = path.join(vault, relative);

@@ -4,10 +4,12 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "prebuild": "rimraf dist",
+        "prebuild": "node tools/common-images.cjs && rimraf dist",
         "dev": "npm-run-all get-theme sync:vault build:sass --parallel watch:*",
         "dev:local": "npm-run-all sync:vault build:sass --parallel watch:*",
         "sync:vault": "node tools/sync-vault.cjs",
+        "sync:common": "node tools/sync-vault.cjs --common-only",
+        "check:common-images": "node tools/common-images.cjs",
         "watch:vault": "node tools/sync-vault.cjs --watch",
         "watch:sass": "sass --watch src/site/styles:dist/styles",
         "watch:eleventy": "cross-env ELEVENTY_ENV=dev eleventy --serve",
