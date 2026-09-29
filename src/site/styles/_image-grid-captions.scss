@@ -68,11 +68,13 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0.35rem;
-  border: 1px solid rgb(255 255 255 / 45%);
+  border: 0;
   border-radius: 50%;
-  color: #fff;
-  background: rgb(0 0 0 / 62%);
-  box-shadow: 0 1px 5px rgb(0 0 0 / 35%);
+  color: rgb(92 92 92 / 85%);
+  background: rgb(255 255 255 / 80%);
+  backdrop-filter: blur(6px);
+  box-shadow: none;
+  outline: none;
   cursor: zoom-in;
   opacity: 0;
   pointer-events: none;
@@ -93,7 +95,10 @@
   pointer-events: auto;
 }
 :is(.image-captions-figure, .image-grid-captions__item) > .image-grid-captions__zoom:is(:hover, :focus-visible) {
-  background: rgb(0 0 0 / 82%);
+  color: #5c5c5c;
+  background: rgb(255 255 255 / 80%);
+}
+:is(.image-captions-figure, .image-grid-captions__item) > .image-grid-captions__zoom:focus-visible {
   outline: 2px solid currentcolor;
   outline-offset: 2px;
 }
