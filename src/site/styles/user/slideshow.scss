@@ -35,7 +35,7 @@
 @media (hover: hover) and (pointer: fine) {
   .dg-slideshow {
     &__previous, &__next { display: inline-flex; opacity: 0; pointer-events: none; }
-    &__stage:hover, &:focus-within {
+    &__stage:hover {
       .dg-slideshow__previous, .dg-slideshow__next { opacity: .85; pointer-events: auto; }
     }
   }

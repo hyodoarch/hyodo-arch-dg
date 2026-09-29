@@ -47,10 +47,14 @@ const html = md.render([configured, source, '```slideshow\n![[images/top/yamate_
     assert.equal(await active(first), '2 / 2');
     assert.equal(await active(second), '1 / 2');
     await first.locator('.dg-slideshow__stage').hover();
+    assert.equal(await first.locator('.dg-slideshow__next').evaluate(el => getComputedStyle(el).opacity), '0.85');
     await first.getByRole('button', { name: '次の画像', exact: true }).click();
     assert.equal(await active(first), '1 / 2'); assert.equal(await active(second), '1 / 2');
+    await page.mouse.move(0, 0);
+    assert.equal(await first.locator('.dg-slideshow__next').evaluate(el => getComputedStyle(el).opacity), '0');
     await first.getByRole('button', { name: '画像 2 を表示' }).click();
     assert.equal(await active(first), '2 / 2');
+    assert.equal(await first.locator('.dg-slideshow__next').evaluate(el => getComputedStyle(el).opacity), '0');
     await page.keyboard.press('ArrowLeft'); assert.equal(await active(first), '1 / 2');
     // Focus/hover pause playback while controls are being used.
     await page.clock.fastForward(10000); assert.equal(await active(first), '1 / 2');
