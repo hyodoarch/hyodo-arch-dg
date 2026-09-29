@@ -58,6 +58,18 @@ function imageCaptions(md, options = {}) {
     return true;
   });
   const originalImage = md.renderer.rules.image;
+  md.renderer.rules.image = (tokens, idx, opts, env, self) => {
+    const token = tokens[idx];
+    const alias = publishedAlias(token) ?? token.content;
+    if (!alias.trimStart().startsWith('++')) return originalImage(tokens, idx, opts, env, self);
+    const parsed = parseImageCaption(alias.trimStart().slice(2), token.attrGet('src'), undefined, undefined, settings);
+    const clone = Object.assign(Object.create(Object.getPrototypeOf(token)), token);
+    clone.attrs = token.attrs.map(attr => [...attr]);
+    clone.children = [{ type: 'text', content: parsed.caption.replace(/(?:^|\|)(left|center|right)(?=\||$)/g, '').trim() }];
+    if (parsed.width) clone.attrSet('width', parsed.width);
+    if (parsed.height) clone.attrSet('height', parsed.height);
+    return originalImage([clone], 0, opts, env, self);
+  };
   md.renderer.rules.image_caption = (tokens, idx, opts, env, self) => {
     const token = tokens[idx];
     const parsed = token.meta.caption;
@@ -94,7 +106,8 @@ function imageCaptions(md, options = {}) {
         if (!token.content || /^\d+(?:x\d+)?$/.test(token.content.trim())) return null;
         // Protect the alias separator inside <<Note|label>> from alignment parsing.
         const aliases = [];
-        const raw = token.content.replace(/<<.*?>>/g, value => { aliases.push(value); return `\uE000${aliases.length - 1}\uE001`; });
+        const altOnly = token.content.trimStart().startsWith('++');
+        const raw = (altOnly ? token.content.trimStart().slice(2) : token.content).replace(/<<.*?>>/g, value => { aliases.push(value); return `\uE000${aliases.length - 1}\uE001`; });
         const result = parseImageCaption(raw, token.attrGet('src'), undefined, undefined,
           { ...settings, enableFilenamePlaceholders: options.captionRegex ? settings.enableFilenamePlaceholders : false });
         if (!options.captionRegex) {
@@ -103,8 +116,10 @@ function imageCaptions(md, options = {}) {
         }
         result.caption = result.caption.replace(/\uE000(\d+)\uE001/g, (_, n) => aliases[Number(n)]);
         result.imageAlt = result.imageAlt.replace(/\uE000(\d+)\uE001/g, (_, n) => aliases[Number(n)]);
-        if (!result.caption && result.alignment) result.imageAlt = '';
-        return result.caption || result.alignment ? result : null;
+        result.imageAlt = result.caption;
+        result.altOnly = altOnly;
+        if (altOnly) result.caption = '';
+        return result.caption || result.alignment || altOnly ? result : null;
       });
       // Match Quartz: only replace paragraphs consisting entirely of captioned images.
       if (parsed.some(p => !p)) continue;

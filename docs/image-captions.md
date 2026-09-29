@@ -52,3 +52,13 @@ npm run build
 ブラウザスクリプトの共通コードを変更したら `node tools/build-image-grid-client.js` を実行する。両機能のfixtureは `IMAGE_CAPTIONS_FIXTURE=true` のときだけ出力される。通常ビルドではテスト用ページやテスト用画像を公開しない。
 
 Image Captionsは `src/helpers/imageCaptions/`、Image Grid Captionsは `src/helpers/imageGridCaptions/` に実装。各ディレクトリのLICENSEを保持する。画像最適化時の引用符などによる属性破損を防ぐため、`.eleventy.js` のpicture生成時にHTML属性をエスケープしている。
+
+## altとキャプション（2026-09-29）
+
+- `![[image.jpg|HOGEHOGE]]`：従来どおり表示し、画像altにもHOGEHOGEを設定。
+- `![[image.jpg|++HOGEHOGE]]`：altのみ。先頭の`++`とキャプションは出力しない。
+- Image Captionsは`![[image.jpg|++HOGEHOGE|left|317]]`の配置・幅指定も維持。
+- Image Grid Captionsの通常キャプションは表示を変えず、altだけ先頭行から見出し・強調・コード・リンク等のMarkdown記号を除去する。複数行の説明全文はaltに入れない。
+- グリッドでも`![[image.jpg|++アイランド・キッチン]]`はaltのみ。キャプション未指定時のファイル名altは従来どおり。`++`だけの場合は空alt。
+- エスケープされた記号は文字として扱う。本文途中の`++`は従来どおり文字として表示する。
+- グリッドの表示は既存仕様（H2/H3と段落、その他のインライン記法は文字表示）を維持。

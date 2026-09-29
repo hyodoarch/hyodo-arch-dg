@@ -28,7 +28,7 @@ it('uses the real Digital Garden Markdown, link and picture pipeline', async () 
   expect(result.querySelectorAll('.image-grid-captions picture img')).toHaveLength(2);
   expect(result.querySelectorAll('.dg-slideshow picture img')).toHaveLength(1);
   expect(result.querySelector('.dg-slideshow__slide').getAttribute('aria-hidden')).toBe('false');
-  expect(result.querySelector('.image-grid-captions img').getAttribute('alt')).toBe('A "quoted" & <caption> #tag 本文 <script>x</script> #tag 第二段落');
+  expect(result.querySelector('.image-grid-captions img').getAttribute('alt')).toBe('A "quoted" & <caption> #tag');
   expect(result.querySelector('.image-grid-captions figcaption a')).toBeNull();
   expect(result.querySelector('.image-grid-captions figcaption h2').text).toBe('A "quoted" & <caption> #tag');
   expect(result.querySelector('.image-grid-captions figcaption h3').text).toBe('材料');

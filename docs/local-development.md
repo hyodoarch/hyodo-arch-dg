@@ -22,16 +22,16 @@ GitHubがDGの共有元。Vaultの元ノート・画像はDropboxで同期し、
 - 公開確認：`npm test`、`npm run build`。buildはdistを削除・再生成し、設定されたテーマを取得する。同期はbuild自体には含まれない。
 - ソース差分を確認してcommitし、依頼された公開は `git push origin main`。Cloudflareの該当コミット成功と実サイトを確認する。
 
-`src/site/notes/` と `src/site/img/user/` は公開用入力としてGit管理する。`dist/`、`node_modules/`、生成テーマCSS、`.cache/` は通常Gitへ入れない。`.cache/` に独自資料があるときは保存要否を調べてから整理する。
+`src/site/notes/` と `src/site/img/` は公開用入力としてGit管理する。`dist/`、`node_modules/`、生成テーマCSS、`.cache/` は通常Gitへ入れない。`.cache/` に独自資料があるときは保存要否を調べてから整理する。
 
 ## テンプレート用の共通画像
 
-バナーなどノート本文に登場しない画像は `tools/common-images.json` にVault相対パスで登録する。現在は事務所バナー・Instagram・くらしの道具・無聊写記の4画像。元画像はVaultの `images/common/`、公開入力はcloneの `src/site/img/user/images/common/` に置き、公開入力もGit管理する。
+バナーなどノート本文に登場しない画像は `tools/common-images.json` にVault相対パスで登録する。現在は事務所バナー・Instagram・くらしの道具・無聊写記の4画像。元画像はVaultの `images/common/`、公開入力はcloneの `src/site/img/`直下 に置き、公開入力もGit管理する。公開URLは `/img/ファイル名`。登録一覧はVault相対パスのままとし、同期時にファイル名を使って配置する。`img/user/` はDGプラグインの未使用画像削除対象のため、テンプレート用4画像を置かない。
 
 - `npm run sync:vault` と監視処理は、登録した共通画像もコピー・更新する。
 - `DG_VAULT_PATH` を設定して `npm run sync:common` を実行すると、ノートを変更せず共通画像だけを同期する。
 - 元画像が欠けている場合はエラーになり、公開入力を削除しない。全登録画像の存在を確認してからコピーする。
-- `npm run check:common-images` は公開入力の欠落・空ファイルと、テンプレート内の `/img/user/images/common/` 参照の登録漏れを検出する。新しい共通画像を追加したら一覧と画像を一緒にGitへ保存する。
+- `npm run check:common-images` は公開入力の欠落・空ファイルと、テンプレート内の `/img/ファイル名` 参照の登録漏れと、旧 `/img/user/images/common/` 参照の残存を検出する。新しい共通画像を追加したら一覧と画像を一緒にGitへ保存する。
 - `npm run build` は開始時に同じ検証を実行し、欠落時はdistを削除する前に停止する。VaultがないCloudflareでもGit管理された公開入力だけで検証できる。
 - `DG-Publish.cmd` はVault同期を実行しない。画像差し替え後は先に `npm run sync:common` を実行してから公開する。公開時のbuildでも欠落検証が実行される。ObsidianのDGプラグインPublishは現運用では使わない。
 

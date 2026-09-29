@@ -14,9 +14,9 @@ function fixture() {
   const image = 'images/common/banner.png';
   const write = (file, data) => { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, data); };
   write(path.join(project, 'tools/common-images.json'), JSON.stringify([image]));
-  write(path.join(project, 'src/site/_includes/sidebar.njk'), `<img src="/img/user/${image}">`);
+  write(path.join(project, 'src/site/_includes/sidebar.njk'), `<img src="/img/${path.basename(image)}">`);
   write(path.join(vault, image), 'original-image');
-  return { project, vault, image, write, output: path.join(project, 'src/site/img/user', image) };
+  return { project, vault, image, write, output: path.join(project, 'src/site/img', path.basename(image)) };
 }
 it('copies template-only images without notes and updates only changed files', () => {
   const { project, vault, image, output, write } = fixture();
@@ -47,8 +47,8 @@ it('blocks missing or empty public images without requiring a vault', () => {
 it('requires newly referenced template images to be registered', () => {
   const { project, vault, write } = fixture();
   syncCommonImages(project, vault);
-  write(path.join(project, 'src/site/_includes/nested/new.njk'), '<img src="/img/user/images/common/new.png">');
-  write(path.join(project, 'src/site/img/user/images/common/new.png'), 'new-image');
+  write(path.join(project, 'src/site/_includes/nested/new.njk'), '<img src="/img/new.png">');
+  write(path.join(project, 'src/site/img/new.png'), 'new-image');
   expect(() => checkCommonImages(project)).toThrow('Register template images');
 });
 it('rejects malformed and escaping manifest paths', () => {
@@ -57,4 +57,23 @@ it('rejects malformed and escaping manifest paths', () => {
     write(path.join(project, 'tools/common-images.json'), JSON.stringify(manifest));
     expect(() => syncCommonImages(project, vault)).toThrow('Invalid');
   }
+});
+
+it('does not recreate plugin-managed copies, and old copies cannot satisfy the check', () => {
+  const { project, vault, image, output, write } = fixture();
+  const old = path.join(project, 'src/site/img/user', image);
+  syncCommonImages(project, vault);
+  expect(fs.existsSync(old)).toBe(false);
+  fs.unlinkSync(output);
+  write(old, 'obsolete-copy');
+  expect(() => checkCommonImages(project)).toThrow('Missing or empty');
+  syncCommonImages(project, vault);
+  expect(fs.readFileSync(output, 'utf8')).toBe('original-image');
+  expect(fs.readFileSync(old, 'utf8')).toBe('obsolete-copy');
+});
+it('rejects template links into the plugin-managed common image directory', () => {
+  const { project, vault, image, write } = fixture();
+  syncCommonImages(project, vault);
+  write(path.join(project, 'src/site/_includes/sidebar.njk'), `<img src="/img/user/${image}">`);
+  expect(() => checkCommonImages(project)).toThrow('Use /img/<filename>');
 });

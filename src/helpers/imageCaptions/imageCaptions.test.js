@@ -164,3 +164,42 @@ describe('Digital Garden image adapter and portable layout', () => {
     expect(html.querySelectorAll('.image-grid-captions__error')).toHaveLength(2);
   });
 });
+
+describe('Alt-only captions', () => {
+  it.each(['++HOGEHOGE', '++HOGEHOGE|left|317', '++HOGEHOGE|right|317', '++HOGEHOGE|center|317', '++'])('suppresses captions while retaining alt and layout: %s', alias => {
+    const html = parse(md.render(embed(alias)));
+    expect(html.querySelector('img').getAttribute('alt')).toBe(alias === '++' ? '' : 'HOGEHOGE');
+    expect(html.querySelector('figcaption')).toBeNull();
+    expect(html.toString()).not.toContain('++');
+    if (alias.includes('317')) {
+      expect(html.querySelector('img').getAttribute('width')).toBe('317');
+      expect(html.querySelector('figure').getAttribute('class')).toContain('image-captions-' + alias.split('|')[1]);
+    }
+    const label = (path + '|' + alias).replace(/\|/g, '\\|');
+    expect(md.render(`![${label}](${resolveImage(path)})`)).toBe(md.render(embed(alias)));
+  });
+  it.each(['HOGEHOGE', 'HOGEHOGE|left|317'])('uses caption text without layout controls as alt: %s', alias => {
+    const html = parse(md.render(embed(alias)));
+    expect(html.querySelector('img').getAttribute('alt')).toBe('HOGEHOGE');
+    expect(html.querySelector('figcaption').text).toBe('HOGEHOGE');
+  });
+  it('does not leak ++ in inline or mixed paragraphs', () => {
+    for (const text of ['本文 ' + embed('++説明|left|317'), embed('++説明') + '\n' + embed('405')]) {
+      const html = parse(md.render(text));
+      expect(html.querySelector('img').getAttribute('alt')).toBe('説明');
+      expect(html.toString()).not.toContain('++');
+      expect(html.querySelector('figure')).toBeNull();
+    }
+  });
+  it.each([
+    ['## アイランド・キッチン\n\n説明です。', 'アイランド・キッチン', true],
+    ['++アイランド・キッチン', 'アイランド・キッチン', false],
+    ['**外観** と `木材`\n説明です。', '外観 と 木材', true],
+    ['++', '', false],
+  ])('grid alt extraction: %s', (caption, alt, visible) => {
+    const html = parse(md.render(grid(2).replace('|外観', '|' + caption)));
+    expect(html.querySelector('img').getAttribute('alt')).toBe(alt);
+    expect(Boolean(html.querySelector('figcaption'))).toBe(visible);
+    expect(html.toString()).not.toContain('++');
+  });
+});

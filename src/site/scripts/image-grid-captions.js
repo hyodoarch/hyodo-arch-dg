@@ -30,6 +30,23 @@ function parseCaptionBlocks(value) {
     flush();
     return blocks;
 }
+function captionAlt(value) {
+  const line = value.trim().split(/\r?\n/, 1)[0];
+  // Protect escaped punctuation so literal Markdown remains literal.
+  const escaped = [];
+  return line.replace(/\\([!"#$%&'()*+,\-./:;<=>?@[\]^_`{|}~\\])/g, (_, char) => {
+    escaped.push(char); return `\uE000${escaped.length - 1}\uE001`;
+  })
+    .replace(/^\s*(?:>\s*)+/, "")
+    .replace(/^#{1,6}\s+/, "").replace(/\s+#+\s*$/, "")
+    .replace(/^(?:[-+*]|\d+[.)])\s+/, "")
+    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/(\*\*|__|~~|==|`+)(.*?)\1/g, "$2")
+    .replace(/([*_])([^*_]+)\1/g, "$2")
+    .replace(/\uE000(\d+)\uE001/g, (_, n) => escaped[Number(n)])
+    .trim();
+}
+
 function parseGrid(source) {
     const params = new Map();
     const images = [];
@@ -48,14 +65,17 @@ function parseGrid(source) {
             const parts = line.slice(3, -2).split("|");
             if (parts.length > 2) throw new Error("Additional image parameters are not supported.");
             const path = parts[0].trim();
-            const caption = parts[1]?.trim() ?? "";
+            const rawCaption = parts[1]?.trim() ?? "";
+      const altOnly = rawCaption.startsWith("++");
+      const caption = altOnly ? "" : rawCaption;
+      const altText = altOnly ? rawCaption.slice(2).trim() : caption;
             if (!path || /[:#?\[\]\\\r\n]/.test(path) || path.startsWith("/") || !/\.(png|jpe?g|webp|gif|bmp|avif|svg)$/i.test(path)) {
                 throw new Error(`Unsupported local image path: ${path}`);
             }
             images.push({
                 path,
                 caption,
-                alt: parseCaptionBlocks(caption).map(block => block.text.replace(/\n/g, " ")).join(" ") || path.split("/").pop()
+                alt: captionAlt(altText) || (altOnly ? "" : path.split("/").pop())
             });
             continue;
         }
