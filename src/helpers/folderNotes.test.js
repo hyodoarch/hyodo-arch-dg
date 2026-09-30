@@ -28,7 +28,7 @@ describe('category index', () => {
     expect(folderNotes(page(notes)).map(n => n.title)).toEqual(['あ', 'い', 'zero', 'negative', 'う', 'え', 'お']);
   });
   it('supports local wiki thumbnails and rejects unsafe URL schemes', () => {
-    expect(thumbnailUrl('[[images/sekiguchi/ic-sugito_IGP3086.jpg]]')).toBe('/img/user/images/sekiguchi/ic-sugito_IGP3086.jpg');
+    expect(thumbnailUrl('[[images/kominka-reno/sekiguchi/ic-sugito_IGP3086.jpg]]')).toBe('/img/user/images/kominka-reno/sekiguchi/ic-sugito_IGP3086.jpg');
     expect(thumbnailUrl('![photo](https://example.com/photo.jpg)')).toBe('https://example.com/photo.jpg');
     expect(thumbnailUrl('javascript:alert(1)')).toBe('');
     expect(thumbnailUrl(undefined)).toBe('');

@@ -18,11 +18,11 @@ describe('tag indexes without index.md', () => {
   });
   it('uses the same metadata and numeric order as category cards, and reflects updates', () => {
     const notes = [item('A/末尾', '古民家'), item('B/最初', '古民家', {
-      order: '10', title: '別タイトル', thumbnail: '[[images/sekiguchi/ic-sugito_IGP3086.jpg]]', description: '説明\n続き',
+      order: '10', title: '別タイトル', thumbnail: '[[images/kominka-reno/sekiguchi/ic-sugito_IGP3086.jpg]]', description: '説明\n続き',
     })];
     const cards = tagNotes(page(notes));
     expect(cards.map(n => n.title)).toEqual(['別タイトル', '末尾']);
-    expect(cards[0]).toMatchObject({ thumbnail: '/img/user/images/sekiguchi/ic-sugito_IGP3086.jpg', description: '説明 続き' });
+    expect(cards[0]).toMatchObject({ thumbnail: '/img/user/images/kominka-reno/sekiguchi/ic-sugito_IGP3086.jpg', description: '説明 続き' });
     notes[1].data['dg-note-properties'].tags = ['別タグ'];
     expect(tagNotes(page(notes))).toHaveLength(1);
   });

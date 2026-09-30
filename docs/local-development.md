@@ -7,18 +7,18 @@ GitHubがDGの共有元。Vaultの元ノート・画像はDropboxで同期し、
 1. GitHubから通常cloneする。既存フォルダを上書きしない。
 2. package.json指定のNode.js 22.xを用意し、`node --version` を確認する。
 3. リポジトリのルートで `npm ci` を実行する。
-4. PowerShellで `$env:DG_VAULT_PATH = 'そのPCのVault絶対パス'` を設定する。`.obsidian` を含むVaultルートを指定する。
+4. テンプレート共通画像の同期が必要な場合だけ、PowerShellで `$env:DG_VAULT_PATH = 'そのPCのVault絶対パス'` を設定する。`.obsidian` を含むVaultルートを指定する。
 
 この環境変数はセッション内だけ有効。常用する場合はWindowsのユーザー環境変数 `DG_VAULT_PATH` を同じ値に設定し、ターミナルや開発ツールを再起動する。PC固有値はGitへ入れない。
 
-`tools/sync-vault.cjs` は `.env` をロードしない。`.env` に書いただけでは設定されない。変数がない場合はリポジトリの親を探すが、新配置の `Documents/GitHub` はVaultではない。Vaultが見つからない場合、単発の同期はエラーで終了する。
+`tools/sync-vault.cjs` は `.env` をロードしない。`.env` に書いただけでは設定されない。sync:commonはDG_VAULT_PATHの明示設定が必要。未設定ならコピー前にエラー終了する。sync:vaultのノート同期は廃止済み。
 
 ## 普段の作業
 
 - 開始時：Git状態とoriginを確認。cleanでbehindのみならff-onlyで更新する。
 - Vaultを使う前にDropbox同期完了を確認する。
-- 元ノート編集後：`npm run sync:vault`。既存の公開対象ノートと参照画像を更新する。新規ノートは同期対象への追加が必要。
-- 表示確認：`npm run dev:local`。表示されたlocalhostのURLを開く。起動時と監視中にVault同期が動く。終了はCtrl+C。
+- 元ノート・作品画像の追加更新：Vaultで編集し、ユーザーがObsidian DG Publishで公開する。システム側の同期は不要。Publish後、cleanなcloneはfetchとpull --ff-onlyで取得する。
+- 表示確認：`npm run dev:local`。表示されたlocalhostのURLを開く。Vault同期は実行しない。取得済みの公開入力だけを表示する。終了はCtrl+C。
 - 公開確認：`npm test`、`npm run build`。buildはdistを削除・再生成し、設定されたテーマを取得する。同期はbuild自体には含まれない。
 - ソース差分を確認してcommitし、依頼された公開は `git push origin main`。Cloudflareの該当コミット成功と実サイトを確認する。
 
@@ -28,12 +28,12 @@ GitHubがDGの共有元。Vaultの元ノート・画像はDropboxで同期し、
 
 バナーなどノート本文に登場しない画像は `tools/common-images.json` にVault相対パスで登録する。現在は事務所バナー・Instagram・くらしの道具・無聊写記の4画像。元画像はVaultの `images/common/`、公開入力はcloneの `src/site/img/`直下 に置き、公開入力もGit管理する。公開URLは `/img/ファイル名`。登録一覧はVault相対パスのままとし、同期時にファイル名を使って配置する。`img/user/` はDGプラグインの未使用画像削除対象のため、テンプレート用4画像を置かない。
 
-- `npm run sync:vault` と監視処理は、登録した共通画像もコピー・更新する。
+- 通常dev/buildはVaultを変更・同期しない。ノート同期のsync:vaultは廃止され、誤実行時は変更前にエラーで停止する。
 - `DG_VAULT_PATH` を設定して `npm run sync:common` を実行すると、ノートを変更せず共通画像だけを同期する。
 - 元画像が欠けている場合はエラーになり、公開入力を削除しない。全登録画像の存在を確認してからコピーする。
 - `npm run check:common-images` は公開入力の欠落・空ファイルと、テンプレート内の `/img/ファイル名` 参照の登録漏れと、旧 `/img/user/images/common/` 参照の残存を検出する。新しい共通画像を追加したら一覧と画像を一緒にGitへ保存する。
 - `npm run build` は開始時に同じ検証を実行し、欠落時はdistを削除する前に停止する。VaultがないCloudflareでもGit管理された公開入力だけで検証できる。
-- `DG-Publish.cmd` はVault同期を実行しない。画像差し替え後は先に `npm run sync:common` を実行してから公開する。公開時のbuildでも欠落検証が実行される。ObsidianのDGプラグインPublishは現運用では使わない。
+- `DG-Publish.cmd` はVault同期を実行しない。画像差し替え後は先に `npm run sync:common` を実行してから公開する。公開時のbuildでも欠落検証が実行される。作品コンテンツはObsidian DG Publishで公開する。DG-Publish.cmdはシステム修正専用で、src/site/notesのMarkdownとsrc/site/img/userの変更があれば停止する。実装はGit管理されたtools/publish-dg.ps1、Vault側はその呼出のみ。
 
 ## 表示検証
 
@@ -57,11 +57,11 @@ node tools/local-verification/check-site.cjs
 
 Node.js 22を他のプロジェクトのNodeと共存させる場合、Windowsのユーザー環境変数 `DG_NODE_PATH` にNode.js 22のnode.exeとnpm.cmdがあるディレクトリを設定する。`DG_VAULT_PATH` とともにPC固有の値なのでGitへ入れない。
 
-リポジトリのルートで次を実行する。起動補助は現在のセッション、未設定ならユーザー環境変数を読み、Node 22とVaultの存在を確認する。システム全体のPATHは変更しない。
+リポジトリのルートで次を実行する。起動補助は現在のセッション、未設定ならユーザー環境変数を読み、Node 22を確認する。Vaultの存在確認はsync:commonの場合だけ。システム全体のPATHは変更しない。
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools/local.ps1
-powershell -ExecutionPolicy Bypass -File tools/local.ps1 -Task sync:vault
+powershell -ExecutionPolicy Bypass -File tools/local.ps1 -Task sync:common
 powershell -ExecutionPolicy Bypass -File tools/local.ps1 -Task test
 powershell -ExecutionPolicy Bypass -File tools/local.ps1 -Task build
 powershell -ExecutionPolicy Bypass -File tools/local.ps1 -Task install
