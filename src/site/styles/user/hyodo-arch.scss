@@ -38,6 +38,19 @@ body main.content .folder-note-body {
 
 // 兵藤事務所WEB：本文と右ナビゲーションのレイアウト。
 // 見出し・本文は .obsidian/snippets/hyodo-arch.css に合わせる。
+// 検索も同じ値を参照し、テーマ更新で本文と外観が分かれないようにする。
+body {
+  --hyodo-font-family: "Yu Mincho", "游明朝", serif;
+  --hyodo-text-size: 14px;
+  --hyodo-text-color: #222;
+  --hyodo-heading-color: #333;
+  --hyodo-h1-size: 20px;
+  --hyodo-h2-size: 16px;
+  --hyodo-h3-size: 14px;
+  --hyodo-link-color: #739e39;
+  --hyodo-link-hover-color: #5a7f26;
+}
+
 body:not(:has(.content.canvas-page)) {
   --dg-content-max-width: 642px;
   --dg-filetree-width: 222px;
@@ -56,14 +69,14 @@ body:not(:has(.content.canvas-page)) {
     margin-inline: auto;
     padding: 27px 0 60px;
     background: #fff;
-    color: #222;
-    font-family: "Yu Mincho", "游明朝", serif;
-    font-size: 14px;
+    color: var(--hyodo-text-color);
+    font-family: var(--hyodo-font-family);
+    font-size: var(--hyodo-text-size);
     font-weight: 400;
     line-height: 1.8;
 
     :is(p, ul, ol, li) {
-      font-size: 14px !important;
+      font-size: var(--hyodo-text-size) !important;
       line-height: 1.8;
     }
     :is(p, ul, ol) { margin-block: 0 18px; }
@@ -131,14 +144,14 @@ body:not(:has(.content.canvas-page)) {
       margin-bottom: 16px;
     }
     :is(h1, h2, h3) {
-      font-family: "Yu Mincho", "游明朝", serif;
+      font-family: var(--hyodo-font-family);
       font-weight: 700;
       line-height: 1.5;
-      color: #333;
+      color: var(--hyodo-heading-color);
     }
-    h1 { font-size: 20px !important; margin-block: 6px 6px; }
-    h2 { font-size: 16px !important; margin-block: 5px 6px; }
-    h3 { font-size: 14px !important; margin-block: 4px 3px; }
+    h1 { font-size: var(--hyodo-h1-size) !important; margin-block: 6px 6px; }
+    h2 { font-size: var(--hyodo-h2-size) !important; margin-block: 5px 6px; }
+    h3 { font-size: var(--hyodo-h3-size) !important; margin-block: 4px 3px; }
     // 一覧の先頭見出しをサムネイル上端に揃える（PC・モバイル共通）。
     .folder-note-body > :is(h1, h2, h3):first-child {
       margin-top: 0;
@@ -158,8 +171,8 @@ body:not(:has(.content.canvas-page)) {
       box-shadow: none;
       text-decoration: none;
     }
-    a { color: #739e39; text-decoration: none; }
-    a:hover { color: #5a7f26; text-decoration: underline; }
+    a { color: var(--hyodo-link-color); text-decoration: none; }
+    a:hover { color: var(--hyodo-link-hover-color); text-decoration: underline; }
     img { max-width: 100%; height: auto; border-radius: 0; }
   }
 
@@ -256,6 +269,124 @@ body:not(:has(.content.canvas-page)) {
     border-top-color: #ddd;
     color: #222;
     .sidebar-container { height: auto; flex-direction: column; }
+  }
+}
+
+// 検索専用の明るい配色。背景の半透明オーバーレイと検索動作は標準を使う。
+body .search-container {
+  --background-primary: #fff;
+  --background-primary-alt: #f0f0f0;
+  --background-secondary: #fff;
+  --background-modifier-border: #d0d0d0;
+  --background-modifier-form-field: #fff;
+  --text-normal: var(--hyodo-text-color);
+  --text-primary: var(--hyodo-heading-color);
+  --text-muted: #666;
+  --text-accent: var(--hyodo-link-color);
+  --dg-search-divider-color: #d0d0d0;
+  --dg-search-input-size: 16px;
+  --dg-search-input-radius: 0.35rem;
+  --dg-search-link-size: var(--hyodo-h2-size);
+  --dg-search-highlight-bg: rgba(115, 158, 57, 0.18);
+  --dg-search-highlight-color: inherit;
+  color-scheme: light;
+  color: var(--hyodo-text-color);
+  font-family: var(--hyodo-font-family);
+  font-size: var(--hyodo-text-size);
+  font-weight: 400;
+  line-height: 1.8;
+
+  .search-box { box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2); }
+  .search-box input {
+    font-family: inherit;
+    font-weight: 400;
+    box-shadow: none;
+    &::placeholder { color: #666; opacity: 1; }
+    &:focus {
+      border-color: var(--hyodo-link-color);
+      box-shadow: 0 0 0 1px var(--hyodo-link-color);
+    }
+  }
+
+  .searchresult {
+    background: #fff;
+    &:hover, &.active { background: #f0f0f0; }
+    &.active { border-color: var(--hyodo-link-color); }
+    &:hover .result-title {
+      color: var(--hyodo-link-hover-color);
+      text-decoration: underline;
+    }
+  }
+  .result-title { font-weight: 700; line-height: 1.5; }
+  .result-excerpt {
+    color: var(--hyodo-text-color);
+    font-size: var(--hyodo-text-size);
+    line-height: 1.8;
+  }
+
+  .preview-content {
+    font-size: var(--hyodo-text-size);
+    line-height: 1.8;
+    .preview-title {
+      font-family: inherit;
+      font-size: var(--hyodo-h1-size);
+      font-weight: 700;
+      color: var(--hyodo-heading-color);
+      line-height: 1.5;
+    }
+    .preview-body {
+      :is(p, ul, ol, li) { font-size: var(--hyodo-text-size); line-height: 1.8; }
+      :is(p, ul, ol) { margin-block: 0 18px; }
+      :is(h1, h2, h3, h4, h5, h6) {
+        font-family: inherit;
+        font-weight: 700;
+        color: var(--hyodo-heading-color);
+        line-height: 1.5;
+      }
+      h1 { font-size: var(--hyodo-h1-size); margin-block: 6px; }
+      h2 { font-size: var(--hyodo-h2-size); margin-block: 5px 6px; }
+      h3 { font-size: var(--hyodo-h3-size); margin-block: 4px 3px; }
+      a { color: var(--hyodo-link-color); text-decoration: none; }
+      a:hover { color: var(--hyodo-link-hover-color); text-decoration: underline; }
+      img { max-width: 100%; height: auto; border-radius: 0; }
+      li::marker { color: #ababab; }
+    }
+  }
+
+  :is(.result-tags, .preview-tags, .preview-body .note-tags) .tag {
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #000;
+    background: #f0f0f0;
+    border: 1px solid #d0d0d0;
+    border-radius: 0.35rem;
+    box-shadow: none;
+    text-decoration: none;
+  }
+  :is(.preview-tags, .preview-body .note-tags) a.tag:hover { color: var(--hyodo-link-hover-color); }
+  :is(.preview-placeholder, .no-results, .navigation-hint) { color: #666; }
+  :is(.preview-placeholder p, .no-results p) { font-size: var(--hyodo-text-size); }
+  :is(.search-results-panel, .preview-placeholder) > :is(span, p) > i { font-style: normal; }
+  .navigation-hint {
+    font-size: 12px;
+    code {
+      font-family: inherit;
+      font-size: inherit;
+      line-height: 1.5;
+      color: #333;
+      background: #f0f0f0;
+      border: 1px solid #d0d0d0;
+    }
+  }
+  .search-box-footer { flex-wrap: wrap; }
+  :is(.search-results-panel, .search-preview-panel) {
+    scrollbar-color: #aaa #f1f1f1;
+    &::-webkit-scrollbar { width: 9px; }
+    &::-webkit-scrollbar-track { background: #f1f1f1; }
+    &::-webkit-scrollbar-thumb { background: #aaa; border-radius: 5px; }
+    &::-webkit-scrollbar-thumb:hover { background: #888; }
   }
 }
 
