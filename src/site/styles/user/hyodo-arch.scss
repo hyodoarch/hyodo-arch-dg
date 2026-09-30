@@ -279,6 +279,7 @@ body .search-container {
   --background-secondary: #fff;
   --background-modifier-border: #d0d0d0;
   --background-modifier-form-field: #fff;
+  --background-modifier-form-field-hover: #fff;
   --text-normal: var(--hyodo-text-color);
   --text-primary: var(--hyodo-heading-color);
   --text-muted: #666;
@@ -327,13 +328,8 @@ body .search-container {
   .preview-content {
     font-size: var(--hyodo-text-size);
     line-height: 1.8;
-    .preview-title {
-      font-family: inherit;
-      font-size: var(--hyodo-h1-size);
-      font-weight: 700;
-      color: var(--hyodo-heading-color);
-      line-height: 1.5;
-    }
+    // 検索が追加するヘッダーだけを隠し、画像下の本文タイトル・タグを表示する。
+    > .preview-title, > .preview-tags { display: none; }
     .preview-body {
       :is(p, ul, ol, li) { font-size: var(--hyodo-text-size); line-height: 1.8; }
       :is(p, ul, ol) { margin-block: 0 18px; }
