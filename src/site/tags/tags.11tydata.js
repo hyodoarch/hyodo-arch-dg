@@ -9,6 +9,7 @@ module.exports = {
     size: 1,
     alias: 'tagName',
     before: tagNames,
+    addAllPagesToCollections: true,
   },
   eleventyComputed: {
     title: data => data.tagName,
