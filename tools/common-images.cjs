@@ -40,10 +40,10 @@ function checkCommonImages(project) {
   const images = readManifest(project);
   const unregistered = new Set();
   const publicNames = images.map(image => path.basename(image));
-  function scan(dir) {
+  function scan(dir, recursive = true) {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       const file = path.join(dir, entry.name);
-      if (entry.isDirectory()) scan(file);
+      if (entry.isDirectory()) { if (recursive) scan(file); }
       else if (entry.name.endsWith('.njk')) {
         const text = fs.readFileSync(file, 'utf8');
         // Template assets must stay outside the plugin-managed img/user directory.
@@ -57,6 +57,8 @@ function checkCommonImages(project) {
     }
   }
   scan(path.join(project, 'src/site/_includes'));
+  // Standalone pages such as 404.njk also reference template-only images.
+  scan(path.join(project, 'src/site'), false);
   if (unregistered.size) throw new Error(`Register template images in tools/common-images.json:\n${[...unregistered].join('\n')}`);
   requireImages(path.join(project, 'src/site/img'), publicNames);
   return images;

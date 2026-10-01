@@ -51,6 +51,16 @@ it('requires newly referenced template images to be registered', () => {
   write(path.join(project, 'src/site/img/new.png'), 'new-image');
   expect(() => checkCommonImages(project)).toThrow('Register template images');
 });
+it('checks standalone page images as well as layout includes', () => {
+  const { project, vault, write } = fixture();
+  syncCommonImages(project, vault);
+  write(path.join(project, 'src/site/404.njk'), '<img src="/img/banner.png">');
+  expect(checkCommonImages(project)).toHaveLength(1);
+  write(path.join(project, 'src/site/404.njk'), '<img src="/img/unregistered.jpg">');
+  expect(() => checkCommonImages(project)).toThrow('unregistered.jpg');
+  write(path.join(project, 'src/site/404.njk'), '<img src="/img/user/images/common/banner.png">');
+  expect(() => checkCommonImages(project)).toThrow('Use /img/<filename>');
+});
 it('rejects malformed and escaping manifest paths', () => {
   const { project, vault, write } = fixture();
   for (const manifest of [[], ['images/common/../../private.png'], ['images/common/a.png', 'images/common/a.png'], {}]) {

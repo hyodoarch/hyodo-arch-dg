@@ -1,27 +1,18 @@
-
-<!DOCTYPE html>
-<html lang="{{ meta.mainLanguage }}">
-    <head>
-        <title>Nothing here</title>
-        <link href="/styles/digital-garden-base.css" rel="stylesheet">
-        {%-if meta.themeStyle%}
-            <link href="/styles/obsidian-base.css" rel="stylesheet">
-    	    <link href="{{meta.themeStyle}}" rel="stylesheet">
-        {% else %}
-            <link href="/styles/style.css" rel="stylesheet">
-        {%endif%}
-
-        <link href="/styles/custom-style.css" rel="stylesheet">
-    </head>
-    <body class="theme-{{meta.baseTheme}} markdown-preview-view">
-        <div class="content centered">
-
-            {%-if not meta.themeStyle%}
-                <div class="font-bg"> &#x1F60E; </div>
-            {%endif%}
-            <h1>There is nothing here</h1>
-            <p>If you got here from a link, this note is probably not made public</p>
-            <a href="/">Go back home</a>
-        </div>
-    </body>
-</html>
+---
+layout: layouts/index.njk
+permalink: /404.html
+eleventyExcludeFromCollections: true
+eleventyImport:
+  collections: [gardenEntry]
+title: ページが見つかりません | 兵藤善紀建築設計事務所
+metatags:
+  robots: noindex, follow
+settings:
+  dgShowFileTree: true
+  dgEnableSearch: true
+---
+<h1>404 Not Found</h1>
+<p>リクエストされたページは見つかりませんでした。<br>
+ページが移動・削除されたか、URLが変更された可能性があります。</p>
+<p>メニューや検索からお探しいただくか、<a href="/">ホームページ</a>へお戻りください。</p>
+{{ collections.gardenEntry | homeSlideshow | safe }}

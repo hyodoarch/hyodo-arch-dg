@@ -26,7 +26,7 @@ GitHubがDGの共有元。Vaultの元ノート・画像はDropboxで同期し、
 
 ## テンプレート用の共通画像
 
-バナーなどノート本文に登場しない画像は `tools/common-images.json` にVault相対パスで登録する。現在は事務所バナー・Instagram・くらしの道具・無聊写記の4画像。元画像はVaultの `images/common/`、公開入力はcloneの `src/site/img/`直下 に置き、公開入力もGit管理する。公開URLは `/img/ファイル名`。登録一覧はVault相対パスのままとし、同期時にファイル名を使って配置する。`img/user/` はDGプラグインの未使用画像削除対象のため、テンプレート用4画像を置かない。
+バナーなどテンプレートが直接参照する画像は `tools/common-images.json` にVault相対パスで登録する。現在は事務所バナー・Instagram・くらしの道具・無聊写記の4画像。元画像はVaultの `images/common/`、公開入力はcloneの `src/site/img/`直下 に置き、公開入力もGit管理する。公開URLは `/img/ファイル名`。登録一覧はVault相対パスのままとし、同期時にファイル名を使って配置する。`img/user/` はDGプラグインの未使用画像削除対象のため、テンプレート用画像を置かない。
 
 - 通常dev/buildはVaultを変更・同期しない。ノート同期のsync:vaultは廃止され、誤実行時は変更前にエラーで停止する。
 - `DG_VAULT_PATH` を設定して `npm run sync:common` を実行すると、ノートを変更せず共通画像だけを同期する。
@@ -36,6 +36,22 @@ GitHubがDGの共有元。Vaultの元ノート・画像はDropboxで同期し、
 - `DG-Publish.cmd` はVault同期を実行しない。画像差し替え後は先に `npm run sync:common` を実行してから公開する。公開時のbuildでも欠落検証が実行される。作品コンテンツはObsidian DG Publishで公開する。DG-Publish.cmdはシステム修正専用で、src/site/notesのMarkdownとsrc/site/img/userの変更があれば停止する。実装はGit管理されたtools/publish-dg.ps1、Vault側はその呼出のみ。
 
 ## 表示検証
+
+### 404ページ
+
+`src/site/404.njk` は既存の `layouts/index.njk` と共通ナビゲーション・スタイルを使う。`permalink: /404.html` により毎回 `dist/404.html` を生成する。[Cloudflare Pagesの標準動作](https://developers.cloudflare.com/pages/configuration/serving-pages/#not-found-behavior)がこのファイルを見つからないURLに適用する。ノートの404.mdや独自リダイレクト設定は不要。
+
+`eleventyExcludeFromCollections: true` によりsitemap・検索・作品一覧に含めず、`robots: noindex, follow` を出力する。feedは既存のnoteコレクションを使用するため、このシステムページを含まない。
+
+404の案内文・見出し・HOMEリンクは `404.njk` のHTMLを編集する。末尾の `{{ collections.gardenEntry | homeSlideshow | safe }}` は、公開済みHOMEの最初のスライドショーだけを再利用する。既存の描画結果・画像・再生設定を使い、HOME本文やNewsは含めない。スライドショー用のJS・CSSも既存の共通レイアウトから読み込む。先頭の `eleventyImport.collections: [gardenEntry]` はHOMEが先に描画される順序とHOME変更時の再生成に必要なため維持する。
+
+写真の追加・削除・並べ替えや再生設定はVaultのHOME内の `slideshow` ブロックで編集し、ユーザーがObsidian DG Publishで公開する。同じ公開入力を使う次のbuildで、トップと404の両方へ反映される。404専用の画像一覧・コピー・Vault同期は不要。HOMEがない・非表示・複数、または有効なスライドショーがない場合はbuildエラーにし、以前の写真へ黙って置き換えない。
+
+以前の `404-sekiguchi.jpg` は404の参照と共通画像登録から外した。既存の写真ファイルは保管してあり、現在の404表示・buildには必要ない。
+
+build後に `node tools/local-verification/check-404.cjs` を実行する。Playwright・Edgeの条件は下記と同じ。トップとの画像・順序・再生設定の一致、ルート・深い階層・クエリ／フラグメント付きの存在しないURL、PC／モバイル表示、スライド切替・自動再生、検索・HOMEリンク・コレクション除外を検証する。`.cache/404-check/` に結果と画面を保存する。ローカル配信はCloudflareの404応答を模しており、実際の公開先でのHTTP 404はpush・デプロイ後に同じコマンドへ `VERIFY_BASE` を指定して確認する。
+
+### 公開ノート
 
 `tools/local-verification/check-site.cjs` は既存distを一時HTTPサーバーで配信し、全公開ノートと和風タグ一覧を1440px・390pxで確認する。画像、横はみ出し、事務所情報、戻るボタン、バックリンク非表示、JSエラーを検査し、`.cache/site-check/` へJSONと代表画面を出力する。サイトソースやVaultは変更しない。
 
