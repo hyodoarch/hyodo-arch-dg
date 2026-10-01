@@ -87,3 +87,32 @@ it('rejects template links into the plugin-managed common image directory', () =
   write(path.join(project, 'src/site/_includes/sidebar.njk'), `<img src="/img/user/${image}">`);
   expect(() => checkCommonImages(project)).toThrow('Use /img/<filename>');
 });
+
+it('keeps a shared OGP image from images/top outside plugin-owned inputs and follows source replacements', () => {
+  const { project, vault, image, write } = fixture();
+  const source = 'images/top/default.jpg';
+  write(path.join(project, 'tools/common-images.json'), JSON.stringify([image, source]));
+  write(path.join(vault, source), 'og-image');
+  write(path.join(project, 'src/site/_data/seo.js'), "module.exports = { defaultImage: '/img/default.jpg' };");
+  expect(syncCommonImages(project, vault)).toEqual([image, source]);
+  expect(fs.existsSync(path.join(project, 'src/site/img/user'))).toBe(false);
+  expect(checkCommonImages(project)).toEqual([image, source]);
+  write(path.join(vault, source), 'updated-og-image');
+  expect(syncCommonImages(project, vault)).toEqual([source]);
+  expect(fs.readFileSync(path.join(project, 'src/site/img/default.jpg'), 'utf8')).toBe('updated-og-image');
+});
+
+it('checks global OGP settings for unregistered template images', () => {
+  const { project, vault, write } = fixture();
+  syncCommonImages(project, vault);
+  write(path.join(project, 'src/site/_data/seo.js'), "module.exports = { defaultImage: '/img/unknown.jpg' };");
+  expect(() => checkCommonImages(project)).toThrow('unknown.jpg');
+});
+
+it('rejects colliding public filenames from different source folders, including Windows casing', () => {
+  const { project, vault, write } = fixture();
+  for (const other of ['images/top/banner.png', 'images/top/BANNER.PNG']) {
+    write(path.join(project, 'tools/common-images.json'), JSON.stringify(['images/common/banner.png', other]));
+    expect(() => syncCommonImages(project, vault)).toThrow('unique public filenames');
+  }
+});

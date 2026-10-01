@@ -1,12 +1,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-{% if metatags %}
-    {% for name, content in metatags %}
+{% set pageMetatags = content | seoMetatags(noteProps, metatags, title, page.url, meta.siteBaseUrl, seo.defaultImage) %}
+{% if pageMetatags %}
+    {% for name, value in pageMetatags %}
         {% if name.includes("og:") %}
-          <meta property="{{ name }}" content="{{ content }}">
+          <meta property="{{ name | escape }}" content="{{ value | escape }}">
         {% else %}
-          <meta name="{{ name }}" content="{{ content }}">
+          <meta name="{{ name | escape }}" content="{{ value | escape }}">
         {% endif %}
     {% endfor %}
 {% endif %}

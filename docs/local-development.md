@@ -26,12 +26,12 @@ GitHubがDGの共有元。Vaultの元ノート・画像はDropboxで同期し、
 
 ## テンプレート用の共通画像
 
-バナーなどテンプレートが直接参照する画像は `tools/common-images.json` にVault相対パスで登録する。現在は事務所バナー・Instagram・くらしの道具・無聊写記の4画像。元画像はVaultの `images/common/`、公開入力はcloneの `src/site/img/`直下 に置き、公開入力もGit管理する。公開URLは `/img/ファイル名`。登録一覧はVault相対パスのままとし、同期時にファイル名を使って配置する。`img/user/` はDGプラグインの未使用画像削除対象のため、テンプレート用画像を置かない。
+バナーなどテンプレートが直接参照する画像は `tools/common-images.json` にVault相対パスで登録する。現在は事務所バナー・Instagram・くらしの道具・無聊写記・共通OGPの5画像。元画像はVaultの `images/` 配下、公開入力はcloneの `src/site/img/`直下 に置き、公開入力もGit管理する。公開URLは `/img/ファイル名`。登録一覧はVault相対パスのままとし、同期時にファイル名を使って配置するため、異なるフォルダの同名ファイル（Windowsの大文字小文字違いを含む）は登録できない。`img/user/` はDGプラグインの未使用画像削除対象のため、テンプレート用画像を置かない。
 
 - 通常dev/buildはVaultを変更・同期しない。ノート同期のsync:vaultは廃止され、誤実行時は変更前にエラーで停止する。
 - `DG_VAULT_PATH` を設定して `npm run sync:common` を実行すると、ノートを変更せず共通画像だけを同期する。
 - 元画像が欠けている場合はエラーになり、公開入力を削除しない。全登録画像の存在を確認してからコピーする。
-- `npm run check:common-images` は公開入力の欠落・空ファイルと、テンプレート内の `/img/ファイル名` 参照の登録漏れと、旧 `/img/user/images/common/` 参照の残存を検出する。新しい共通画像を追加したら一覧と画像を一緒にGitへ保存する。
+- `npm run check:common-images` は公開入力の欠落・空ファイルと、テンプレート・グローバル設定内の `/img/ファイル名` 参照の登録漏れと、旧 `/img/user/images/common/` 参照の残存を検出する。新しい共通画像を追加したら一覧と画像を一緒にGitへ保存する。
 - `npm run build` は開始時に同じ検証を実行し、欠落時はdistを削除する前に停止する。VaultがないCloudflareでもGit管理された公開入力だけで検証できる。
 - `DG-Publish.cmd` はVault同期を実行しない。画像差し替え後は先に `npm run sync:common` を実行してから公開する。公開時のbuildでも欠落検証が実行される。作品コンテンツはObsidian DG Publishで公開する。DG-Publish.cmdはシステム修正専用で、src/site/notesのMarkdownとsrc/site/img/userの変更があれば停止する。実装はGit管理されたtools/publish-dg.ps1、Vault側はその呼出のみ。
 
@@ -42,6 +42,27 @@ Measurement IDの登録先はCloudflare Pagesの `hyodo-arch-dg` → Settings �
 DG標準の `dynamics.common.head` で `components/user/common/head/ga4.njk` を自動読込する。データは `src/site/_data/analytics.js` が環境変数から取得する。ID未設定、または `ELEVENTY_ENV` が `prod` 以外ならタグ自体を出力しない。IDが不正な形式ならエラーにする。本番用HTMLをpages.devでも表示できるため、ブラウザでもHTTPSの `www.hyodo-arch.com` だけにGoogleタグの読込を限定する。pages.dev・ローカル・他ドメインではGoogleへのリクエストも計測初期化も行わない。
 
 Googleタグ標準の `config` による通常のページビュー計測を使い、独自イベントや手動のpage_view送信を追加しない。HOME・作品・情報・タグ・404は共通headを一度だけ使用する。ドメイン切替前にIDを登録しても、DGのpages.devは計測しない。切替後にGA4のリアルタイム表示で公開サイトからの受信を確認する。検証ではGoogleタグの通信を捕捉し、実GA4へテストデータを送らない。
+
+## description・OGP・X/Twitter Card
+
+Vaultのノートプロパティ `description` を、検索用のdescription・og:description・twitter:descriptionへ使用する。DG Publishが保持する `dg-note-properties`（テンプレートのnoteProps）から取得する。複数行は空白に整え、HTML属性をエスケープして出力する。原文は変更しない。未設定・空欄・文字列以外は説明タグを自動生成しない。
+
+画像を固定したいノートでは、次のようにVault相対パスを指定し、Obsidian DG Publishで公開する。パスだけの指定、Obsidianの `[[画像パス]]`、公開済みの `/img/...`、完全なHTTP/HTTPS画像URLに対応する。既存プラグインのプロパティ画像収集を使い、本文へ画像を追加する必要はない。
+
+```yaml
+description: "ページの説明"
+og-image: images/og/contact.jpg
+```
+
+通常の画像選択順は `og-image` → 本文冒頭の画像ブロック → 共通画像。通常画像・Image Captions・スライドショー・Image Grid Captionsは生成済みの本文HTMLから判定し、スライドショー・グリッドは1枚目を使う。見出しや説明文が先にある場合、その後の画像は冒頭画像として扱わない。ナビ・サイドバー・一覧カードは判定対象の本文に含めない。画像表示用の既存処理は変更しない。
+
+共通画像の選択設定は `src/site/_data/seo.js` のdefaultImage。現在の `/img/top-IMGP0361.jpg` は、Vaultの `images/top/top-IMGP0361.jpg` を既存の共通画像同期で `src/site/img/top-IMGP0361.jpg` に配置する。元画像・HOME用の画像はそのまま保持する。共通用はimg/userの外なので、HOMEからの参照やプラグイン管理下のコピーがなくなっても残る。差し替え時は上記のsync:commonを実行し、共通登録・設定・画像を一緒にシステム公開する。
+
+`src/helpers/seo.js` がメタ情報を組み立て、userSetupのseoMetatagsフィルターとDG標準のpageheader内の既存ループで一度だけ出力する。og:title・twitter:titleは既存のタイトル、og:typeはwebsite、twitter:cardはsummary_large_image。画像はog:imageとtwitter:imageで共用する。og:url・画像URLはmeta.siteBaseUrl（SITE_BASE_URL）を基準にし、末尾スラッシュによる重複を避ける。サイトURL設定を本番ドメインへ変更すれば次のbuildで追従する。未設定時はDG標準どおり既存metatagsだけを出力する。
+
+DG標準の `dg-metatags` の明示値も維持する。明示og:imageがある場合は冒頭画像・共通画像より優先し、og-imageプロパティもある場合はog-imageを優先する。説明・タイトル・カード形式などの個別メタタグやtwitter:imageが明示されている場合は、その値を維持する。最終的な同名タグは1つだけ。ローカル画像の欠落・空ファイル・不正な参照はページURL付きのbuildエラーにし、共通画像へ黙って置換しない。外部画像URLは構文を確認するが、build中に外部サイトへ画像の取得確認は行わない。
+
+`npm test` と `npm run build` で検証する。公開後はページソースのメタ情報・画像URLの表示と、SNSでの共有カードを確認する。SNS側のキャッシュや表示仕様によって更新時期・切り抜きは異なる。
 
 ## 表示検証
 

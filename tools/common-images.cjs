@@ -4,9 +4,9 @@ const path = require('node:path');
 function readManifest(project) {
   const images = JSON.parse(fs.readFileSync(path.join(project, 'tools/common-images.json'), 'utf8'));
   if (!Array.isArray(images) || !images.length || images.some(image =>
-    typeof image !== 'string' || !/^images\/common\/[^/\\]+\.(png|jpe?g|gif|svg|webp|avif)$/i.test(image) || image.includes('..')) ||
-    new Set(images).size !== images.length) {
-    throw new Error('Invalid tools/common-images.json: use unique images/common/<filename> paths.');
+    typeof image !== 'string' || !/^images\/(?:[^/\\:\0\r\n]+\/)*[^/\\:\0\r\n]+\.(png|jpe?g|gif|svg|webp|avif)$/i.test(image) || image.includes('..')) ||
+    new Set(images.map(image => path.basename(image).toLowerCase())).size !== images.length) {
+    throw new Error('Invalid tools/common-images.json: use images/<path>/<filename> paths with unique public filenames.');
   }
   return images;
 }
@@ -44,7 +44,7 @@ function checkCommonImages(project) {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       const file = path.join(dir, entry.name);
       if (entry.isDirectory()) { if (recursive) scan(file); }
-      else if (entry.name.endsWith('.njk')) {
+      else if (entry.name.endsWith('.njk') || entry.name.endsWith('.js')) {
         const text = fs.readFileSync(file, 'utf8');
         // Template assets must stay outside the plugin-managed img/user directory.
         if (/\/img\/user\/images\/common\//.test(text)) {
@@ -59,6 +59,9 @@ function checkCommonImages(project) {
   scan(path.join(project, 'src/site/_includes'));
   // Standalone pages such as 404.njk also reference template-only images.
   scan(path.join(project, 'src/site'), false);
+  // Global settings can reference template assets, including the default OGP image.
+  const dataDir = path.join(project, 'src/site/_data');
+  if (fs.existsSync(dataDir)) scan(dataDir);
   if (unregistered.size) throw new Error(`Register template images in tools/common-images.json:\n${[...unregistered].join('\n')}`);
   requireImages(path.join(project, 'src/site/img'), publicNames);
   return images;
