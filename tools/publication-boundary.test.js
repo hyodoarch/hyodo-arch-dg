@@ -32,6 +32,10 @@ describe('Obsidian content and system publication boundary', () => {
     ['src/site/notes/notes.json', true],
     ['src/site/styles/user/custom.scss', true],
     ['src/site/img/banner.jpg', true],
+    ['.env.example', true],
+    ['.env', false],
+    ['.env.local', false],
+    ['docs/.env.example', false],
   ]) {
     windowsIt(`${accepted ? 'accepts system' : 'blocks content'} change ${file}`, () => {
       const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'dg-boundary-'));

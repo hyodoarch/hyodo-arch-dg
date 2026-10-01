@@ -35,6 +35,14 @@ GitHubがDGの共有元。Vaultの元ノート・画像はDropboxで同期し、
 - `npm run build` は開始時に同じ検証を実行し、欠落時はdistを削除する前に停止する。VaultがないCloudflareでもGit管理された公開入力だけで検証できる。
 - `DG-Publish.cmd` はVault同期を実行しない。画像差し替え後は先に `npm run sync:common` を実行してから公開する。公開時のbuildでも欠落検証が実行される。作品コンテンツはObsidian DG Publishで公開する。DG-Publish.cmdはシステム修正専用で、src/site/notesのMarkdownとsrc/site/img/userの変更があれば停止する。実装はGit管理されたtools/publish-dg.ps1、Vault側はその呼出のみ。
 
+## Google Analytics 4
+
+Measurement IDの登録先はCloudflare Pagesの `hyodo-arch-dg` → Settings → Variables and Secrets（Environment variables）→ Production。変数名を `GA_MEASUREMENT_ID`、値を既存GA4ウェブストリームの `G-` で始まる測定IDにする。実IDをテンプレート・JavaScript・Git管理された `.env` へ書き込まない。登録・変更後は再デプロイが必要。Previewには設定しない。`.env.example` の空欄は設定方法の見本。
+
+DG標準の `dynamics.common.head` で `components/user/common/head/ga4.njk` を自動読込する。データは `src/site/_data/analytics.js` が環境変数から取得する。ID未設定、または `ELEVENTY_ENV` が `prod` 以外ならタグ自体を出力しない。IDが不正な形式ならエラーにする。本番用HTMLをpages.devでも表示できるため、ブラウザでもHTTPSの `www.hyodo-arch.com` だけにGoogleタグの読込を限定する。pages.dev・ローカル・他ドメインではGoogleへのリクエストも計測初期化も行わない。
+
+Googleタグ標準の `config` による通常のページビュー計測を使い、独自イベントや手動のpage_view送信を追加しない。HOME・作品・情報・タグ・404は共通headを一度だけ使用する。ドメイン切替前にIDを登録しても、DGのpages.devは計測しない。切替後にGA4のリアルタイム表示で公開サイトからの受信を確認する。検証ではGoogleタグの通信を捕捉し、実GA4へテストデータを送らない。
+
 ## 表示検証
 
 ### 404ページ
