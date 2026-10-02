@@ -129,3 +129,11 @@ powershell -ExecutionPolicy Bypass -File tools/local.ps1 -Task install
 ```
 
 既定のTaskはdev:local。終了はCtrl+C。初回install、公開前test/buildも同じNodeで実行できる。実行ポリシーの指定はこの起動プロセスだけに適用され、永続的なポリシー変更は行わない。
+
+## 内部リンクとお問い合わせ
+
+移行済みページへの本文リンクは、Vault内の相対Markdownリンク（例：`[辻の家](新築住宅/辻の家.md)`）を使用する。パスに空白があれば%20へ変換し、リンク先を山括弧で囲まない。既存DG Publishの変換とサイト側のresolveMdLinksで、そのノートの公開permalinkへ解決する。写真を包むリンクは埋め込み記法を維持して、リンク先だけ公開ルート相対パス（例：`/house/kagoshima/`）を使用する。ドメインを本文へ固定しない。frontmatterのsource-urlは移行元の記録なので書き換えない。
+
+共通のお問合せボタンはGoogleフォーム `https://forms.gle/qnT5nXuhZ8gBgCHk9` を使用する。本文のフォーム案内も同じ送信先、電話は `tel:0484835999`、メールは `mailto:info@hyodo-arch.com` とする。フォームの送受信はユーザー確認済み。無聊写記は `https://blog.hyodo-arch.com/`。未移行のVectorworks配布サイトは現在 `https://www.hyodo-arch.com/vectorworks/index.html` であり、wwwのDNS切替前に別途公開先を決める必要がある。
+
+本文の修正はVaultだけに保存し、ユーザーのObsidian DG Publishで公開する。システム側から公開入力のノートを置換しない。公開後はNEWS・関連作品・ご依頼ページ・プロフィールのリンクを実サイトで確認する。
