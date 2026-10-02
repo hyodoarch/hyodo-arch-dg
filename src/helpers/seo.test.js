@@ -4,7 +4,7 @@ import { createRequire } from 'node:module';
 import { parse } from 'node-html-parser';
 
 const require = createRequire(import.meta.url);
-const { seoMetatags } = require('./seo');
+const { seoTitle, seoMetatags } = require('./seo');
 const { clearImageIndex } = require('./imageAssets');
 const { defaultImage } = require('../site/_data/seo');
 const nunjucks = require('nunjucks');
@@ -16,6 +16,28 @@ const first = '/img/user/seo-fixture/first.jpg';
 const other = '/img/user/seo-fixture/second.jpg';
 const env = new nunjucks.Environment(null, { autoescape: false });
 env.addFilter('seoMetatags', seoMetatags);
+
+class HeadLoader extends nunjucks.Loader {
+  getSource(name) {
+    if (name !== 'components/pageheader.njk') throw new Error(`Unexpected head include: ${name}`);
+    return { src: header, path: name, noCache: true };
+  }
+}
+const headEnv = new nunjucks.Environment(new HeadLoader(), { autoescape: false });
+headEnv.addFilter('seoTitle', seoTitle);
+headEnv.addFilter('seoMetatags', seoMetatags);
+
+function renderLayoutHead(layout, data = {}) {
+  const source = fs.readFileSync(new URL(`../site/_includes/layouts/${layout}.njk`, import.meta.url), 'utf8');
+  const head = source.slice(source.indexOf('<head>'), source.indexOf('</head>') + '</head>'.length);
+  return parse(headEnv.renderString(head, {
+    content: '<h1>本文のタイトル</h1>', noteProps: {}, metatags: {}, title: '作品名',
+    page: { url: '/house/example/', fileSlug: 'fallback' },
+    meta: { siteBaseUrl: base, siteName: '兵藤善紀建築設計事務所' }, seo: { defaultImage },
+    dynamics: { common: { head: [] }, notes: { head: [] }, index: { head: [] } },
+    collections: { note: [] }, ...data,
+  }));
+}
 
 beforeEach(() => {
   const exists = fs.existsSync;
@@ -37,6 +59,58 @@ function render(props = {}, content = '', manual = {}) {
     page: { url: '/house/example/' }, meta: { siteBaseUrl: base }, seo: { defaultImage },
   }));
 }
+
+it('shares one head title across the real home, note, tag, 404 and random layouts', () => {
+  const siteName = '兵藤善紀建築設計事務所';
+  const cases = [
+    ['index', '/', 'HOME', siteName],
+    ['note', '/house/honbasu/', '本蓮の家', `本蓮の家 | ${siteName}`],
+    ['note', '/house/', '新築住宅', `新築住宅 | ${siteName}`],
+    ['note', '/tags/和風/', '和風', `和風 | ${siteName}`],
+    ['index', '/404.html', `ページが見つかりません | ${siteName}`, `ページが見つかりません | ${siteName}`],
+    ['random', '/~random/', '', `Random Page | ${siteName}`],
+  ];
+  for (const [layout, url, title, expected] of cases) {
+    const data = { title, page: { url, fileSlug: 'fallback' } };
+    const html = renderLayoutHead(layout, data);
+    expect(html.querySelectorAll('title')).toHaveLength(1);
+    expect(html.querySelector('title').text).toBe(expected);
+    for (const [attribute, name] of [['property', 'og:title'], ['name', 'twitter:title']]) {
+      const tags = html.querySelectorAll(`meta[${attribute}="${name}"]`);
+      expect(tags).toHaveLength(1);
+      expect(tags[0].getAttribute('content')).toBe(expected);
+    }
+    expect(data.title).toBe(title);
+  }
+});
+
+it('uses the configured site name and safely escapes both title text and metadata attributes', () => {
+  const title = 'ページ "A" & <script>alert(1)</script>';
+  const siteName = '別の事務所 "B" & <img src=x onerror="alert(1)">';
+  const html = renderLayoutHead('note', { title, meta: { siteBaseUrl: base, siteName } });
+  const expected = `${title} | ${siteName}`;
+  expect(html.querySelector('title').text).toBe(expected);
+  expect(html.querySelector('meta[property="og:title"]').getAttribute('content')).toBe(expected);
+  expect(html.querySelector('meta[name="twitter:title"]').getAttribute('content')).toBe(expected);
+  expect(html.querySelectorAll('script, img')).toHaveLength(0);
+});
+
+it('keeps filename fallback and avoids empty or repeated site-name suffixes', () => {
+  const html = renderLayoutHead('note', { title: '' });
+  expect(html.querySelector('title').text).toBe('fallback | 兵藤善紀建築設計事務所');
+  const withoutSiteName = renderLayoutHead('note', { meta: { siteBaseUrl: base, siteName: '' } });
+  expect(withoutSiteName.querySelector('title').text).toBe('作品名');
+  expect(seoTitle('  作品名\n | 事務所  ', '  事務所 ', '/work/')).toBe('作品名 | 事務所');
+  expect(seoTitle('事務所', '事務所', '/office/')).toBe('事務所');
+});
+
+it('retains explicitly configured social titles while formatting the browser title', () => {
+  const manual = { 'og:title': '専用OGPタイトル', 'twitter:title': '専用Xタイトル' };
+  const html = renderLayoutHead('note', { metatags: manual });
+  expect(html.querySelector('title').text).toBe('作品名 | 兵藤善紀建築設計事務所');
+  expect(html.querySelector('meta[property="og:title"]').getAttribute('content')).toBe(manual['og:title']);
+  expect(html.querySelector('meta[name="twitter:title"]').getAttribute('content')).toBe(manual['twitter:title']);
+});
 
 it('uses one note description for search, OGP and Twitter without changing its source', () => {
   const props = { description: '  住宅の説明。\n  "引用" & <img src=x onerror="alert(1)">  ' };

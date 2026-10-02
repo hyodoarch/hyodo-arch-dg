@@ -6,6 +6,17 @@ const { thumbnailUrl } = require('./folderNotes');
 const siteRoot = path.resolve(__dirname, '../site');
 const text = value => typeof value === 'string' ? value.replace(/\s+/g, ' ').trim() : '';
 
+// Format the head only; keep the note's title for headings, lists and the feed.
+function seoTitle(title, siteName, pageUrl) {
+  const pageTitle = text(title);
+  const siteTitle = text(siteName);
+  if (!siteTitle) return pageTitle;
+  if (pageUrl === '/' || !pageTitle) return siteTitle;
+  const suffix = ` | ${siteTitle}`;
+  return pageTitle === siteTitle || pageTitle.endsWith(suffix)
+    ? pageTitle : pageTitle + suffix;
+}
+
 // Inspect only the rendered note, before layouts add navigation or listing cards.
 // A heading or paragraph before an image means that image is not at the beginning.
 function leadingImage(content) {
@@ -77,4 +88,4 @@ function seoMetatags(content, noteProps, metatags, title, pageUrl, siteBaseUrl, 
   }
 }
 
-module.exports = { seoMetatags };
+module.exports = { seoTitle, seoMetatags };

@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-{% set pageMetatags = content | seoMetatags(noteProps, metatags, title, page.url, meta.siteBaseUrl, seo.defaultImage) %}
+{% set pageMetatags = content | seoMetatags(noteProps, metatags, headTitle or title, page.url, meta.siteBaseUrl, seo.defaultImage) %}
 {% if pageMetatags %}
     {% for name, value in pageMetatags %}
         {% if name.includes("og:") %}

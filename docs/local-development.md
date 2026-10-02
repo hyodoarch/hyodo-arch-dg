@@ -43,6 +43,12 @@ DG標準の `dynamics.common.head` で `components/user/common/head/ga4.njk` を
 
 Googleタグ標準の `config` による通常のページビュー計測を使い、独自イベントや手動のpage_view送信を追加しない。HOME・作品・情報・タグ・404は共通headを一度だけ使用する。ドメイン切替前にIDを登録しても、DGのpages.devは計測しない。切替後にGA4のリアルタイム表示で公開サイトからの受信を確認する。検証ではGoogleタグの通信を捕捉し、実GA4へテストデータを送らない。
 
+## headのtitle
+
+ブラウザのtitleは通常ページで「ページタイトル | 事務所名」、トップ（page.urlが `/`）では事務所名のみとする。事務所名は既存の `SITE_NAME_HEADER`（meta.siteName）から取得するため、Cloudflare用の新しい環境変数は不要。既に同じ事務所名が付いた404等には重複して追加しない。
+
+`src/helpers/seo.js` のseoTitleフィルターをindex・note・randomの各レイアウトで使い、headTitleとして既存pageheaderへ渡す。HTMLのtitleと自動生成するog:title・twitter:titleで共用し、HTML出力時にエスケープする。ノートのtitle自体は変更しないため、本文見出し、一覧、検索、feedのタイトルは維持する。DG標準metatagsで明示されたOGP・Twitterタイトルは従来どおり優先する。
+
 ## description・OGP・X/Twitter Card
 
 Vaultのノートプロパティ `description` を、検索用のdescription・og:description・twitter:descriptionへ使用する。DG Publishが保持する `dg-note-properties`（テンプレートのnoteProps）から取得する。複数行は空白に整え、HTML属性をエスケープして出力する。原文は変更しない。未設定・空欄・文字列以外は説明タグを自動生成しない。
@@ -58,7 +64,7 @@ og-image: images/og/contact.jpg
 
 共通画像の選択設定は `src/site/_data/seo.js` のdefaultImage。現在の `/img/top-IMGP0361.jpg` は、Vaultの `images/top/top-IMGP0361.jpg` を既存の共通画像同期で `src/site/img/top-IMGP0361.jpg` に配置する。元画像・HOME用の画像はそのまま保持する。共通用はimg/userの外なので、HOMEからの参照やプラグイン管理下のコピーがなくなっても残る。差し替え時は上記のsync:commonを実行し、共通登録・設定・画像を一緒にシステム公開する。
 
-`src/helpers/seo.js` がメタ情報を組み立て、userSetupのseoMetatagsフィルターとDG標準のpageheader内の既存ループで一度だけ出力する。og:title・twitter:titleは既存のタイトル、og:typeはwebsite、twitter:cardはsummary_large_image。画像はog:imageとtwitter:imageで共用する。og:url・画像URLはmeta.siteBaseUrl（SITE_BASE_URL）を基準にし、末尾スラッシュによる重複を避ける。サイトURL設定を本番ドメインへ変更すれば次のbuildで追従する。未設定時はDG標準どおり既存metatagsだけを出力する。
+`src/helpers/seo.js` がメタ情報を組み立て、userSetupのseoMetatagsフィルターとDG標準のpageheader内の既存ループで一度だけ出力する。og:title・twitter:titleの自動生成値は上記headTitle、og:typeはwebsite、twitter:cardはsummary_large_image。画像はog:imageとtwitter:imageで共用する。og:url・画像URLはmeta.siteBaseUrl（SITE_BASE_URL）を基準にし、末尾スラッシュによる重複を避ける。サイトURL設定を本番ドメインへ変更すれば次のbuildで追従する。未設定時はDG標準どおり既存metatagsだけを出力する。
 
 DG標準の `dg-metatags` の明示値も維持する。明示og:imageがある場合は冒頭画像・共通画像より優先し、og-imageプロパティもある場合はog-imageを優先する。説明・タイトル・カード形式などの個別メタタグやtwitter:imageが明示されている場合は、その値を維持する。最終的な同名タグは1つだけ。ローカル画像の欠落・空ファイル・不正な参照はページURL付きのbuildエラーにし、共通画像へ黙って置換しない。外部画像URLは構文を確認するが、build中に外部サイトへ画像の取得確認は行わない。
 

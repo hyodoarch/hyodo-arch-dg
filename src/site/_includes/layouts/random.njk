@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="{{ meta.mainLanguage }}">
   <head>
-    <title>Random Page</title>
+    {% set headTitle = "Random Page" | seoTitle(meta.siteName, page.url) %}
+    <title>{{ headTitle | escape }}</title>
     {% include "components/pageheader.njk" %}
     <script>
       // Get all published notes and redirect to a random one
