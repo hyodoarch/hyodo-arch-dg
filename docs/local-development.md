@@ -59,6 +59,10 @@ canonicalのホストは `www.hyodo-arch.com` に限定し、pages.dev・localho
 
 `npm test` と通常buildで検証し、切替後は全公開ページにcanonicalが1個ずつあること、sitemap・og:urlと一致すること、実際のwwwのページがHTTP200で開くことを確認する。canonicalはHTTPリダイレクトとは別の設定で、301やrobots.txtはそれぞれの作業で対応する。
 
+## 旧URLの301転送
+
+設定と切替手順は [redirects.md](redirects.md) を参照。Cloudflare Pages標準の `_redirects` を使う。通常buildで転送先・重複・ループを検査し、HTTP301はPages上で確認する。wwwのドメイン切替は別作業。
+
 ## description・OGP・X/Twitter Card
 
 Vaultのノートプロパティ `description` を、検索用のdescription・og:description・twitter:descriptionへ使用する。DG Publishが保持する `dg-note-properties`（テンプレートのnoteProps）から取得する。複数行は空白に整え、HTML属性をエスケープして出力する。原文は変更しない。未設定・空欄・文字列以外は説明タグを自動生成しない。
