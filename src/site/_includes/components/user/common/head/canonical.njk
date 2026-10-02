@@ -1,0 +1,4 @@
+{% set canonicalUrl = page.url | seoCanonical(meta.siteBaseUrl, eleventyExcludeFromCollections) %}
+{% if canonicalUrl %}
+<link rel="canonical" href="{{ canonicalUrl | escape }}">
+{% endif %}

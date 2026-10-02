@@ -4,13 +4,15 @@ import { createRequire } from 'node:module';
 import { parse } from 'node-html-parser';
 
 const require = createRequire(import.meta.url);
-const { seoTitle, seoMetatags } = require('./seo');
+const { seoTitle, seoCanonical, seoMetatags } = require('./seo');
 const { clearImageIndex } = require('./imageAssets');
 const { defaultImage } = require('../site/_data/seo');
 const nunjucks = require('nunjucks');
 const MarkdownIt = require('markdown-it');
 const header = fs.readFileSync(new URL('../site/_includes/components/pageheader.njk', import.meta.url), 'utf8')
   .split('<script type="importmap">')[0];
+const canonicalComponent = 'components/user/common/head/canonical.njk';
+const canonicalTemplate = fs.readFileSync(new URL(`../site/_includes/${canonicalComponent}`, import.meta.url), 'utf8');
 const base = 'https://example.com';
 const first = '/img/user/seo-fixture/first.jpg';
 const other = '/img/user/seo-fixture/second.jpg';
@@ -19,12 +21,15 @@ env.addFilter('seoMetatags', seoMetatags);
 
 class HeadLoader extends nunjucks.Loader {
   getSource(name) {
-    if (name !== 'components/pageheader.njk') throw new Error(`Unexpected head include: ${name}`);
-    return { src: header, path: name, noCache: true };
+    const src = name === 'components/pageheader.njk' ? header :
+      name === canonicalComponent ? canonicalTemplate : undefined;
+    if (src === undefined) throw new Error(`Unexpected head include: ${name}`);
+    return { src, path: name, noCache: true };
   }
 }
 const headEnv = new nunjucks.Environment(new HeadLoader(), { autoescape: false });
 headEnv.addFilter('seoTitle', seoTitle);
+headEnv.addFilter('seoCanonical', seoCanonical);
 headEnv.addFilter('seoMetatags', seoMetatags);
 
 function renderLayoutHead(layout, data = {}) {
@@ -110,6 +115,63 @@ it('retains explicitly configured social titles while formatting the browser tit
   expect(html.querySelector('title').text).toBe('作品名 | 兵藤善紀建築設計事務所');
   expect(html.querySelector('meta[property="og:title"]').getAttribute('content')).toBe(manual['og:title']);
   expect(html.querySelector('meta[name="twitter:title"]').getAttribute('content')).toBe(manual['twitter:title']);
+});
+
+const canonicalData = {
+  meta: { siteBaseUrl: 'https://www.hyodo-arch.com', siteName: '兵藤善紀建築設計事務所' },
+  dynamics: { common: { head: [canonicalComponent] }, notes: { head: [] }, index: { head: [] } },
+};
+
+it('discovers canonical through the standard DG head slot and outputs one absolute URL per public page', async () => {
+  const dynamics = await require('../site/_data/dynamics')();
+  expect(dynamics.common.head.filter(name => name === canonicalComponent)).toHaveLength(1);
+  for (const site of ['https://www.hyodo-arch.com', 'https://www.hyodo-arch.com/']) {
+    for (const [layout, url] of [['index', '/'], ['note', '/house/honbasu/'],
+      ['note', '/house/'], ['note', '/tags/和風/'], ['note', '/tags/%E5%92%8C%E9%A2%A8/']]) {
+      const html = renderLayoutHead(layout, { ...canonicalData,
+        meta: { ...canonicalData.meta, siteBaseUrl: site }, page: { url } });
+      const links = html.querySelectorAll('head link[rel="canonical"]');
+      expect(links).toHaveLength(1);
+      expect(links[0].getAttribute('href')).toBe(new URL(url, site).href);
+      expect(links[0].getAttribute('href')).toBe(html.querySelector('meta[property="og:url"]').getAttribute('content'));
+    }
+  }
+});
+
+it('keeps canonical inactive before cutover and never points it at pages.dev or local hosts', () => {
+  for (const site of ['', 'https://hyodo-arch-dg.pages.dev', 'https://preview.hyodo-arch-dg.pages.dev/',
+    'http://localhost:8080', 'https://hyodo-arch.com', 'https://www.hyodo-arch.com.example.org']) {
+    const html = renderLayoutHead('note', { ...canonicalData, meta: { ...canonicalData.meta, siteBaseUrl: site } });
+    expect(html.querySelectorAll('link[rel="canonical"]')).toHaveLength(0);
+  }
+});
+
+it('omits canonical on collection-excluded 404, random and fixture pages', () => {
+  for (const [layout, url] of [['index', '/404.html'], ['random', '/~random/'], ['note', '/__image-captions-fixture/']]) {
+    const html = renderLayoutHead(layout, { ...canonicalData, page: { url }, eleventyExcludeFromCollections: true });
+    expect(html.querySelectorAll('link[rel="canonical"]')).toHaveLength(0);
+  }
+});
+
+it('rejects unsafe production URL settings instead of silently emitting a wrong canonical', () => {
+  for (const site of ['http://www.hyodo-arch.com', 'https://www.hyodo-arch.com:8443',
+    'https://user:pass@www.hyodo-arch.com', 'https://www.hyodo-arch.com/subpath/',
+    'https://www.hyodo-arch.com?preview=1', 'https://www.hyodo-arch.com/#section']) {
+    expect(() => seoCanonical('/house/honbasu/', site, false)).toThrow('Canonical /house/honbasu/: SITE_BASE_URL');
+  }
+  for (const url of [undefined, 'house/honbasu/', '//other.example/house/', '/\\other.example/', '/house\\honbasu/']) {
+    expect(() => seoCanonical(url, canonicalData.meta.siteBaseUrl, false)).toThrow('site-relative page URL');
+  }
+});
+
+it('preserves page paths, drops query and fragment, and escapes canonical attributes', () => {
+  const url = '/作品 & 設計/"?utm_source=example#photo';
+  const html = renderLayoutHead('note', { ...canonicalData, page: { url } });
+  const link = html.querySelector('link[rel="canonical"]');
+  expect(link.getAttribute('href')).toBe('https://www.hyodo-arch.com/%E4%BD%9C%E5%93%81%20&%20%E8%A8%AD%E8%A8%88/%22');
+  expect(link.outerHTML).toContain('&amp;');
+  expect(Object.keys(link.attributes)).toEqual(['rel', 'href']);
+  expect(seoCanonical('/existing.html', canonicalData.meta.siteBaseUrl)).toBe('https://www.hyodo-arch.com/existing.html');
 });
 
 it('uses one note description for search, OGP and Twitter without changing its source', () => {

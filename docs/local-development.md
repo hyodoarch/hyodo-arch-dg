@@ -49,6 +49,16 @@ Googleタグ標準の `config` による通常のページビュー計測を使�
 
 `src/helpers/seo.js` のseoTitleフィルターをindex・note・randomの各レイアウトで使い、headTitleとして既存pageheaderへ渡す。HTMLのtitleと自動生成するog:title・twitter:titleで共用し、HTML出力時にエスケープする。ノートのtitle自体は変更しないため、本文見出し、一覧、検索、feedのタイトルは維持する。DG標準metatagsで明示されたOGP・Twitterタイトルは従来どおり優先する。
 
+## canonical
+
+DG標準のcommon/head拡張で `components/user/common/head/canonical.njk` を一度だけ読み込み、既存 `SITE_BASE_URL` とEleventyの `page.url` から絶対URLを生成する。新しい環境変数・ノートプロパティ・手作業のURL一覧は不要。通常の公開ページ（HOME・作品・情報・カテゴリー・タグ）に出力し、`eleventyExcludeFromCollections` の404・ランダム遷移・検証ページには出力しない。URLの末尾スラッシュや既存.html形式はそのまま保持し、クエリ・フラグメントは除く。
+
+ドメイン移行前の `SITE_BASE_URL=https://hyodo-arch-dg.pages.dev` ではcanonicalを出力しない。本番ドメイン切替時に既存のサイトURLを `https://www.hyodo-arch.com` へ変更し、再ビルド・再デプロイすると有効になる（設定末尾の `/` の有無は両方対応）。sitemap・feed・自動OGPも同じサイトURLを参照する。公開環境だけでなく、各PCのローカル設定も切替時に揃える。現時点でサイトURLやDNSは変更しない。
+
+canonicalのホストは `www.hyodo-arch.com` に限定し、pages.dev・localhost・別ドメインを正規URLとして出力しない。HTTPS以外・認証情報・非標準ポート・サブパス・クエリ等を含む本番サイトURL設定は、ページURL付きのbuildエラーにする。ドメイン切替後にpages.devで同じ本番HTMLを表示しても、canonicalはwwwを指す。
+
+`npm test` と通常buildで検証し、切替後は全公開ページにcanonicalが1個ずつあること、sitemap・og:urlと一致すること、実際のwwwのページがHTTP200で開くことを確認する。canonicalはHTTPリダイレクトとは別の設定で、301やrobots.txtはそれぞれの作業で対応する。
+
 ## description・OGP・X/Twitter Card
 
 Vaultのノートプロパティ `description` を、検索用のdescription・og:description・twitter:descriptionへ使用する。DG Publishが保持する `dg-note-properties`（テンプレートのnoteProps）から取得する。複数行は空白に整え、HTML属性をエスケープして出力する。原文は変更しない。未設定・空欄・文字列以外は説明タグを自動生成しない。

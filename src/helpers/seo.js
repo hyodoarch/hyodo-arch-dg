@@ -17,6 +17,29 @@ function seoTitle(title, siteName, pageUrl) {
     ? pageTitle : pageTitle + suffix;
 }
 
+// Activate with DG's existing site URL at domain cutover, never with pages.dev.
+function seoCanonical(pageUrl, siteBaseUrl, excludeFromCollections) {
+  if (excludeFromCollections || !text(siteBaseUrl)) return '';
+  try {
+    const base = new URL(siteBaseUrl.trim());
+    if (base.hostname !== 'www.hyodo-arch.com') return '';
+    if (base.origin !== 'https://www.hyodo-arch.com' || base.username || base.password ||
+      base.pathname !== '/' || base.search || base.hash) {
+      throw new Error('SITE_BASE_URL must be https://www.hyodo-arch.com with an optional trailing slash');
+    }
+    if (typeof pageUrl !== 'string' || !pageUrl.startsWith('/') ||
+      pageUrl.startsWith('//') || pageUrl.includes('\\')) {
+      throw new Error('A site-relative page URL is required');
+    }
+    const url = new URL(pageUrl, base);
+    url.search = '';
+    url.hash = '';
+    return url.href;
+  } catch (error) {
+    throw new Error(`Canonical ${pageUrl || 'page'}: ${error.message}`, { cause: error });
+  }
+}
+
 // Inspect only the rendered note, before layouts add navigation or listing cards.
 // A heading or paragraph before an image means that image is not at the beginning.
 function leadingImage(content) {
@@ -88,4 +111,4 @@ function seoMetatags(content, noteProps, metatags, title, pageUrl, siteBaseUrl, 
   }
 }
 
-module.exports = { seoTitle, seoMetatags };
+module.exports = { seoTitle, seoCanonical, seoMetatags };

@@ -8,6 +8,7 @@ function userMarkdownSetup(md) {
 function userEleventySetup(eleventyConfig) {
   eleventyConfig.addFilter('homeSlideshow', require('./homeSlideshow').homeSlideshow);
   eleventyConfig.addFilter('seoTitle', require('./seo').seoTitle);
+  eleventyConfig.addFilter('seoCanonical', require('./seo').seoCanonical);
   eleventyConfig.addFilter('seoMetatags', require('./seo').seoMetatags);
   const { noteTags } = require('./noteTemplate');
   eleventyConfig.addNunjucksShortcode('noteTags', function () {
