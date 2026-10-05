@@ -77,6 +77,8 @@ Vectorworksの公開先と保留ページの扱いを決めた後、既存SITE_B
 node tools/check-redirects.cjs --live=https://www.hyodo-arch.com
 ```
 
-apexドメインからwwwへの転送や、pages.devからwwwへの転送はCloudflare側のドメインルールを別途設定・検証する。_redirectsにはドメイン転送を混ぜず、pages.devの検証入口は本番確認後に切り替える。HTTP→HTTPSの挙動も切替時に確認する。
+2026-10-02の調査で、apexからwwwへの301は旧サーバーで設定済み、メールのMXはapex自体を参照していることを確認した。Value Domainのネームサーバー・apex A・MX・SPF等と既存のapex転送・SSLを維持し、wwwだけをPagesへ向ける。CloudflareのCustom domainsへwwwを登録してから、既存DNSに `cname www hyodo-arch-dg.pages.dev.` を追加する（2026-10-06の変更前本文でワイルドカードAの利用を確認）。切戻しは追加したwww CNAMEを削除する。DNS設定全体とメール・旧サーバーの維持方法はVaultの `_メモ置場/サイト運用の説明書/DNS・メール・切戻し手順.md` を参照する。
+
+pages.devからwwwへの転送は本番確認後にCloudflare側で別途設定・検証する。_redirectsにはドメイン転送を混ぜず、pages.devの検証入口は本番確認後に切り替える。HTTP→HTTPSの挙動も切替時に確認する。
 
 運用・上書きリスクはVaultの `_メモ置場/301設定の準備と検証記録.md` と `_メモ置場/サイト運用の説明書/アップデート時に上書きされる可能性のあるファイル.md` に記録する。

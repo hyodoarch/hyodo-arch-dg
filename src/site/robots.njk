@@ -1,0 +1,11 @@
+---
+permalink: /robots.txt
+eleventyExcludeFromCollections: true
+layout: false
+---
+{% set sitemapRoot = "/" | seoCanonical(meta.siteBaseUrl, false) -%}
+User-agent: *
+Allow: /
+{% if sitemapRoot %}
+Sitemap: {{ sitemapRoot }}sitemap.xml
+{% endif -%}

@@ -59,6 +59,21 @@ canonicalのホストは `www.hyodo-arch.com` に限定し、pages.dev・localho
 
 `npm test` と通常buildで検証し、切替後は全公開ページにcanonicalが1個ずつあること、sitemap・og:urlと一致すること、実際のwwwのページがHTTP200で開くことを確認する。canonicalはHTTPリダイレクトとは別の設定で、301やrobots.txtはそれぞれの作業で対応する。
 
+## robots.txt
+
+`src/site/robots.njk` をEleventy標準のpermalinkで `dist/robots.txt` へ生成する。レイアウトを使わないプレーンテキストとし、`eleventyExcludeFromCollections: true` によりsitemap・feed・検索・一覧の対象外にする。distを直接編集せず、このテンプレートをGitで管理する。
+
+`User-agent: *` と `Allow: /` で公開ページの巡回を許可する。Sitemap行は既存の `SITE_BASE_URL` が本番 `https://www.hyodo-arch.com` の場合だけ出力し、既存seoCanonicalフィルターで作ったルートURLへ `sitemap.xml` を付ける。末尾スラッシュあり・なしの両方に対応する。移行前のpages.devや未設定の場合は巡回許可のみ出力し、pages.devのサイトマップは案内しない。新しい環境変数やDNS変更は不要。本番URLへの設定変更・再ビルド後は、次の内容になる。
+
+```text
+User-agent: *
+Allow: /
+
+Sitemap: https://www.hyodo-arch.com/sitemap.xml
+```
+
+通常の `npm test` と `npm run build`、本番サイトURLを環境変数で一時指定した生成結果を確認する。robots.txtの実応答がHTTP200・プレーンテキストであり、robots.txt自体がsitemap/feedへ含まれないことを確認する。ドメイン切替前にpages.devでファイルの出力を確認し、切替後に `https://www.hyodo-arch.com/robots.txt` とSitemap行を再確認する。[Googleのrobots.txt案内](https://developers.google.com/crawling/docs/robots-txt/create-robots-txt)
+
 ## 旧URLの301転送
 
 設定と切替手順は [redirects.md](redirects.md) を参照。Cloudflare Pages標準の `_redirects` を使う。通常buildで転送先・重複・ループを検査し、HTTP301はPages上で確認する。wwwのドメイン切替は別作業。
