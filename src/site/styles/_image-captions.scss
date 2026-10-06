@@ -1,6 +1,8 @@
 .image-captions-figure {
   position: relative;
-  display: table;
+  // A fixed-width formatting context fits beside a float or moves below it.
+  // Unlike an auto-layout table, it does not shrink to the remaining space.
+  display: flow-root;
   margin: 0 0 1em;
   padding: 0;
   max-width: 100%;
@@ -14,13 +16,23 @@
   float: none;
 }
 .image-captions-caption {
-  display: table-caption;
-  caption-side: bottom;
+  display: block;
   text-align: center;
   overflow-wrap: anywhere;
   padding: .3em 0;
   font: inherit;
   color: inherit;
+}
+
+// The marker comes from the Markdown size, not intrinsic/optimized img dimensions.
+// No explicit width takes precedence over left/right, including on mobile.
+figure.image-captions-figure.image-captions-full-width {
+  clear: both;
+  float: none;
+  width: 100% !important;
+  max-width: 100%;
+  margin-inline: 0;
+  img, picture { width: 100%; }
 }
 figure.image-captions-left { float: left; margin-right: 1em; }
 figure.image-captions-right { float: right; margin-left: 1em; }

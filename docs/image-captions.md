@@ -12,7 +12,11 @@ Digital GardenのMarkdown拡張として導入。登録先は `src/helpers/userS
 ![説明|405](/img/user/images/photo.jpg)
 ```
 
-画像だけの段落をfigureとfigcaptionに変換する。キャプション付きのleft/rightは本文の回り込み、centerは中央配置。通常の `![[images/photo.jpg]]` はキャプションなし。キャプションなしのleft/rightと、モバイルで指定幅を2/3にする対応は今回の導入には含まれない。
+画像だけの段落をfigureとfigcaptionに変換する。left/rightは本文の回り込み、centerは中央配置。通常の `![[images/photo.jpg]]` はキャプションなし。
+
+幅未指定のImage Captions（`++`のaltのみも含む）は、先行する左右画像の回り込みを解除し、本文幅いっぱいで表示する。left/rightだけを指定して幅を省略した場合も同じ。幅指定ありは余白に収まれば横に配置し、収まらなければ先行画像の下へ送る。画像の外枠は独立した整形領域にし、余白へ押し込むための自動縮小を防ぐ。本文幅を超える指定は本文内に収める。600px以下でleft/rightの指定幅を2/3、最大55%にする既存のモバイル対応は維持する。
+
+幅の有無はMarkdown解析時の `image-captions-full-width` クラスで区別する。画像最適化後のimgのwidth属性では判定しない。公開前の表示検証は `node tools/local-verification/check-image-captions.cjs`（Playwrightの指定方法はlocal-development.md参照）。
 
 ## Image Grid Captions
 

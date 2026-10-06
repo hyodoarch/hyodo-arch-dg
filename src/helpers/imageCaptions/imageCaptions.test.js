@@ -27,6 +27,14 @@ const embed = alias => `![[${path}|${alias}]]`;
 const grid = (n, params = '') => '```image-grid-captions\ncolumns: ' + n + '\n' + params + '\n' + Array.from({length: n}, (_, i) => `![[${path}${i ? '' : '|外観'}]]`).join('\n') + '\n```';
 
 describe('Image Captions compatibility', () => {
+  it.each(['Caption', '++Alt', 'Caption|left', '++Alt|right', 'Caption|center', 'Caption|120', '++Alt|left|317'])('preserves the explicit-width distinction through DG Publish: %s', alias => {
+    const original = md.render(embed(alias));
+    const label = (path + '|' + alias).replace(/\|/g, '\\|');
+    const published = md.render(`![${label}](${resolveImage(path)})`);
+    expect(published).toBe(original);
+    expect(parse(published).querySelector('figure').classList.contains('image-captions-full-width'))
+      .toBe(!/\|\d+$/.test(alias));
+  });
   it.each(['', 'left|312', 'right|312', 'center|312', 'Caption', 'Caption|right|405', '%|right|405', 'See <<HOME|home>>|left|312'])('DG Publish preserves the local rendering of %s', alias => {
     const original = alias ? embed(alias) : `![[${path}]]`;
     const label = (path + (alias ? '|' + alias : '')).replace(/\|/g, '\\|');

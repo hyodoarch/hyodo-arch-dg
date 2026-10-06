@@ -442,7 +442,7 @@ body .search-container {
     > p:has(> img:only-child),
     > p:has(> a:only-child > img:only-child),
     > p:has(> a:only-child > picture:only-child) { padding-inline: 0; }
-    > .image-captions-figure:not(.image-captions-left):not(.image-captions-right) {
+    > .image-captions-figure.image-captions-full-width {
       width: 100% !important;
       > picture, > img, > picture > img { width: 100%; }
     }

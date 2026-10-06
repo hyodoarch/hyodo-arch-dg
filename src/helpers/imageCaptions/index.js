@@ -82,7 +82,8 @@ function imageCaptions(md, options = {}) {
     if (parsed.width) clone.attrSet('width', parsed.width);
     if (parsed.height) clone.attrSet('height', parsed.height);
     const image = originalImage([clone], 0, opts, env, self);
-    const cls = 'image-captions-figure' + (parsed.alignment ? ` image-captions-${parsed.alignment}` : '');
+    const cls = 'image-captions-figure' + (parsed.alignment ? ` image-captions-${parsed.alignment}` : '')
+      + (!parsed.width ? ' image-captions-full-width' : '');
     const width = /^\d+$/.test(parsed.width || '') ? ` style="width:${parsed.width}px;--image-caption-width:${parsed.width}px"` : '';
     const caption = parsed.caption ? `<figcaption class="image-captions-caption">${captionMd.renderInline(parsed.caption)}</figcaption>` : '';
     return `<figure class="${cls}"${width}>${image}${caption}</figure>\n`;
