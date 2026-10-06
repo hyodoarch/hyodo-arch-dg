@@ -45,6 +45,10 @@ GitHubがDGの共有元。Vaultの元ノート・画像はDropboxで同期し、
 - `npm run build` は開始時に同じ検証を実行し、欠落時はdistを削除する前に停止する。VaultがないCloudflareでもGit管理された公開入力だけで検証できる。
 - `DG-Publish.cmd` はVault同期を実行しない。画像差し替え後は先に `npm run sync:common` を実行してから公開する。公開時のbuildでも欠落検証が実行される。作品コンテンツはObsidian DG Publishで公開する。DG-Publish.cmdはシステム修正専用で、src/site/notesのMarkdownとsrc/site/img/userの変更があれば停止する。実装はGit管理されたtools/publish-dg.ps1、Vault側はその呼出のみ。
 
+### 公開用の共通設定（.env）
+
+`DG-Publish.cmd` はルートの `.env` もシステム設定として対象にする。変更一覧を確認して承認すると、テスト・公開用ビルド・コミット・pushを実行し、Cloudflareが公開を更新する。`.env` はGit管理する公開可能な共通設定専用とし、秘密情報やPC固有パスはCloudflareやWindowsの環境変数に保存する。`.env.local` など他の隠しファイルは対象外のまま。対象確認だけならVaultの `tools/publish-dg.ps1 -Check` を使用する。
+
 ## Google Analytics 4
 
 Measurement IDの登録先はCloudflare Pagesの `hyodo-arch-dg` → Settings → Variables and Secrets（Environment variables）→ Production。変数名を `GA_MEASUREMENT_ID`、値を既存GA4ウェブストリームの `G-` で始まる測定IDにする。実IDをテンプレート・JavaScript・Git管理された `.env` へ書き込まない。登録・変更後は再デプロイが必要。Previewには設定しない。`.env.example` の空欄は設定方法の見本。

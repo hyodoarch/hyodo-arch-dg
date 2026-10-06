@@ -22,7 +22,7 @@ function Get-SourceChanges {
             throw "コンテンツのローカル変更があります。Obsidian DG Publishの対象をこのコマンドで送信しません: $path"
         }
         $source = $path -match '^(src|tools|tests|docs)/.+\.(js|cjs|mjs|ts|json|njk|html|scss|css|md|ya?ml|svg|png|jpe?g|gif|webp|avif|ico|woff2?|ttf|otf|ps1|cmd|sh)$'
-        $rootConfig = $path -in @('package.json', 'package-lock.json', '.eleventy.js', '.env.example', 'netlify.toml', 'vercel.json', 'README.md', 'AGENTS.md')
+        $rootConfig = $path -in @('package.json', 'package-lock.json', '.eleventy.js', '.env', '.env.example', 'netlify.toml', 'vercel.json', 'README.md', 'AGENTS.md')
         $excluded = $path -match '(^|/)(\.[^/]+|node_modules|dist|_site|cache|secrets?)(/|$)' -or
             $path -match '(^|/)(credentials?|secrets?|private[-_]key)([._-]|$)' -or
             $path -match '^src/site/styles/_?theme\..*\.css$'
