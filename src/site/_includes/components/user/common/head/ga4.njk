@@ -4,6 +4,112 @@
     if (window.location.hostname !== 'www.hyodo-arch.com' || window.location.protocol !== 'https:') return;
 
     const measurementId = '{{ analytics.measurementId }}';
+    const preferenceKey = 'hyodo-arch-analytics-optout';
+    const disableKey = 'ga-disable-' + measurementId;
+
+    const stopTracking = () => { window[disableKey] = true; };
+    const readPreference = () => {
+      try {
+        const value = window.localStorage.getItem(preferenceKey);
+        if (value === '1') return 'excluded';
+        if (value === null) return 'included';
+      } catch { /* An unreadable preference is not permission to track. */ }
+      return 'unknown';
+    };
+
+    let parameters;
+    try {
+      parameters = new URLSearchParams(window.location.search);
+    } catch {
+      stopTracking();
+      return;
+    }
+    const modes = parameters.getAll('analytics');
+    const mode = modes.length === 1 ? modes[0] : '';
+    const operation = ['off', 'on', 'status'].includes(mode);
+    const ambiguous = modes.length > 1;
+    let preference;
+    let message;
+    let error = false;
+
+    // Stop before attempting storage, including the operation page itself.
+    if (operation || ambiguous) stopTracking();
+    if (ambiguous) {
+      message = '設定URLの指定方法を確認してください。除外URL、解除URL、確認URLのいずれかを開き直してください。このページは計測しません。';
+      error = true;
+    } else if (mode === 'off') {
+      try {
+        window.localStorage.setItem(preferenceKey, '1');
+        if (readPreference() !== 'excluded') throw new Error('Preference was not saved');
+        message = 'このブラウザーの除外設定を保存しました。保存データを削除した場合などは、除外URLから再設定してください。';
+      } catch {
+        message = 'このページの計測は停止しましたが、除外設定を保存できませんでした。ブラウザーの保存設定を確認し、除外URLを開き直してください。';
+        error = true;
+      }
+    } else if (mode === 'on') {
+      try {
+        window.localStorage.removeItem(preferenceKey);
+        if (readPreference() !== 'included') throw new Error('Preference was not removed');
+        message = '除外設定を解除しました。その後に新しく開く通常ページから計測を再開します。';
+      } catch {
+        message = '除外設定の解除を確認できませんでした。このページは計測しません。';
+        error = true;
+      }
+    } else {
+      preference = readPreference();
+      if (mode === 'status') {
+        if (preference === 'excluded') message = 'このブラウザーはアクセス解析から除外されています。';
+        else if (preference === 'included') message = 'このブラウザーに除外設定はありません。通常の閲覧は計測対象です。';
+        else {
+          message = '除外設定を確認できませんでした。このページは計測しません。除外URLを開き直してください。';
+          error = true;
+        }
+      }
+    }
+
+    const stopIfExcluded = () => {
+      if (readPreference() !== 'included') stopTracking();
+    };
+    window.addEventListener('storage', event => {
+      if (event.key === preferenceKey || event.key === null) stopIfExcluded();
+    });
+    window.addEventListener('pageshow', event => {
+      if (event.persisted) stopIfExcluded();
+    });
+
+    if (operation) {
+      try {
+        parameters.delete('analytics');
+        const query = parameters.toString();
+        window.history.replaceState(window.history.state, '', window.location.pathname + (query ? '?' + query : '') + window.location.hash);
+      } catch { /* URL cleanup cannot undo the tracking decision or storage result. */ }
+    }
+
+    if (message) {
+      const showNotice = () => {
+        const parent = document.querySelector('main.content') || document.body;
+        if (!parent) return;
+        const notice = document.createElement('section');
+        notice.className = 'hyodo-analytics-notice';
+        notice.setAttribute('role', error ? 'alert' : 'status');
+        const text = document.createElement('p');
+        text.textContent = message;
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.textContent = '閉じる';
+        close.setAttribute('aria-label', 'アクセス解析の設定結果を閉じる');
+        close.addEventListener('click', () => notice.remove());
+        notice.append(text, close);
+        parent.prepend(notice);
+      };
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', showNotice, { once: true });
+      else showNotice();
+    }
+
+    if (operation || ambiguous || preference !== 'included' || window[disableKey] === true) {
+      stopTracking();
+      return;
+    }
     window.dataLayer = window.dataLayer || [];
     window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
     window.gtag('js', new Date());

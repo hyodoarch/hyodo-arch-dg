@@ -43,6 +43,26 @@ DG標準の `dynamics.common.head` で `components/user/common/head/ga4.njk` を
 
 Googleタグ標準の `config` による通常のページビュー計測を使い、独自イベントや手動のpage_view送信を追加しない。HOME・作品・情報・タグ・404は共通headを一度だけ使用する。ドメイン切替前にIDを登録しても、DGのpages.devは計測しない。切替後にGA4のリアルタイム表示で公開サイトからの受信を確認する。検証ではGoogleタグの通信を捕捉し、実GA4へテストデータを送らない。
 
+### 自分とスタッフのアクセスを除外する
+
+普段使う各端末・各ブラウザー・各プロファイルで、次のURLを開く。ブログ側の設定とは別に登録する。
+
+| 操作 | URL |
+| --- | --- |
+| このブラウザーを除外 | `https://www.hyodo-arch.com/?analytics=off` |
+| 除外を解除 | `https://www.hyodo-arch.com/?analytics=on` |
+| 保存状態を確認 | `https://www.hyodo-arch.com/?analytics=status` |
+
+既存のga4.njkが、本番www/HTTPSに限ってlocalStorageの `hyodo-arch-analytics-optout=1` を確認する。除外時はGoogleタグの読込・初期化を行わず、公式の `ga-disable-<Measurement ID>` もtrueにする。IDは既存の環境変数を使う。除外・解除・確認の操作ページ自体も計測しない。正常な通常訪問は従来どおりタグ1個と標準configで計測する。
+
+操作時だけ本文の先頭に結果を表示し、操作用analyticsパラメーターをアドレス欄から除く。残りのクエリ・アンカー・ページパスを保つ。保存・削除後に再読取りできた場合だけ成功を表示し、保存失敗・状態不明でもそのページは計測しない。URL整形の失敗は保存結果と計測停止に影響しない。状態を読めない通常訪問も計測しないため、保存制限のある一般訪問者もこの場合は集計されない。
+
+設定を保存した後は普通のURLで閲覧でき、接続元IPの変更に影響されない。別ブラウザー・プライベート閲覧・保存データ削除後は再設定が必要。Safariには一定期間サイト上の操作がない場合に保存データを削除する仕様があるため、永久保存を保証しない。除外・確認URLをブックマークして、長期間使っていない場合などは確認・再設定する。[WebKitの保存制限](https://webkit.org/tracking-prevention/)
+
+他タブの設定変更と、戻る/進むで復元されたページでも保存状態を再確認し、必要なら公式の送信停止フラグを立てる。解除によって開いたままのページを自動的に再初期化しない。計測を再開する場合は、通常ページを新しく開くか再読込する。設定前に送った履歴や、すでに開始した通信を取り消す機能ではない。[Googleの送信停止仕様](https://developers.google.com/tag-platform/security/guides/privacy#turn_off_google_analytics)
+
+結果表示は独自のuser SCSS `hyodo-analytics.scss` をDG標準の自動検出で読み込む。公開ページのノートや共通レイアウトを編集する必要はない。GA4タグを出力しない開発環境・ID未設定・確認用デプロイでは、本番の除外操作も実行しない。回帰検証は `src/helpers/analytics.test.js` で実テンプレートと保存状態・例外・URL維持・他タブ/ページ復元を検証する。
+
 ## headのtitle
 
 ブラウザのtitleは通常ページで「ページタイトル | 事務所名」、トップ（page.urlが `/`）では事務所名のみとする。事務所名は既存の `SITE_NAME_HEADER`（meta.siteName）から取得するため、Cloudflare用の新しい環境変数は不要。既に同じ事務所名が付いた404等には重複して追加しない。
