@@ -6,6 +6,7 @@ function userMarkdownSetup(md) {
   md.use(require('./slideshow'));
 }
 function userEleventySetup(eleventyConfig) {
+  require('./tagListings').register(eleventyConfig);
   eleventyConfig.addFilter('homeSlideshow', require('./homeSlideshow').homeSlideshow);
   eleventyConfig.addFilter('seoTitle', require('./seo').seoTitle);
   eleventyConfig.addFilter('seoCanonical', require('./seo').seoCanonical);

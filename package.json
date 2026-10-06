@@ -11,7 +11,7 @@
         "sync:common": "node tools/sync-vault.cjs --common-only",
         "check:common-images": "node tools/common-images.cjs",
         "watch:sass": "sass --watch src/site/styles:dist/styles",
-        "watch:eleventy": "cross-env ELEVENTY_ENV=dev eleventy --serve",
+        "watch:eleventy": "cross-env ELEVENTY_ENV=dev node tools/watch-eleventy.cjs",
         "build:eleventy": "cross-env ELEVENTY_ENV=prod UV_THREADPOOL_SIZE=16 NODE_OPTIONS=--max-old-space-size=3072 eleventy",
         "build:sass": "sass src/site/styles:dist/styles --style compressed",
         "get-theme": "node src/site/get-theme.js",
