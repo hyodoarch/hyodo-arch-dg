@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { createRequire } from 'node:module';
-const { parseRedirects, checkRedirects } = createRequire(import.meta.url)('./check-redirects.cjs');
+const { parseRedirects, matches, checkRedirects } = createRequire(import.meta.url)('./check-redirects.cjs');
 const roots = [];
 afterEach(() => {
   for (const root of roots.splice(0)) fs.rmSync(root, { recursive: true, force: true });
@@ -56,4 +56,34 @@ it('keeps exact blog paths before the limited pagination rules', () => {
 it('enforces Cloudflare line and static count limits', () => {
   expect(() => parseRedirects('/old https://blog.hyodo-arch.com/' + 'a'.repeat(1000) + ' 301')).toThrow('line limit');
   expect(() => parseRedirects(Array.from({ length: 2001 }, (_, i) => `/old${i} /house/new/ 301`).join('\n'))).toThrow('count limit');
+});
+
+it('accepts only the three approved section fallbacks with their fixed destinations', () => {
+  expect(parseRedirects('/vectorworks/* https://blog.hyodo-arch.com/vectorscript/ 301\n/buryoshaki/* https://blog.hyodo-arch.com/ 301\n/progress/* / 301')).toHaveLength(3);
+  for (const text of ['/* / 301', '/projects/* / 301', '/progress/* /news/ 301', '/vectorworks/* https://blog.hyodo-arch.com/ 301', '/buryoshaki/* https://blog.hyodo-arch.com/:splat 301']) {
+    expect(() => parseRedirects(text)).toThrow('Only approved');
+  }
+});
+
+it('preserves article and pagination precedence, including deep fallback paths and section boundaries', () => {
+  const article = '/buryoshaki/archives/398 https://blog.hyodo-arch.com/article 301';
+  const page = '/buryoshaki/archives/category/books/page/:page https://blog.hyodo-arch.com/books/ 301';
+  const fallback = '/buryoshaki/* https://blog.hyodo-arch.com/ 301';
+  const rules = parseRedirects([article, page, fallback].join('\n'));
+  const destination = source => rules.find(rule => matches(rule, source))?.destination;
+  expect(destination('/buryoshaki/archives/398')).toBe('https://blog.hyodo-arch.com/article');
+  expect(destination('/buryoshaki/archives/category/books/page/2')).toBe('https://blog.hyodo-arch.com/books/');
+  expect(destination('/buryoshaki/wp-content/uploads/2012/photo.jpg')).toBe('https://blog.hyodo-arch.com/');
+  expect(destination('/buryoshaki/archives/category/books/page/2/deeper')).toBe('https://blog.hyodo-arch.com/');
+  expect(destination('/buryoshaki-other/archives/398')).toBeUndefined();
+  expect(() => parseRedirects([article, fallback, page].join('\n'))).toThrow('Pagination rules must precede');
+});
+
+it('blocks fallback rules that would hide a current public page while leaving adjacent sections alone', () => {
+  const { project, write } = fixture('/projects/old.html /house/new/ 301\n/vectorworks/* https://blog.hyodo-arch.com/vectorscript/ 301\n');
+  const sitemap = publicPath => `<urlset><url><loc>https://www.hyodo-arch.com/house/new/</loc></url><url><loc>https://www.hyodo-arch.com${publicPath}</loc></url></urlset>`;
+  write('dist/sitemap.xml', sitemap('/vectorworks/current/deep/'));
+  expect(() => checkRedirects(project)).toThrow('current public page');
+  write('dist/sitemap.xml', sitemap('/vectorworks-other/current/deep/'));
+  expect(checkRedirects(project).dynamicCount).toBe(1);
 });

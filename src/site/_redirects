@@ -59,12 +59,28 @@
 /old_house_renos/ /kominka-reno/ 301
 /contact.html /consultation/ 301
 
-# NEWS construction links -> the same completed work.
-/progress/239.html /house-reno/kowashi/ 301
-/progress/soka.html /house-reno/soka/ 301
-/progress/yamashita.html /apt-reno/yamashita/ 301
-/progress/tozuka.html /house/tozuka/ 301
-/progress/urawa.html /house/urawa/ 301
+# Retired construction pages -> office home: user decision, 2026-10-06.
+/progress / 301
+/progress/ / 301
+/progress/239.html / 301
+/progress/soka.html / 301
+/progress/yamashita.html / 301
+/progress/tozuka.html / 301
+/progress/urawa.html / 301
+
+# Retired Vectorworks entry -> the current VectorScript index.
+/vectorworks https://blog.hyodo-arch.com/vectorscript/ 301
+/vectorworks/ https://blog.hyodo-arch.com/vectorscript/ 301
+
+# Download links found in the retired Vectorworks pages -> current index.
+/assets/files/offset_pm_pro100.zip https://blog.hyodo-arch.com/vectorscript/ 301
+/assets/files/ha_SecondDim0-10.zip https://blog.hyodo-arch.com/vectorscript/ 301
+/assets/files/ha_SideVisibleHidden0-31.zip https://blog.hyodo-arch.com/vectorscript/ 301
+/assets/files/naname_ds_free100_mac.zip https://blog.hyodo-arch.com/vectorscript/ 301
+/assets/files/naname_ds_free100.zip https://blog.hyodo-arch.com/vectorscript/ 301
+/assets/files/naname_ds_pro_2018.zip https://blog.hyodo-arch.com/vectorscript/ 301
+/assets/files/naname_ds_pro100a_mac.zip https://blog.hyodo-arch.com/vectorscript/ 301
+/assets/files/naname_ds_pro100a.zip https://blog.hyodo-arch.com/vectorscript/ 301
 
 # Existing blog redirects: published article IDs, with and without trailing slash.
 /buryoshaki/archives/7 https://blog.hyodo-arch.com/%E6%98%A0%E7%94%BB/%E3%82%B7%E3%82%A7%E3%83%95%E3%81%A8%E7%B4%A0%E9%A1%94%E3%81%A8%E3%80%81%E3%81%8A%E3%81%84%E3%81%97%E3%81%84%E6%99%82%E9%96%93 301
@@ -604,7 +620,7 @@
 /buryoshaki https://blog.hyodo-arch.com/ 301
 /buryoshaki/ https://blog.hyodo-arch.com/ 301
 
-# Pagination rules last, after all exact paths.
+# Pagination follows exact paths and precedes the retired-section fallbacks.
 /buryoshaki/archives/category/architecture/page/:page https://blog.hyodo-arch.com/%E5%BB%BA%E7%AF%89/ 301
 /buryoshaki/archives/category/architecture/page/:page/ https://blog.hyodo-arch.com/%E5%BB%BA%E7%AF%89/ 301
 /buryoshaki/archives/category/art/page/:page https://blog.hyodo-arch.com/%E3%82%A2%E3%83%BC%E3%83%88/ 301
@@ -629,3 +645,8 @@
 /buryoshaki/archives/category/cooking/chiffon/page/:page/ https://blog.hyodo-arch.com/tags/%E3%82%B7%E3%83%95%E3%82%A9%E3%83%B3%E3%82%B1%E3%83%BC%E3%82%AD 301
 /buryoshaki/archives/tag/chiffon/page/:page https://blog.hyodo-arch.com/tags/%E3%82%B7%E3%83%95%E3%82%A9%E3%83%B3%E3%82%B1%E3%83%BC%E3%82%AD 301
 /buryoshaki/archives/tag/chiffon/page/:page/ https://blog.hyodo-arch.com/tags/%E3%82%B7%E3%83%95%E3%82%A9%E3%83%B3%E3%82%B1%E3%83%BC%E3%82%AD 301
+
+# User-approved retired sections only. Keep specific article/category rules first.
+/vectorworks/* https://blog.hyodo-arch.com/vectorscript/ 301
+/buryoshaki/* https://blog.hyodo-arch.com/ 301
+/progress/* / 301

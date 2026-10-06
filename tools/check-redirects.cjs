@@ -2,6 +2,12 @@ const fs = require('node:fs');
 const path = require('node:path');
 const matter = require('gray-matter');
 
+const sectionFallbacks = new Map([
+  ['/vectorworks/*', 'https://blog.hyodo-arch.com/vectorscript/'],
+  ['/buryoshaki/*', 'https://blog.hyodo-arch.com/'],
+  ['/progress/*', '/'],
+]);
+
 function parseRedirects(text) {
   const rules = [];
   const sources = new Set();
@@ -13,10 +19,14 @@ function parseRedirects(text) {
     if (parts.length !== 3 || parts[2] !== '301') fail('Use source destination 301');
     const [source, destination] = parts;
     if (line.length > 1000) fail('Cloudflare line limit exceeded');
-    if (!source.startsWith('/') || /[?#*\\]/.test(source) || source.includes('//') || /(?:^|\/)\.{1,2}(?:\/|$)/.test(source)) fail('Invalid source path');
-    const dynamic = source.includes(':');
-    if (dynamic && !/^\/buryoshaki\/archives\/(?:category|tag)\/[a-z/]+\/page\/:page\/?$/.test(source)) fail('Only existing blog pagination placeholders are allowed');
-    if (!dynamic && rules.some(rule => rule.dynamic)) fail('Exact paths must precede pagination rules');
+    if (!source.startsWith('/') || /[?#\\]/.test(source) || source.includes('//') || /(?:^|\/)\.{1,2}(?:\/|$)/.test(source)) fail('Invalid source path');
+    const wildcard = source.includes('*');
+    const pagination = source.includes(':');
+    const dynamic = wildcard || pagination;
+    if (wildcard && (!sectionFallbacks.has(source) || sectionFallbacks.get(source) !== destination)) fail('Only approved retired-section fallbacks and targets are allowed');
+    if (pagination && !/^\/buryoshaki\/archives\/(?:category|tag)\/[a-z/]+\/page\/:page\/?$/.test(source)) fail('Only existing blog pagination placeholders are allowed');
+    if (!dynamic && rules.some(rule => rule.dynamic)) fail('Exact paths must precede dynamic rules');
+    if (pagination && rules.some(rule => rule.source.includes('*'))) fail('Pagination rules must precede section fallbacks');
     if (sources.has(source)) fail('Duplicate source: ' + source);
     sources.add(source);
     if (destination.startsWith('/')) {
@@ -34,6 +44,7 @@ function parseRedirects(text) {
 
 function matches(rule, urlPath) {
   if (!rule.dynamic) return rule.source === urlPath;
+  if (rule.source.endsWith('/*')) return urlPath.startsWith(rule.source.slice(0, -1));
   const [before, after] = rule.source.split(':page');
   return urlPath.startsWith(before) && urlPath.endsWith(after) && !urlPath.slice(before.length, after ? -after.length : undefined).includes('/') && urlPath.length > before.length + after.length;
 }
@@ -89,7 +100,7 @@ async function checkLive(result, base) {
     }));
   }
   await batch(result.rules, async rule => {
-    const source = rule.source.replace(':page', '2');
+    const source = rule.source.replace(':page', '2').replace('*', 'redirect-check/deep/legacy.html');
     const response = await get(origin + source);
     const expected = new URL(rule.destination, origin).href;
     if (response.status !== 301 || !response.location || new URL(response.location, origin).href !== expected) throw new Error(`${source}: ${response.status}, Location=${response.location}; expected 301 -> ${expected}`);
@@ -105,12 +116,31 @@ async function checkLive(result, base) {
     if (response.status !== 200) throw new Error(`${source}: public page ${response.status}`);
     return { publicPage: source, status: response.status, ok: true };
   });
-  const retired = ['/arch_link.html', '/plain_hut/', '/plain_hut/about_ph.html', '/plain_hut/ph-5x7.html', '/plain_hut/ph-4x8.html', '/plain_hut/ph-spec.html', '/thankyou.html', '/progress/', '/projects/not-a-real-work.html', '/buryoshaki/archives/155'];
+  const retired = ['/arch_link.html', '/plain_hut/', '/plain_hut/about_ph.html', '/plain_hut/ph-5x7.html', '/plain_hut/ph-4x8.html', '/plain_hut/ph-spec.html', '/thankyou.html', '/projects/not-a-real-work.html', '/vectorworks-other/legacy.html', '/buryoshaki-other/legacy.html', '/progression/legacy.html'];
   await batch(retired, async source => {
     const response = await get(origin + source);
     if (response.status !== 404) throw new Error(`${source}: retired or unknown page ${response.status}`);
     return { retired: source, status: response.status, ok: true };
   });
+  if (result.rules.some(rule => rule.source.includes('*'))) {
+    const legacyProbes = [
+      '/vectorworks/useful/angle_design/ij_move.html',
+      '/vectorworks/downloads/legacy.zip',
+      ...[121, 130, 155, 597, 612, 619, 622, 628, 648, 652, 659].flatMap(id => [`/buryoshaki/archives/${id}`, `/buryoshaki/archives/${id}/`]),
+      '/buryoshaki/wp-content/uploads/2012/legacy.jpg',
+      '/buryoshaki/archives/unknown/page/2',
+      '/progress/index.html',
+      '/progress/archive/legacy.html',
+    ];
+    await batch(legacyProbes, async source => {
+      const rule = result.rules.find(rule => matches(rule, source));
+      if (!rule) throw new Error('Missing retired-section redirect: ' + source);
+      const response = await get(origin + source);
+      const expected = new URL(rule.destination, origin).href;
+      if (response.status !== 301 || !response.location || new URL(response.location, origin).href !== expected) throw new Error(`${source}: ${response.status}, Location=${response.location}; expected 301 -> ${expected}`);
+      return { legacyProbe: source, ...response, ok: true };
+    });
+  }
   const queryChecks = [];
   for (const source of ['/projects/honbasu.html', '/contact.html', '/buryoshaki/archives/398']) {
     const rule = result.rules.find(rule => rule.source === source);
@@ -124,12 +154,12 @@ async function checkLive(result, base) {
   return { checkedAt: new Date().toISOString(), origin, success: checks.every(check => check.ok), ruleCount: result.rules.length, checks, queryChecks };
 }
 
-module.exports = { parseRedirects, checkRedirects, checkLive };
+module.exports = { parseRedirects, matches, checkRedirects, checkLive };
 if (require.main === module) {
   (async () => {
     const project = path.resolve(__dirname, '..');
     const result = checkRedirects(project);
-    console.log(`[redirects] ${result.staticCount} exact + ${result.dynamicCount} pagination rules; ${result.legacyNotes.filter(note => note.mapped).length}/${result.legacyNotes.length} legacy note URLs mapped.`);
+    console.log(`[redirects] ${result.staticCount} exact + ${result.dynamicCount} dynamic rules; ${result.legacyNotes.filter(note => note.mapped).length}/${result.legacyNotes.length} legacy note URLs mapped.`);
     const base = process.argv.find(arg => arg.startsWith('--live='))?.slice('--live='.length);
     if (base) {
       const report = await checkLive(result, base);
