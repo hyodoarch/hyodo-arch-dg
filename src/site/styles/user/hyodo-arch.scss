@@ -123,6 +123,11 @@ body:not(:has(.content.canvas-page)) {
         margin-bottom: 0.5em;
       }
     }
+    // Match the thin gray divider above the footer.
+    hr {
+      border: 0;
+      border-top: 1px solid #ddd;
+    }
     figcaption { margin-top: 0; }
     // 画像の段落には下余白を付けない。インライン画像のベースライン余白も除く。
     p:has(> picture:only-child),
