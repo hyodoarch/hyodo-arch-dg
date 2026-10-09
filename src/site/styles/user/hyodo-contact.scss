@@ -56,3 +56,18 @@ body .hyodo-contact-button {
 @media print {
   body .hyodo-contact-dock { display: none; }
 }
+
+// ご依頼・ご相談：相談方法を選ぶカード
+body:not(:has(.content.canvas-page)) > main.content {
+  .contact-choice {
+    // 横並び・間隔など
+  }
+
+  .contact-choice .contact-card {
+    // カードの枠・背景・余白など
+
+    h3 {
+      // カード内の見出しの余白など
+    }
+  }
+}
