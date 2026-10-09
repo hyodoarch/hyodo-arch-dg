@@ -45,6 +45,16 @@ GitHubがDGの共有元。Vaultの元ノート・画像はDropboxで同期し、
 - `npm run build` は開始時に同じ検証を実行し、欠落時はdistを削除する前に停止する。VaultがないCloudflareでもGit管理された公開入力だけで検証できる。
 - `DG-Publish.cmd` はVault同期を実行しない。画像差し替え後は先に `npm run sync:common` を実行してから公開する。公開時のbuildでも欠落検証が実行される。作品コンテンツはObsidian DG Publishで公開する。DG-Publish.cmdはシステム修正専用で、src/site/notesのMarkdownとsrc/site/img/userの変更があれば停止する。実装はGit管理されたtools/publish-dg.ps1、Vault側はその呼出のみ。
 
+### 本文Publish後にシステム変更を公開する場合
+
+通常はSCSSなどを編集して `DG-Publish.cmd` を実行するだけでよい。fetch後、GitHub側の更新が `src/site/notes/**/*.md` と `src/site/img/user/` 内だけで、手元の変更が公開対象のシステムファイルだけなら、確認済みコミットまで早送りで取り込んでからテスト・ビルド・公開確認へ進む。手元の変更がない場合も、従来どおり更新を取り込む。本文・画像を無視して古いままビルドする処理ではない。
+
+手元に変更があるとき、GitHub側にSCSS・設定・スクリプトなどの更新が含まれれば、異なるファイルでも停止する。ローカルの本文・本文画像の変更、対象外ファイル、未送信コミット、分岐した履歴も引き続き停止対象。変更前後でシステムファイルの内容と変更状態を照合し、自動stash・rebase・マージコミット・強制pushは行わない。Gitの自動stash設定も無効化して取り込む。
+
+公開処理中は別PCやObsidianでのPublishを控える。途中でGitHubが更新され、最後のpushが拒否された場合はそのまま停止し、強制送信せず状態を確認する。本文とSCSSの組み合わせによる見た目は公開後に確認する。
+
+この独自処理の復元元はGit管理の `tools/publish-dg.ps1`。Vaultの `DG-Publish.cmd` は呼出用のため変更不要。将来、公開スクリプトを交換・再生成する際はこの動作を維持する。Windowsの `tools/publish-sync.test.js` が一時Gitリポジトリで取込と停止条件を検証する（実プロジェクトのcommit・pushは実行しない）。
+
 ### 公開用の共通設定（.env）
 
 `DG-Publish.cmd` はルートの `.env` もシステム設定として対象にする。変更一覧を確認して承認すると、テスト・公開用ビルド・コミット・pushを実行し、Cloudflareが公開を更新する。`.env` はGit管理する公開可能な共通設定専用とし、秘密情報やPC固有パスはCloudflareやWindowsの環境変数に保存する。`.env.local` など他の隠しファイルは対象外のまま。対象確認だけならVaultの `tools/publish-dg.ps1 -Check` を使用する。

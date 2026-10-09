@@ -35,6 +35,42 @@ function Get-SourceChanges {
     }
 }
 
+function Sync-PublishRepository {
+    # Classify before any working-tree update, including the clean/behind case.
+    $changes = @(Get-SourceChanges)
+    $snapshot = ConvertTo-Json -InputObject $changes -Compress
+    $baseHead = Invoke-GitChecked -GitArgs @('rev-parse', 'HEAD')
+    $upstream = Invoke-GitChecked -GitArgs @('rev-parse', 'origin/main')
+    $counts = (Invoke-GitChecked -GitArgs @('rev-list', '--left-right', '--count', "$baseHead...$upstream")) -split '\s+'
+    if ([int]$counts[0] -gt 0) {
+        throw '未pushのコミットがあります。内容確認が必要なため停止しました。Codexに「DG公開の続きをお願いします」と伝えてください。'
+    }
+    if ([int]$counts[1] -eq 0) { return }
+
+    if ($changes.Count -gt 0) {
+        # Disable rename detection so BOTH sides of a move must be content.
+        $raw = (Invoke-GitChecked -GitArgs @('diff', '--no-renames', '--name-only', '-z', $baseHead, $upstream, '--')) -join "`n"
+        $remotePaths = @($raw.Split([char]0) | Where-Object { $_.Length -gt 0 })
+        $systemPaths = @($remotePaths | Where-Object { $_ -notmatch '^src/site/(notes/.*\.md$|img/user/)' })
+        if ($systemPaths.Count -gt 0) {
+            throw "GitHub側にシステムの更新があります。ローカルの変更を保護して停止しました: $($systemPaths -join ', ')"
+        }
+        Write-Host 'GitHub側の更新は本文・本文画像のみです。手元のシステム変更を保持して取り込みます。'
+    }
+
+    # Pin the inspected commit: a second fetch could introduce unchecked changes.
+    # Never stash, rebase, create a merge commit, or overwrite ignored local files.
+    if ((Invoke-GitChecked -GitArgs @('rev-parse', 'HEAD')) -ne $baseHead -or
+        (ConvertTo-Json -InputObject @(Get-SourceChanges) -Compress) -cne $snapshot) {
+        throw '更新確認中にローカルの変更が変わりました。取り込まず停止します。'
+    }
+    Invoke-GitChecked -GitArgs @('-c', 'merge.autostash=false', 'merge', '--ff-only', '--no-autostash', '--no-overwrite-ignore', $upstream) | Out-Host
+    if ((Invoke-GitChecked -GitArgs @('rev-parse', 'HEAD')) -ne $upstream -or
+        (ConvertTo-Json -InputObject @(Get-SourceChanges) -Compress) -cne $snapshot) {
+        throw '更新後の状態が確認時と異なります。自動復元せず、公開前に停止しました。変更内容を確認してください。'
+    }
+}
+
 try {
     Push-Location -LiteralPath $Repository
     $locationChanged = $true
@@ -53,17 +89,8 @@ try {
     Write-Host '1/5 GitHubと作業中の変更を確認しています。'
     Invoke-GitChecked -GitArgs @('status', '-sb')
     Invoke-GitChecked -GitArgs @('fetch', '--prune', 'origin')
+    Sync-PublishRepository
     $changes = @(Get-SourceChanges)
-    $counts = (Invoke-GitChecked -GitArgs @('rev-list', '--left-right', '--count', 'HEAD...origin/main')) -split '\s+'
-    if ([int]$counts[0] -gt 0) {
-        throw '未pushのコミットがあります。内容確認が必要なため停止しました。Codexに「DG公開の続きをお願いします」と伝えてください。'
-    }
-    if ([int]$counts[1] -gt 0) {
-        if ($changes.Count -gt 0) {
-            throw 'GitHub側に新しい更新があります。ローカルのシステム変更を保護して停止しました。更新との競合を確認してからシステム修正を反映してください。'
-        }
-        Invoke-GitChecked -GitArgs @('pull', '--ff-only', 'origin', 'main')
-    }
     if ($changes.Count -eq 0) {
         Write-Host '公開する変更はありません。'
         exit 0

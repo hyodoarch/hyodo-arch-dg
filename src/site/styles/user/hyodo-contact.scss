@@ -59,15 +59,60 @@ body .hyodo-contact-button {
 
 // ご依頼・ご相談：相談方法を選ぶカード
 body:not(:has(.content.canvas-page)) > main.content {
-  .contact-choice {
-    // 横並び・間隔など
-  }
+  .consultation-choices {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    margin: 24px 0 32px;
 
-  .contact-choice .contact-card {
-    // カードの枠・背景・余白など
+    > .consultation-card {
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      min-width: 0;
+      padding: 22px;
+      border: 1px solid #d9d9d9;
+      border-radius: 10px;
+      background: #fff;
 
-    h3 {
-      // カード内の見出しの余白など
+      > h2 {
+        margin: 0 0 12px;
+      }
+
+      > p {
+        margin: 0 0 20px;
+      }
+
+      > a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        min-height: 44px;
+        margin-top: auto;
+        padding: 10px 14px;
+        border: 1px solid #4e6799;
+        border-radius: 6px;
+        color: #4e6799;
+        line-height: 1.6;
+        text-align: center;
+        text-decoration: none;
+
+        &:hover {
+          background: #f0f3f8;
+          text-decoration: none;
+        }
+
+        &:focus-visible {
+          outline: 2px solid #4e6799;
+          outline-offset: 3px;
+        }
+      }
+    }
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+      gap: 16px;
     }
   }
 }
