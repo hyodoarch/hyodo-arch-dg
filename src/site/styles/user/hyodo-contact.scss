@@ -1,3 +1,17 @@
+// Share appearance without the fixed button's positioning or width.
+@mixin hyodo-contact-appearance($font-size: 15px) {
+  border: none;
+  border-radius: 24px;
+  background: rgba(78, 103, 153, 0.8);
+  color: #fff;
+  font: #{$font-size}/1.5 "Yu Mincho", "游明朝", serif;
+  text-decoration: none;
+  box-shadow: 0 2px 8px #0002;
+  &:visited { color: #fff; }
+  &:hover, &:focus-visible { color: #fff; background: rgba(78, 103, 153, 0.95); text-decoration: none; }
+  &:focus-visible { outline: 3px solid #222; outline-offset: 3px; }
+}
+
 // Keep the contact link outside the collapsible/scrolling navigation.
 body .hyodo-contact-dock {
   position: fixed;
@@ -19,16 +33,7 @@ body .hyodo-contact-button {
   min-height: 48px;
   pointer-events: auto;
   padding: 0 15px;
-  border: none;
-  border-radius: 24px;
-  background: rgba(78, 103, 153, 0.8);
-  color: #fff;
-  font: 15px/1.5 "Yu Mincho", "游明朝", serif;
-  text-decoration: none;
-  box-shadow: 0 2px 8px #0002;
-  &:visited { color: #fff; }
-  &:hover, &:focus-visible { color: #fff; background: rgba(78, 103, 153, 0.95); text-decoration: none; }
-  &:focus-visible { outline: 3px solid #222; outline-offset: 3px; }
+  @include hyodo-contact-appearance;
   svg { flex-shrink: 0; }
 }
 @media (min-width: 1000px) {
@@ -71,7 +76,7 @@ body:not(:has(.content.canvas-page)) > main.content {
       box-sizing: border-box;
       min-width: 0;
       padding: 22px;
-      border: 1px solid #d9d9d9;
+      border: 1px solid #b8b8b8;
       border-radius: 10px;
       background: #fff;
 
@@ -84,30 +89,20 @@ body:not(:has(.content.canvas-page)) > main.content {
       }
 
       > a {
+        @include hyodo-contact-appearance(16px);
         display: flex;
         align-items: center;
         justify-content: center;
         box-sizing: border-box;
-        min-height: 44px;
+        min-height: 48px;
         margin-top: auto;
         padding: 10px 14px;
-        border: 1px solid #4e6799;
-        border-radius: 6px;
-        color: #4e6799;
-        line-height: 1.6;
         text-align: center;
-        text-decoration: none;
-
-        &:hover {
-          background: #f0f3f8;
-          text-decoration: none;
-        }
-
-        &:focus-visible {
-          outline: 2px solid #4e6799;
-          outline-offset: 3px;
-        }
       }
+    }
+
+    @media (max-width: 674px) {
+      margin-inline: 9px;
     }
 
     @media (max-width: 640px) {
