@@ -18,9 +18,10 @@ function userEleventySetup(eleventyConfig) {
   // The eleventyConfig parameter stands for the the config instantiated in /.eleventy.js.
   // Feel free to add any plugin you want here instead of /.eleventy.js
   eleventyConfig.on('eleventy.before', require('./imageAssets').clearImageIndex);
-  eleventyConfig.addPassthroughCopy({ 'src/site/_redirects': '_redirects' });
   eleventyConfig.on('eleventy.after', ({ dir, runMode } = {}) => {
     if (runMode !== 'build') return;
+    require('../../tools/generate-redirects.cjs').generateRedirects(
+      require('node:path').resolve(__dirname, '../..'), require('node:path').resolve(dir.output));
     require('../../tools/check-redirects.cjs').checkRedirects(
       require('node:path').resolve(__dirname, '../..'), require('node:path').resolve(dir.output));
   });

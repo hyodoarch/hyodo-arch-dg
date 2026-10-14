@@ -50,8 +50,8 @@ function matches(rule, urlPath) {
 }
 
 function checkRedirects(project, output = path.join(project, 'dist')) {
-  const source = fs.readFileSync(path.join(project, 'src/site/_redirects'), 'utf8');
-  if (fs.readFileSync(path.join(output, '_redirects'), 'utf8') !== source) throw new Error('dist/_redirects is missing or differs from its source; check passthroughCopy');
+  const source = require('./generate-redirects.cjs').renderRedirects(project, output);
+  if (fs.readFileSync(path.join(output, '_redirects'), 'utf8') !== source) throw new Error('dist/_redirects is missing or differs from its source; regenerate redirects');
   const rules = parseRedirects(source);
   const publicPaths = new Set([...fs.readFileSync(path.join(output, 'sitemap.xml'), 'utf8').matchAll(/<loc>(.*?)<\/loc>/g)].map(m => new URL(m[1].replaceAll('&amp;', '&')).pathname));
   for (const rule of rules) {
@@ -74,7 +74,7 @@ function checkRedirects(project, output = path.join(project, 'dist')) {
     if (rule && rule.destination !== destination) throw new Error('source-url and permalink disagree with redirect: ' + file);
     legacyNotes.push({ source: old.pathname, destination, mapped: Boolean(rule) });
   }
-  const result = { rules, staticCount: rules.filter(rule => !rule.dynamic).length, dynamicCount: rules.filter(rule => rule.dynamic).length, publicPaths: [...publicPaths], legacyNotes };
+  const result = { rules, staticCount: rules.filter(rule => !rule.dynamic).length, dynamicCount: rules.filter(rule => rule.dynamic).length, publicPaths: [...publicPaths], legacyNotes, retiredNotePaths: require('./generate-redirects.cjs').retiredNotePaths(project) };
   const missing = legacyNotes.filter(note => !note.mapped);
   if (missing.length) console.warn('[redirects] New migration URLs need rules: ' + missing.map(note => note.source).join(', '));
   return result;
@@ -116,7 +116,7 @@ async function checkLive(result, base) {
     if (response.status !== 200) throw new Error(`${source}: public page ${response.status}`);
     return { publicPage: source, status: response.status, ok: true };
   });
-  const retired = ['/arch_link.html', '/plain_hut/', '/plain_hut/about_ph.html', '/plain_hut/ph-5x7.html', '/plain_hut/ph-4x8.html', '/plain_hut/ph-spec.html', '/thankyou.html', '/projects/not-a-real-work.html', '/vectorworks-other/legacy.html', '/buryoshaki-other/legacy.html', '/progression/legacy.html'];
+  const retired = [...(result.retiredNotePaths || []), '/arch_link.html', '/plain_hut/', '/plain_hut/about_ph.html', '/plain_hut/ph-5x7.html', '/plain_hut/ph-4x8.html', '/plain_hut/ph-spec.html', '/thankyou.html', '/projects/not-a-real-work.html', '/vectorworks-other/legacy.html', '/buryoshaki-other/legacy.html', '/progression/legacy.html'];
   await batch(retired, async source => {
     const response = await get(origin + source);
     if (response.status !== 404) throw new Error(`${source}: retired or unknown page ${response.status}`);

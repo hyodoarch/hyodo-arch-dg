@@ -1,0 +1,242 @@
+[
+  {
+    "note": "ご依頼・ご相談/設計料について.md",
+    "source": "/consultation/designfee.html",
+    "destination": "/consultation/designfee/"
+  },
+  {
+    "note": "ご依頼・ご相談/よくある質問.md",
+    "source": "/consultation/faq.html",
+    "destination": "/consultation/faq/"
+  },
+  {
+    "note": "ご依頼・ご相談/設計の流れ.md",
+    "source": "/consultation/flow.html",
+    "destination": "/consultation/flow/"
+  },
+  {
+    "note": "NEWS.md",
+    "source": "/news.html",
+    "destination": "/news/"
+  },
+  {
+    "note": "事務所案内/アクセス.md",
+    "source": "/office_info/access.html",
+    "destination": "/office_info/access/"
+  },
+  {
+    "note": "事務所案内/コンセプト.md",
+    "source": "/office_info/concept.html",
+    "destination": "/office_info/consept/"
+  },
+  {
+    "note": "事務所案内/プロフィール.md",
+    "source": "/office_info/profile.html",
+    "destination": "/office_info/profile/"
+  },
+  {
+    "note": "新築住宅/プレイン・ハット PH-6×6.md",
+    "source": "/plain_hut/ph-6x6.html",
+    "destination": "/house/ph-6x6/"
+  },
+  {
+    "note": "新築住宅/安行の家.md",
+    "source": "/projects/angyo.html",
+    "destination": "/house/angyo/"
+  },
+  {
+    "note": "新築住宅/坂戸のアトリエ.md",
+    "source": "/projects/atelier_in_sakado.html",
+    "destination": "/house/atelier_in_sakado/"
+  },
+  {
+    "note": "新築住宅/峯のアトリエ.md",
+    "source": "/projects/atelier-m.html",
+    "destination": "/house/atelier-m/"
+  },
+  {
+    "note": "新築住宅/江戸の家.md",
+    "source": "/projects/edo.html",
+    "destination": "/house/edo/"
+  },
+  {
+    "note": "新築住宅/富士見の家.md",
+    "source": "/projects/fujimi.html",
+    "destination": "/house/fujimi/"
+  },
+  {
+    "note": "新築住宅/東久留米の家.md",
+    "source": "/projects/h-kurume.html",
+    "destination": "/house/h-kurume/"
+  },
+  {
+    "note": "戸建てリノベーション/東松山の家のリノベーション.md",
+    "source": "/projects/h-matsu.html",
+    "destination": "/house-reno/h-matsu/"
+  },
+  {
+    "note": "マンションリノベーション/飯能のマンション・リノベーション.md",
+    "source": "/projects/hanno.html",
+    "destination": "/apt-reno/hanno/"
+  },
+  {
+    "note": "新築住宅/本蓮の家.md",
+    "source": "/projects/honbasu.html",
+    "destination": "/house/honbasu/"
+  },
+  {
+    "note": "新築住宅/越谷の家.md",
+    "source": "/projects/house_in_koshigaya.html",
+    "destination": "/house/house_in_koshigaya/"
+  },
+  {
+    "note": "新築住宅/佐原の家.md",
+    "source": "/projects/house_in_sawara.html",
+    "destination": "/house/house_in_sawara/"
+  },
+  {
+    "note": "新築住宅/上田の家.md",
+    "source": "/projects/house_in_ueda.html",
+    "destination": "/house/house_in_ueda/"
+  },
+  {
+    "note": "新築住宅/市谷の家.md",
+    "source": "/projects/ichigaya.html",
+    "destination": "/house/ichigaya/"
+  },
+  {
+    "note": "店舗・オフィス/入間オフィス＆ガレージ.md",
+    "source": "/projects/iruma_o_and_g.html",
+    "destination": "/shop-office/iruma_o_and_g/"
+  },
+  {
+    "note": "新築住宅/岩槻の長屋.md",
+    "source": "/projects/iwatsuki.html",
+    "destination": "/house/iwatsuki/"
+  },
+  {
+    "note": "新築住宅/鹿児島の家.md",
+    "source": "/projects/kagoshima.html",
+    "destination": "/house/kagoshima/"
+  },
+  {
+    "note": "戸建てリノベーション/春日部の家のリノベーション.md",
+    "source": "/projects/kasukabe.html",
+    "destination": "/house-reno/kasukabe/"
+  },
+  {
+    "note": "店舗・オフィス/北浦和のカフェ.md",
+    "source": "/projects/kitaurawa_cafe.html",
+    "destination": "/shop-office/kitaurawa_cafe/"
+  },
+  {
+    "note": "戸建てリノベーション/北浦和の家のリノベーション.md",
+    "source": "/projects/kitaurawa.html",
+    "destination": "/house-reno/kitaurawa/"
+  },
+  {
+    "note": "戸建てリノベーション/佐原の家のリノベーション.md",
+    "source": "/projects/kowashi.html",
+    "destination": "/house-reno/kowashi/"
+  },
+  {
+    "note": "店舗・オフィス/「くらしの道具」リノベーション.md",
+    "source": "/projects/kurashi.html",
+    "destination": "/shop-office/kurashi/"
+  },
+  {
+    "note": "店舗・オフィス/カフェまどか.md",
+    "source": "/projects/madoka.html",
+    "destination": "/shop-office/madoka/"
+  },
+  {
+    "note": "新築住宅/根岸の家.md",
+    "source": "/projects/negishi.html",
+    "destination": "/house/negishi/"
+  },
+  {
+    "note": "店舗・オフィス/永久本社事務所リノベーション.md",
+    "source": "/projects/npro.html",
+    "destination": "/shop-office/npro/"
+  },
+  {
+    "note": "戸建てリノベーション/入間の家のリノベーション.md",
+    "source": "/projects/omoya.html",
+    "destination": "/house-reno/omoya/"
+  },
+  {
+    "note": "店舗・オフィス/Prospect－白金台のヘアサロン－.md",
+    "source": "/projects/prospect.html",
+    "destination": "/shop-office/prospect/"
+  },
+  {
+    "note": "新築住宅/佐原の家Ⅱ.md",
+    "source": "/projects/sawara2.html",
+    "destination": "/house/sawara2/"
+  },
+  {
+    "note": "店舗・オフィス/Sherry Flower Works & Shop.md",
+    "source": "/projects/sherry.html",
+    "destination": "/shop-office/sherry/"
+  },
+  {
+    "note": "新築住宅/「集の家」平屋タイプ.md",
+    "source": "/projects/shu_house_flat.html",
+    "destination": "/house/shu_house_flat/"
+  },
+  {
+    "note": "店舗・オフィス/エスケイ電機オフィス・リノベーション.md",
+    "source": "/projects/sk.html",
+    "destination": "/shop-office/sk/"
+  },
+  {
+    "note": "戸建てリノベーション/草加の家のリノベーション.md",
+    "source": "/projects/soka.html",
+    "destination": "/house-reno/soka/"
+  },
+  {
+    "note": "古民家リノベーション/関口酒造母屋リノベーション.md",
+    "source": "/projects/sugito.html",
+    "destination": "/kominka-reno/sekiguchi/"
+  },
+  {
+    "note": "新築住宅/戸塚の家.md",
+    "source": "/projects/tozuka.html",
+    "destination": "/house/tozuka/"
+  },
+  {
+    "note": "新築住宅/辻の家.md",
+    "source": "/projects/tsuji.html",
+    "destination": "/house/tsuji/"
+  },
+  {
+    "note": "新築住宅/浦和の家.md",
+    "source": "/projects/urawa.html",
+    "destination": "/house/urawa/"
+  },
+  {
+    "note": "古民家リノベーション/牛堀の土蔵リノベーション.md",
+    "source": "/projects/ushibori_dozo.html",
+    "destination": "/kominka-reno/ushibori_dozo/"
+  },
+  {
+    "note": "古民家リノベーション/牛堀の母屋リノベーション.md",
+    "source": "/projects/ushibori_omoya.html",
+    "destination": "/kominka-reno/ushibori_omoya/"
+  },
+  {
+    "note": "マンションリノベーション/山下のマンション・リノベーション.md",
+    "source": "/projects/yamashita.html",
+    "destination": "/apt-reno/yamashita/"
+  },
+  {
+    "note": "マンションリノベーション/山手のマンション・リノベーション.md",
+    "source": "/projects/yamate.html",
+    "destination": "/apt-reno/yamate/"
+  },
+  {
+    "note": "マンションリノベーション/湯島ハイタウン・リノベーション.md",
+    "source": "/projects/yushima.html",
+    "destination": "/apt-reno/yushima/"
+  }
+]

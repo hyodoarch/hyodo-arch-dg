@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 const { parseRedirects, matches, checkRedirects } = createRequire(import.meta.url)('./check-redirects.cjs');
+const { generateRedirects } = createRequire(import.meta.url)('./generate-redirects.cjs');
 const roots = [];
 afterEach(() => {
   for (const root of roots.splice(0)) fs.rmSync(root, { recursive: true, force: true });
@@ -12,11 +13,13 @@ function fixture(rules = '/projects/old.html /house/new/ 301\n') {
   const project = fs.mkdtempSync(path.join(os.tmpdir(), 'dg-redirects-'));
   roots.push(project);
   const write = (file, text) => { fs.mkdirSync(path.dirname(path.join(project, file)), { recursive: true }); fs.writeFileSync(path.join(project, file), text); };
+  write('tools/note-redirects.json', '[]');
   write('src/site/_redirects', rules);
   write('dist/_redirects', rules);
   write('dist/sitemap.xml', '<urlset><url><loc>https://hyodo-arch-dg.pages.dev/house/new/</loc></url></urlset>');
   write('dist/house/new/index.html', '<h1>Published work</h1>');
   write('src/site/notes/new.md', '---\npermalink: /house/new/\ndg-note-properties:\n  source-url: https://www.hyodo-arch.com/projects/old.html\n---\nPublished work');
+  generateRedirects(project);
   return { project, write };
 }
 it('checks the actual copied file, public target and source-url relationship', () => {
@@ -29,7 +32,7 @@ it('blocks lost build copying and missing destination files', () => {
   const { project, write } = fixture();
   write('dist/_redirects', '');
   expect(() => checkRedirects(project)).toThrow('differs');
-  write('dist/_redirects', '/projects/old.html /house/new/ 301\n');
+  generateRedirects(project);
   fs.unlinkSync(path.join(project, 'dist/house/new/index.html'));
   expect(() => checkRedirects(project)).toThrow('Missing destination HTML');
 });
@@ -86,4 +89,56 @@ it('blocks fallback rules that would hide a current public page while leaving ad
   expect(() => checkRedirects(project)).toThrow('current public page');
   write('dist/sitemap.xml', sitemap('/vectorworks-other/current/deep/'));
   expect(checkRedirects(project).dynamicCount).toBe(1);
+});
+
+function managedFixture() {
+  const result = fixture('');
+  result.write('tools/note-redirects.json', JSON.stringify([
+    { note: 'new.md', source: '/projects/old.html', destination: '/house/new/' },
+    { note: 'other.md', source: '/projects/other.html', destination: '/house/other/' },
+  ]));
+  result.write('src/site/notes/other.md', '---\npermalink: /house/other/\ndg-note-properties:\n  source-url: https://www.hyodo-arch.com/projects/other.html\n---\nOther');
+  result.write('dist/house/other/index.html', 'Other');
+  result.write('src/site/_redirects', '/contact.html /house/other/ 301\n/vectorworks/* https://blog.hyodo-arch.com/vectorscript/ 301\n');
+  result.sitemap = paths => result.write('dist/sitemap.xml', '<urlset>' + paths.map(p => `<url><loc>https://www.hyodo-arch.com${p}</loc></url>`).join('') + '</urlset>');
+  result.sitemap(['/house/new/', '/house/other/']);
+  return result;
+}
+it('generates, removes and restores a published note redirect while preserving other and fixed rules', () => {
+  const { project, write, sitemap } = managedFixture();
+  const notePath = path.join(project, 'src/site/notes/new.md');
+  const original = fs.readFileSync(notePath, 'utf8');
+  generateRedirects(project);
+  expect(checkRedirects(project).rules).toHaveLength(4);
+  fs.unlinkSync(notePath);
+  fs.unlinkSync(path.join(project, 'dist/house/new/index.html'));
+  sitemap(['/house/other/']);
+  generateRedirects(project);
+  const removed = checkRedirects(project);
+  expect(removed.rules.map(r => r.source)).toEqual(['/projects/other.html', '/contact.html', '/vectorworks/*']);
+  expect(removed.retiredNotePaths).toEqual(['/projects/old.html', '/house/new/']);
+  write('src/site/notes/new.md', original);
+  write('dist/house/new/index.html', 'Republished');
+  sitemap(['/house/new/', '/house/other/']);
+  generateRedirects(project);
+  expect(checkRedirects(project).rules).toHaveLength(4);
+  expect(checkRedirects(project).retiredNotePaths).toEqual([]);
+});
+it('fails on existing-note metadata mistakes, missing sitemap entries and renamed note paths', () => {
+  const { project, write, sitemap } = managedFixture();
+  write('src/site/notes/new.md', '---\npermalink: /typo/\ndg-note-properties:\n  source-url: https://www.hyodo-arch.com/projects/old.html\n---\nWrong');
+  expect(() => generateRedirects(project)).toThrow('disagree');
+  write('src/site/notes/new.md', '---\npermalink: /house/new/\ndg-note-properties:\n  source-url: https://www.hyodo-arch.com/projects/old.html\n---\nCorrect');
+  sitemap(['/house/other/']);
+  expect(() => generateRedirects(project)).toThrow('not a public sitemap');
+  fs.renameSync(path.join(project, 'src/site/notes/new.md'), path.join(project, 'src/site/notes/renamed.md'));
+  expect(() => generateRedirects(project)).toThrow('path is missing');
+});
+it('still rejects fixed target typos and duplicate sources after note generation', () => {
+  const { project, write } = managedFixture();
+  write('src/site/_redirects', '/contact.html /typo/ 301\n');
+  generateRedirects(project);
+  expect(() => checkRedirects(project)).toThrow('not a public sitemap');
+  write('src/site/_redirects', '/projects/old.html /house/new/ 301\n');
+  expect(() => generateRedirects(project)).toThrow('Duplicate source');
 });

@@ -1,12 +1,12 @@
 # 旧サイトURLの301転送
 
-設定元は `src/site/_redirects`。Cloudflare Pages標準の仕組みを使い、`src/helpers/userSetup.js` のpassthroughCopyで `dist/_redirects` へ配置する。HTMLやJavaScriptの転送ページ、Apacheの.htaccessは追加しない。
+固定転送の設定元は `src/site/_redirects`、公開ノートの旧URL対応表は `tools/note-redirects.json`。Cloudflare Pages標準の仕組みを使い、`src/helpers/userSetup.js` のbuild完了イベントで `tools/generate-redirects.cjs` がサイトマップ生成後に `dist/_redirects` を毎回作り直す。HTMLやJavaScriptの転送ページ、Apacheの.htaccessは追加しない。
 
-参照：[Cloudflare Pages Redirects](https://developers.cloudflare.com/pages/configuration/redirects/)。633行は完全一致606行・ブログのページ送り24行・旧3区分の一括転送3行で、すべて明示的に301。完全一致、ページ送り、旧区分の一括転送の順に置く。
+参照：[Cloudflare Pages Redirects](https://developers.cloudflare.com/pages/configuration/redirects/)。元の633行は完全一致606行・ブログのページ送り24行・旧3区分の一括転送3行で、すべて明示的に301。完全一致、ページ送り、旧区分の一括転送の順に置く。
 
 ## 本体サイト
 
-公開済みノートの `dg-note-properties.source-url` と実際のpermalinkから48行を確定。作品ジャンルが異なるため `/projects/*` の一括置換は使わない。新旧で同じ `/`、`/consultation/`、`/office_info/` はそのまま公開し、自己転送しない。
+公開済みノートの `dg-note-properties.source-url` と実際のpermalinkから確定した48件を対応表に保存。2026-10-14、岩槻の長屋の非公開化に伴い出力は47件、固定転送と合わせて632行となる。作品ジャンルが異なるため `/projects/*` の一括置換は使わない。新旧で同じ `/`、`/consultation/`、`/office_info/` はそのまま公開し、自己転送しない。
 
 | 旧URL | 新URL・扱い |
 | --- | --- |
@@ -55,16 +55,16 @@ www配下の `/buryoshaki/` に対する旧サーバーの転送も、wwwをPage
 
 ## 継続して検証する方法
 
-Node 22で通常の `npm test`、`npm run build` を実行する。通常build完了時にも検査し、コピー漏れ、重複元URL、301以外、Cloudflareの制限超過、現在の公開URLの上書き、ループ・多段転送、非公開宛先・HTML欠落、登録済み転送とsource-url／permalinkの不一致をエラーにする。旧区分の一括転送は対象・宛先・順序を制限し、個別記事の優先と別区分への誤適用をテストする。
+Node 22で通常の `npm test`、`npm run build` を実行する。通常build完了時にも検査し、生成漏れ・生成結果の不一致、重複元URL、301以外、Cloudflareの制限超過、現在の公開URLの上書き、ループ・多段転送、非公開宛先・HTML欠落、登録済み転送とsource-url／permalinkの不一致をエラーにする。旧区分の一括転送は対象・宛先・順序を制限し、個別記事の優先と別区分への誤適用をテストする。
 
-新しい移行ノートにsource-urlがあるのに301がなければ警告する。新規作品であるだけなら旧URLは不要。旧記事を追加移行するときは、コンテンツをユーザーがObsidian DG Publishで送信し、取得済みの公開入力を確認してから301をシステム変更として追加する。本文をシステムcloneから同期・置換しない。
+新しい移行ノートにsource-urlがあるのに301がなければ警告する。新規作品であるだけなら旧URLは不要。旧記事を追加移行するときは、コンテンツをユーザーがObsidian DG Publishで送信し、取得済みの公開入力を確認してからノート相対パス・旧URL・公開permalinkを `tools/note-redirects.json` にシステム変更として追加する。本文をシステムcloneから同期・置換しない。
 
 ```text
 node tools/check-redirects.cjs
 node tools/check-redirects.cjs --live=https://hyodo-arch-dg.pages.dev
 ```
 
-後者は実際のCloudflare応答を読み取り検証する。全633ルール（旧ページ送りはpage/2）、未対応11記事のスラッシュ有無、旧区分内の深いURL・旧ファイルURL、重複除外した全宛先、全sitemapページ、廃止／不明URL、似た名前の別区分、クエリ付きの代表URLを確認し、`.cache/redirects-check/` に結果を保存する。クエリの維持・削除は実応答を記録する。ブラウザJavaScriptやGA4は実行せず、フォーム・メール送信も行わない。
+後者は実際のCloudflare応答を読み取り検証する。生成された全ルール（旧ページ送りはpage/2）、未対応11記事のスラッシュ有無、旧区分内の深いURL・旧ファイルURL、重複除外した全宛先、全sitemapページ、廃止／不明URL、似た名前の別区分、クエリ付きの代表URLを確認し、`.cache/redirects-check/` に結果を保存する。クエリの維持・削除は実応答を記録する。ブラウザJavaScriptやGA4は実行せず、フォーム・メール送信も行わない。
 
 EleventyのdevサーバーではCloudflareのHTTP301を再現しない。HTTP応答はPages上で検証する。distや検証キャッシュはGitへ保存せず、上記ソースから再生成する。
 
@@ -83,3 +83,11 @@ node tools/check-redirects.cjs --live=https://www.hyodo-arch.com
 pages.devからwwwへの転送は本番確認後にCloudflare側で別途設定・検証する。_redirectsにはドメイン転送を混ぜず、pages.devの検証入口は本番確認後に切り替える。HTTP→HTTPSの挙動も切替時に確認する。
 
 運用・上書きリスクはVaultの `_メモ置場/301設定の準備と検証記録.md` と `_メモ置場/サイト運用の説明書/アップデート時に上書きされる可能性のあるファイル.md` に記録する。
+
+## 作品の非公開化と再公開（2026-10-14）
+
+ユーザーがdg-publishを外し、Publication centerから削除すると、GitHubから削除されたノートの転送を次回buildで出力対象から外す。対応表は消さず、同じノートパス・source-url・permalinkで再公開すれば転送も復元する。Vaultを直接参照・同期しない。岩槻の長屋の新旧URLは非公開中ともに404とする。
+
+公開ノートが存在するのにpermalink/source-urlが違う、サイトマップにない、またはノートパスが消えても同じ公開先やsource-urlが残る場合は設定不整合として停止する。ノートの改名・移動や公開URL変更時は対応表を合わせて更新する。固定転送の宛先欠落は引き続きエラー。非公開化はノートの属性変更だけで完結せず、Publication centerの削除を完了させる。
+
+生成物はdistにだけ置き、ソースの対応表は書き換えない。通常buildではprebuildが古いdistを削除する。HTTP転送の確認はCloudflare上で行う（devサーバーは301を再現しない）。公開停止中の対応表から新旧URLを取り出し、ライブ検査でも404を確認する。単体テストでは公開→削除→再公開と別作品・固定転送維持、設定不整合を隔離fixtureで検証する。

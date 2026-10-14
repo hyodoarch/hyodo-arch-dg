@@ -1,54 +1,6 @@
 # Cloudflare Pages permanent redirects. See docs/redirects.md.
 # Architecture destinations are relative: staging and www use the same rules.
-# Public notes: source-url -> published permalink (no broad /projects/* rule).
-/consultation/designfee.html /consultation/designfee/ 301
-/consultation/faq.html /consultation/faq/ 301
-/consultation/flow.html /consultation/flow/ 301
-/news.html /news/ 301
-/office_info/access.html /office_info/access/ 301
-/office_info/concept.html /office_info/consept/ 301
-/office_info/profile.html /office_info/profile/ 301
-/plain_hut/ph-6x6.html /house/ph-6x6/ 301
-/projects/angyo.html /house/angyo/ 301
-/projects/atelier_in_sakado.html /house/atelier_in_sakado/ 301
-/projects/atelier-m.html /house/atelier-m/ 301
-/projects/edo.html /house/edo/ 301
-/projects/fujimi.html /house/fujimi/ 301
-/projects/h-kurume.html /house/h-kurume/ 301
-/projects/h-matsu.html /house-reno/h-matsu/ 301
-/projects/hanno.html /apt-reno/hanno/ 301
-/projects/honbasu.html /house/honbasu/ 301
-/projects/house_in_koshigaya.html /house/house_in_koshigaya/ 301
-/projects/house_in_sawara.html /house/house_in_sawara/ 301
-/projects/house_in_ueda.html /house/house_in_ueda/ 301
-/projects/ichigaya.html /house/ichigaya/ 301
-/projects/iruma_o_and_g.html /shop-office/iruma_o_and_g/ 301
-/projects/iwatsuki.html /house/iwatsuki/ 301
-/projects/kagoshima.html /house/kagoshima/ 301
-/projects/kasukabe.html /house-reno/kasukabe/ 301
-/projects/kitaurawa_cafe.html /shop-office/kitaurawa_cafe/ 301
-/projects/kitaurawa.html /house-reno/kitaurawa/ 301
-/projects/kowashi.html /house-reno/kowashi/ 301
-/projects/kurashi.html /shop-office/kurashi/ 301
-/projects/madoka.html /shop-office/madoka/ 301
-/projects/negishi.html /house/negishi/ 301
-/projects/npro.html /shop-office/npro/ 301
-/projects/omoya.html /house-reno/omoya/ 301
-/projects/prospect.html /shop-office/prospect/ 301
-/projects/sawara2.html /house/sawara2/ 301
-/projects/sherry.html /shop-office/sherry/ 301
-/projects/shu_house_flat.html /house/shu_house_flat/ 301
-/projects/sk.html /shop-office/sk/ 301
-/projects/soka.html /house-reno/soka/ 301
-/projects/sugito.html /kominka-reno/sekiguchi/ 301
-/projects/tozuka.html /house/tozuka/ 301
-/projects/tsuji.html /house/tsuji/ 301
-/projects/urawa.html /house/urawa/ 301
-/projects/ushibori_dozo.html /kominka-reno/ushibori_dozo/ 301
-/projects/ushibori_omoya.html /kominka-reno/ushibori_omoya/ 301
-/projects/yamashita.html /apt-reno/yamashita/ 301
-/projects/yamate.html /apt-reno/yamate/ 301
-/projects/yushima.html /apt-reno/yushima/ 301
+# Note redirects are generated from tools/note-redirects.json; keep only fixed rules here.
 
 # Old category indexes and contact entry. /projects/ -> /house/: user decision.
 /projects /house/ 301
