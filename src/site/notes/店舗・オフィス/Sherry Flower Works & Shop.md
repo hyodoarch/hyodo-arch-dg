@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"dg-permalink":"/shop-office/sherry/","permalink":"/shop-office/sherry/","tags":["店舗・オフィス"],"dg-note-properties":{"thumbnail":"[[images/shop-office/sherry/ic_sherry_gDSC04563.jpg]]","description":"埼玉県川口市に計画したフラワー・スタジオです。花材が華やかに見えるようにモノトーンを基調としました。1階が花卉の販売、2階がフラワースタジオになっています。","tags":["店舗・オフィス"],"order":50,"source-url":"https://www.hyodo-arch.com/projects/sherry.html"}}
+{"dg-publish":true,"dg-permalink":"/shop-office/sherry/","permalink":"/shop-office/sherry/","tags":["フラワーショップ","スタジオ"],"dg-note-properties":{"thumbnail":"[[images/shop-office/sherry/ic_sherry_gDSC04563.jpg]]","description":"埼玉県川口市に計画したフラワー・スタジオです。花材が華やかに見えるようにモノトーンを基調としました。1階が花卉の販売、2階がフラワースタジオになっています。","tags":["フラワーショップ","スタジオ"],"order":50,"source-url":"https://www.hyodo-arch.com/projects/sherry.html"}}
 ---
 
 ![images/shop-office/sherry/sherry-11_g20240202_044036133_iOS.jpg\|++1階ショップの花材とレジカウンター](/img/user/images/shop-office/sherry/sherry-11_g20240202_044036133_iOS.jpg)
@@ -47,25 +47,25 @@ gap: 8
 
 2階のスタジオへ上るための階段なので、人と人がすれ違うことや、荷物を持ちながら上ることを考慮し、幅を少し広めにしています。
 
-![[images/shop-office/sherry/sherry-07_gDSC04569.jpg|++2階全体]]
+![images/shop-office/sherry/sherry-07_gDSC04569.jpg\|++2階全体](/img/user/images/shop-office/sherry/sherry-07_gDSC04569.jpg)
 
 ## 2階 全体を見る
 
 スタジオから2階全体を見たところです。左奥は階段吹抜には木製フレームのペンダント照明３つが吊るされています。右奥の家型の部分は洗面・トイレと倉庫になっています。勾配天井は垂木・野地現し、壁はクロス、床は塩ビシート張りです。
 
-![[images/shop-office/sherry/sherry-10_gDSC04571.jpg|++2階スタジオ]]
+![images/shop-office/sherry/sherry-10_gDSC04571.jpg\|++2階スタジオ](/img/user/images/shop-office/sherry/sherry-10_gDSC04571.jpg)
 
 ## 2階 スタジオ
 
 約 8名が受講できるフラワー・スタジオです。クライアントは、ブルコラージュフラワーレッスンやイベントを開催されています。大型シンクと長いカウンターの手前に大きな作業台を並べる予定です。
 
-![[images/shop-office/sherry/sherry-08_gDSC04565.jpg|++2階スタジオのラウンジ・スペース]]
+![images/shop-office/sherry/sherry-08_gDSC04565.jpg\|++2階スタジオのラウンジ・スペース](/img/user/images/shop-office/sherry/sherry-08_gDSC04565.jpg)
 
 ## 2階 スタジオのラウンジ・スペース
 
 フラワー・スタジオは立って作業をします。スタジオの一角に小さいテーブルと椅子を置いて休憩するスペースを設けました。
 
-![[images/shop-office/sherry/sherry-09_gDSC04564.jpg|++窓際のベンチ]]
+![images/shop-office/sherry/sherry-09_gDSC04564.jpg\|++窓際のベンチ](/img/user/images/shop-office/sherry/sherry-09_gDSC04564.jpg)
 
 ## 窓際のベンチ
 
