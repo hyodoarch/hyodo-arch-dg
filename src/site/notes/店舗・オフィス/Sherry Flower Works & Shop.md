@@ -39,8 +39,8 @@
 columns: 2
 gap: 8
 
-![[images/shop-office/sherry/sherry-05_gDSC04604.jpg|レジカウンター]]
-![[images/shop-office/sherry/sherry-06_gDSC04591.jpg|レジカウンター]]
+![[images/shop-office/sherry/sherry-05_gDSC04604.jpg|++鉄骨階段]]
+![[images/shop-office/sherry/sherry-06_gDSC04591.jpg|++鉄骨階段]]
 ```
 
 ## 階段
