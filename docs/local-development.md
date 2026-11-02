@@ -200,3 +200,7 @@ powershell -ExecutionPolicy Bypass -File tools/local.ps1 -Task install
 共通のお問合せボタンは `/consultation/` を同じタブで開き、対面相談とメール相談を選べるようにする。外部リンクアイコンは表示しない。相談カードのリンク先と冒頭の案内文はVault本文で管理する。カード内ボタンは固定ボタンと同じ青・白文字・丸み・影を使用し、文字は16px、最小高さ48px。カードの枠線は1pxの#b8b8b8、674px以下でカード全体の左右余白を9px、640px以下で1列にする。電話は `tel:0484835999`、メールは `mailto:info@hyodo-arch.com` とする。フォームの送受信はユーザー確認済み。無聊写記は `https://blog.hyodo-arch.com/`。未移行のVectorworks配布サイトは現在 `https://www.hyodo-arch.com/vectorworks/index.html` であり、wwwのDNS切替前に別途公開先を決める必要がある。
 
 本文の修正はVaultだけに保存し、ユーザーのObsidian DG Publishで公開する。システム側から公開入力のノートを置換しない。公開後はNEWS・関連作品・ご依頼ページ・プロフィールのリンクを実サイトで確認する。
+
+## Search Console ownership verification (2026-11-02)
+
+Keep `src/site/verification/googled614ff6354d873ef.html` permanently. `src/helpers/userSetup.js` copies this Google-issued file unchanged to `/googled614ff6354d873ef.html` on every build. This is a system asset, outside DG Publish notes and user images; do not publish it as a Vault note or edit dist directly. After deployment check HTTP 200 and the exact text `google-site-verification: googled614ff6354d873ef.html`. Retain the file after verification. Restore both the file and passthrough setting from Git if a template update replaces them.

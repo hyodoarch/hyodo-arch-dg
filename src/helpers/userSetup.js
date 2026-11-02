@@ -6,6 +6,8 @@ function userMarkdownSetup(md) {
   md.use(require('./slideshow'));
 }
 function userEleventySetup(eleventyConfig) {
+  // Keep Search Console verification available after every DG deployment.
+  eleventyConfig.addPassthroughCopy({ 'src/site/verification/googled614ff6354d873ef.html': 'googled614ff6354d873ef.html' });
   require('./tagListings').register(eleventyConfig);
   eleventyConfig.addFilter('homeSlideshow', require('./homeSlideshow').homeSlideshow);
   eleventyConfig.addFilter('seoTitle', require('./seo').seoTitle);
