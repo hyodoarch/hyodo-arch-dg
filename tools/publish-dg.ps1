@@ -22,12 +22,13 @@ function Get-SourceChanges {
             throw "コンテンツのローカル変更があります。Obsidian DG Publishの対象をこのコマンドで送信しません: $path"
         }
         $source = $path -match '^(src|tools|tests|docs)/.+\.(js|cjs|mjs|ts|json|njk|html|scss|css|md|ya?ml|svg|png|jpe?g|gif|webp|avif|ico|woff2?|ttf|otf|ps1|cmd|sh)$'
+        $systemAsset = $path -ceq 'src/site/ads.txt'
         $rootConfig = $path -in @('package.json', 'package-lock.json', '.eleventy.js', '.env', '.env.example', 'netlify.toml', 'vercel.json', 'README.md', 'AGENTS.md')
         $excluded = $path -match '(^|/)(\.[^/]+|node_modules|dist|_site|cache|secrets?)(/|$)' -or
             $path -match '(^|/)(credentials?|secrets?|private[-_]key)([._-]|$)' -or
             $path -match '^src/site/styles/_?theme\..*\.css$'
         if ($status -notin @(' M', 'M ', 'MM', 'A ', 'AM', '??', ' D', 'D ') -or
-            !($source -or $rootConfig) -or ($excluded -and !$rootConfig) -or $path -match '[\r\n]') {
+            !($source -or $rootConfig -or $systemAsset) -or ($excluded -and !$rootConfig) -or $path -match '[\r\n]') {
             throw "対象外の変更、移動、競合などがあります。公開を中止します: $entry"
         }
         $hash = if (Test-Path -LiteralPath $path -PathType Leaf) { (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash } else { 'DELETED' }
