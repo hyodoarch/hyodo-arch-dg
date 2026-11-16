@@ -91,11 +91,11 @@
       .notelink, .foldername-wrapper {
         padding: 0;
         min-height: 0;
-        font-size: 16px;
+        font-size: 18px;
         font-weight: bold;
       }
       .filelist .notelink, .filelist .foldername-wrapper {
-        font-size: 15px;
+        font-size: 16px;
         font-weight: normal;
       }
       .filename, .foldername {
@@ -116,6 +116,7 @@
       }
       .foldername-wrapper {
         display: flex;
+        align-items: center;
         gap: 0;
         > svg {
           box-sizing: border-box;

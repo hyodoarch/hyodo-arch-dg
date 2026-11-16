@@ -90,6 +90,7 @@ async function measure(page) {
         const label = `${route} at ${width}: ${JSON.stringify(result)}`;
         assert.ok(!result.overflow, label);
         assert.equal(result.font, '16px', label);
+        assert.deepEqual(result.navFonts, ['18px', '16px', '14px'], label);
         assert.ok(result.main.width <= 859, label);
         if (width >= 1280) assert.ok(Math.abs(result.main.width - 858) < 1, label);
         if (result.footer) {
@@ -120,6 +121,7 @@ async function measure(page) {
     await page.setViewportSize({ width: 820, height: 1180 });
     await page.getByRole('button', { name: 'メニューを閉じる', exact: true }).click();
     await page.waitForFunction(() => getComputedStyle(document.querySelector('.filetree-wrapper')).display === 'none');
+    await require('./check-sidebar.cjs')(page, base, output);
     const details = [];
     for (const route of ['/house/house_in_sawara/', '/house/ph-6x6/', '/shop-office/prospect/', '/news/']) {
       await page.goto(base + route, { waitUntil: 'networkidle' });

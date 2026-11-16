@@ -228,12 +228,12 @@ body:not(:has(.content.canvas-page)) {
       border: 0;
       border-radius: 5px;
       background: transparent;
-      font-size: 15px;
+      font-size: 18px;
       font-weight: bold;
       &:hover, &:focus-within { background: #f0f0f0; }
     }
     .filelist .notelink, .filelist .foldername-wrapper {
-      font-size: 13px;
+      font-size: 16px;
       font-weight: normal;
     }
     .folder, .foldername-wrapper {
@@ -249,6 +249,8 @@ body:not(:has(.content.canvas-page)) {
       .search-keys { display: none; }
     }
     .filename, .foldername {
+      // Theme link styles must not override the navigation hierarchy's weight.
+      font-weight: inherit;
       min-width: 0;
       white-space: normal;
       overflow-wrap: anywhere;
@@ -428,7 +430,7 @@ body .search-container {
       &::-webkit-scrollbar-thumb:hover { background-color: #888; }
     }
     .filetree-sidebar {
-      // 作品名13pxの全角4文字分を追加。狭いPC画面では画面内に収める。
+      // 従来の追加幅52pxを維持。文字16pxへの変更ではメニュー幅を拡大しない。
       // レイアウト基準の222pxは変えず、本文・バナー・検索窓の左端を維持する。
       width: min(calc(var(--dg-filetree-width) + 4 * 13px), calc(100vw - var(--hyodo-nav-left) - 39px));
       height: auto;
