@@ -52,7 +52,9 @@ const pendingImageJobs = [];
 // Note: fillPictureSourceSets only references the first two widths; the
 // full-size original is served via the <img src> fallback, so a full
 // resolution "auto" rendition would never be referenced by the markup.
-function transformImage(src, cls, alt, sizes, widths = ["500", "700"]) {
+// Keep the desktop rendition large enough for the 858px content column.
+// Eleventy Image retains smaller originals without upscaling them.
+function transformImage(src, cls, alt, sizes, widths = ["500", "900"]) {
   let options = {
     widths: widths,
     formats: ["webp", "jpeg"],

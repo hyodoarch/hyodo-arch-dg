@@ -39,7 +39,8 @@ body .hyodo-contact-button {
 @media (min-width: 1000px) {
   body:not(.no-filetree):not(:has(.content.canvas-page)) {
     .hyodo-contact-dock {
-      right: max(24px, calc((100% - var(--hyodo-layout-width)) / 2));
+      left: var(--hyodo-nav-left);
+      right: auto;
       width: var(--dg-filetree-width);
       background: transparent;
     }
