@@ -4,7 +4,7 @@
 
 | 機能 | 記録 | 更新後の主な確認 |
 | --- | --- | --- |
-| 本文858px・本文16px・サイドバー320px・文字18/16px | [content-layout.md](content-layout.md) | 本文・画像・一覧、1000px境界、タブレット横表示、メニュー操作 |
+| 本文858px・本文16px・サイドバー320px・バナー240px・文字18/16px | [content-layout.md](content-layout.md) | 本文・画像・一覧、1000px境界、タブレット横表示、メニュー操作 |
 | Google AdSense用ads.txt | [ads-txt.md](ads-txt.md) | コピー登録、test、build、生成内容、公開2ドメイン |
 
 既存機能の説明は [開発・公開手順](../local-development.md) と各docsを参照する。Vaultが利用できる場合は `_メモ置場/サイト運用の説明書/アップデート時に上書きされる可能性のあるファイル.md` が従来の機能別台帳。台帳には変更概要とこの記録への参照を残し、詳しい復元手順を二重管理しない。

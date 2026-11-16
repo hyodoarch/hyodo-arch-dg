@@ -210,7 +210,7 @@ body:not(:has(.content.canvas-page)) {
       flex-shrink: 0;
       margin-top: 14px;
       color: #666;
-      font-size: 14px;
+      font-size: 16px;
       p { margin: 0; padding: .1em 0 .5em; }
       > a { display: block; width: fit-content; margin: 0 0 14px 14px; }
       img { display: block; max-width: 180px; height: auto; border-radius: 0; }
@@ -221,7 +221,9 @@ body:not(:has(.content.canvas-page)) {
       display: block;
       flex-shrink: 0;
       margin-bottom: 24px;
-      img { display: block; width: 222px; max-width: 100%; height: auto; border-radius: 0; }
+      width: 240px;
+      max-width: 100%;
+      img { display: block; width: 240px; max-width: 100%; height: auto; border-radius: 0; }
     }
     .notelink, .foldername-wrapper {
       margin: 0;
@@ -431,12 +433,11 @@ body .search-container {
       &::-webkit-scrollbar-thumb:hover { background-color: #888; }
     }
     .filetree-sidebar {
-      // Reserve menu width in the shared layout; banner/search stay at 222px.
+      // Reserve menu width in the shared layout; banner is 240px, search 222px.
       width: var(--hyodo-menu-width);
       height: auto;
       overflow: visible;
       scrollbar-width: auto;
-      > .hyodo-sidebar-banner,
       > .search-button,
       > .hyodo-sidebar-links { width: var(--dg-filetree-width); }
     }

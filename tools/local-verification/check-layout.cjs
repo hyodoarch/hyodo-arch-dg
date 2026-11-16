@@ -90,7 +90,7 @@ async function measure(page) {
         const label = `${route} at ${width}: ${JSON.stringify(result)}`;
         assert.ok(!result.overflow, label);
         assert.equal(result.font, '16px', label);
-        assert.deepEqual(result.navFonts, ['18px', '16px', '14px'], label);
+        assert.deepEqual(result.navFonts, ['18px', '16px', '16px'], label);
         assert.ok(result.main.width <= 859, label);
         if (width >= 1000) assert.ok(Math.abs(result.main.width - Math.min(858, width - 423)) < 1, label);
         if (result.footer) {
@@ -101,7 +101,7 @@ async function measure(page) {
           assert.ok(result.nav.x >= result.main.right + 39, label);
           assert.ok(result.nav.right <= width + 1, label);
           assert.ok(Math.abs(result.dock.x - result.nav.x) < 1, label);
-          assert.equal(result.navFonts[2], '14px', label);
+          assert.equal(result.navFonts[2], '16px', label);
         }
         if (result.thumbnail) {
           const expected = width <= 674 ? result.card.width * .23125 : 201;

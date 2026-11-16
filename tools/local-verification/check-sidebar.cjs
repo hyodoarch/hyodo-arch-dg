@@ -38,8 +38,9 @@ module.exports = async function checkSidebar(page, base, output) {
     assert.equal(result.category.weight, '700');
     assert.equal(result.work.size, '16px');
     assert.equal(result.work.weight, '400');
-    assert.equal(result.banner.width, 222);
-    assert.equal(result.banner.height, 74);
+    assert.equal(result.banner.width, 240);
+    assert.equal(result.banner.height, 80);
+    assert.deepEqual(await nav.locator('.hyodo-sidebar-links p').evaluateAll(elements => elements.map(e => getComputedStyle(e).fontSize)), ['16px', '16px']);
     assert.ok(!result.overflow);
     if (width >= 1000) {
       assert.equal(result.menuWidth, 320);
