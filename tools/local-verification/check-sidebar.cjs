@@ -16,6 +16,13 @@ module.exports = async function checkSidebar(page, base, output) {
     await work.waitFor({ state: 'hidden' });
     await category.locator('svg:visible').click();
     await work.waitFor({ state: 'visible' });
+    // Expand every category to cover long project names outside the house list.
+    const closedCategories = nav.locator('.foldername-wrapper > svg[data-lucide="chevron-right"]:visible');
+    while (await closedCategories.count()) {
+      await closedCategories.first().click();
+      await page.waitForTimeout(200);
+    }
+    await page.waitForTimeout(100);
     const result = await page.evaluate(() => {
       const nav = document.querySelector('.filetree-sidebar');
       const category = nav.querySelector('a[href="/house/"]');
@@ -25,7 +32,7 @@ module.exports = async function checkSidebar(page, base, output) {
       const banner = nav.querySelector('.hyodo-sidebar-banner img').getBoundingClientRect();
       const style = e => ({ size: getComputedStyle(e).fontSize, weight: getComputedStyle(e).fontWeight, line: getComputedStyle(e).lineHeight });
       const names = [...nav.querySelectorAll('.filelist a.filename')].filter(e => e.getBoundingClientRect().height);
-      return { width: innerWidth, category: style(category), work: style(work), banner: { width: banner.width, height: banner.height }, iconOffset: (ir.top + ir.height / 2) - (cr.top + cr.height / 2), overflow: document.documentElement.scrollWidth > innerWidth + 1, longest: names.sort((a,b) => b.textContent.length - a.textContent.length)[0]?.textContent.trim() };
+      return { width: innerWidth, menuWidth: nav.getBoundingClientRect().width, wrapped: names.filter(e => e.getBoundingClientRect().height > parseFloat(getComputedStyle(e).lineHeight) + 1).map(e => e.textContent.trim()), category: style(category), work: style(work), banner: { width: banner.width, height: banner.height }, iconOffset: (ir.top + ir.height / 2) - (cr.top + cr.height / 2), overflow: document.documentElement.scrollWidth > innerWidth + 1, longest: names.sort((a,b) => b.textContent.length - a.textContent.length)[0]?.textContent.trim() };
     });
     assert.equal(result.category.size, '18px');
     assert.equal(result.category.weight, '700');
@@ -34,6 +41,10 @@ module.exports = async function checkSidebar(page, base, output) {
     assert.equal(result.banner.width, 222);
     assert.equal(result.banner.height, 74);
     assert.ok(!result.overflow);
+    if (width >= 1000) {
+      assert.equal(result.menuWidth, 320);
+      assert.deepEqual(result.wrapped, [], JSON.stringify(result));
+    }
     if (width < 1000) assert.ok(Math.abs(result.iconOffset) < 1, JSON.stringify(result));
     if ([390, 1024, 1440].includes(width)) await page.screenshot({ path: path.join(output, `sidebar-open-${width}.png`) });
     // A long label and the last expanded work must remain reachable by scrolling.

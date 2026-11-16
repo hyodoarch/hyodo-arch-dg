@@ -92,7 +92,7 @@ async function measure(page) {
         assert.equal(result.font, '16px', label);
         assert.deepEqual(result.navFonts, ['18px', '16px', '14px'], label);
         assert.ok(result.main.width <= 859, label);
-        if (width >= 1280) assert.ok(Math.abs(result.main.width - 858) < 1, label);
+        if (width >= 1000) assert.ok(Math.abs(result.main.width - Math.min(858, width - 423)) < 1, label);
         if (result.footer) {
           assert.ok(Math.abs(result.main.x - result.footer.x) < 1, label);
           assert.ok(Math.abs(result.main.width - result.footer.width) < 1, label);

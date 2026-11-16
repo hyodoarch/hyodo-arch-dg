@@ -56,8 +56,9 @@ body:not(:has(.content.canvas-page)) {
   --hyodo-content-width: var(--dg-content-max-width);
   --dg-filetree-width: 222px;
   --dg-filetree-min-width: 222px;
+  --hyodo-menu-width: 320px;
   --hyodo-column-gap: 40px;
-  --hyodo-layout-width: calc(var(--hyodo-content-width) + var(--hyodo-column-gap) + var(--dg-filetree-width));
+  --hyodo-layout-width: calc(var(--hyodo-content-width) + var(--hyodo-column-gap) + var(--hyodo-menu-width) + 39px);
   --hyodo-layout-left: max(24px, calc((100vw - var(--hyodo-layout-width)) / 2));
   --hyodo-nav-left: calc(var(--hyodo-layout-left) + var(--hyodo-content-width) + var(--hyodo-column-gap));
   padding: 0;
@@ -399,9 +400,9 @@ body .search-container {
 
 @media (min-width: 1000px) {
   body:not(.no-filetree):not(:has(.content.canvas-page)) {
-    // Reserve the existing 222px navigation, 40px gap, 24px left margin,
+    // Reserve the full 320px menu, 40px gap, 24px left margin,
     // and 30px + 9px navigation padding/scrollbar before sizing the content.
-    --hyodo-content-width: min(var(--dg-content-max-width), calc(100vw - 24px - var(--hyodo-column-gap) - var(--dg-filetree-width) - 39px));
+    --hyodo-content-width: min(var(--dg-content-max-width), calc(100vw - 24px - var(--hyodo-column-gap) - var(--hyodo-menu-width) - 39px));
     > main.content,
     > aside > .sidebar {
       margin-left: var(--hyodo-layout-left);
@@ -430,9 +431,8 @@ body .search-container {
       &::-webkit-scrollbar-thumb:hover { background-color: #888; }
     }
     .filetree-sidebar {
-      // 従来の追加幅52pxを維持。文字16pxへの変更ではメニュー幅を拡大しない。
-      // レイアウト基準の222pxは変えず、本文・バナー・検索窓の左端を維持する。
-      width: min(calc(var(--dg-filetree-width) + 4 * 13px), calc(100vw - var(--hyodo-nav-left) - 39px));
+      // Reserve menu width in the shared layout; banner/search stay at 222px.
+      width: var(--hyodo-menu-width);
       height: auto;
       overflow: visible;
       scrollbar-width: auto;
