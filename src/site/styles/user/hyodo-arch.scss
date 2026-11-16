@@ -440,6 +440,7 @@ body .search-container {
       scrollbar-width: auto;
       > .search-button,
       > .hyodo-sidebar-links { width: var(--dg-filetree-width); }
+      > .search-button { margin-left: 9px; }
     }
   }
 }
