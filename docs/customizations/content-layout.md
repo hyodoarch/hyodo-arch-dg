@@ -75,3 +75,11 @@ SCSS・検証スクリプト・資料はユーザー拡張／独自追加で通�
 対象は `src/site/styles/user/hyodo-arch.scss` と `src/site/_includes/components/filetree.njk`。バナー専用幅を設定し、PCの共通222px制限から分離。HTMLの寸法属性も240×80へ揃える。既存の2つの表示検証スクリプトも期待寸法を更新する。SCSSはユーザー拡張で通常残るが保証ではない。テンプレートは標準ファイルへの直接変更のためDG更新で再統合が必要。全体置換・読込順変更・再インストールで失うと旧寸法・旧文字サイズへ戻る。復元は本変更を含むソースからNode22でbuildする。2026-11-16に公開依頼を受領。本変更を含むGitコミットを復元元とし、公開コミット・Cloudflare成功・本番検証をVault台帳に記録する。
 
 検証結果：Node22で641テスト・公開用build・ads.txt検証成功。Chromeの9幅でバナー240×80pxと両案内16pxを実測、メニュー開閉・作品リンク・横はみ出しなしを確認。画像・表12条件、検索・スライドショー・回転相当操作も成功。実機・Safariは未確認。公開結果はVault台帳に記録する。
+
+## 事務所バナーのSVG化（2026-11-16）
+
+Vaultの `images/common/hyodoarch-banner.svg` を共通画像として採用。`tools/common-images.json` のPNG登録をSVGへ変更し、`src/site/_includes/components/filetree.njk` は `/img/hyodoarch-banner.svg` を参照する。画像本体は `src/site/img/hyodoarch-banner.svg`。旧PNGは保管し削除しない。元SVGはパスで構成され、変更せず取り込む。CSS幅240px・height:autoにより約75.9pxの高さとなる。HTML寸法属性は元SVGの222×70.20079を指定し、読込前も縦横比を保つ。案内16px・メニュー320px・検索222pxは維持。
+
+テンプレートは標準ファイルへの直接変更、共通画像登録・画像・検証は独自追加で通常残るが保証ではない。更新・全体置換・共通画像再同期で参照や登録を失うとPNGに戻るか画像欠落となる。復元は本変更のGitコミットとVault原本、Node22のbuildを使用する。2026-11-16に公開依頼を受領。本変更を含むGitコミットを復元元とし、公開結果をVault台帳に記録する。共通画像同期で一時取得された別のトップ画像は作業前のGit版へ戻し、今回の差分には含めない。
+
+SVG版検証：641テスト・build・ads.txt成功。Chromeで9幅のSVG参照・幅240px・縦横比、文字・開閉・リンク・横はみ出しを確認。画像・表12条件、回転・検索・スライドショー成功。Vault原本・ソース・distのSVGハッシュ一致。DPR2画面も目視確認。公開結果はVault台帳に記録する。
