@@ -25,7 +25,7 @@
 
 ![images/shop-office/sherry/sherry-03_gDSC04609.jpg\|++レジカウンターとバックヤード](/img/user/images/shop-office/sherry/sherry-03_gDSC04609.jpg)
 
-![images/shop-office/sherry/sherry-04_gDSC04606.jpg\|++レジカウンター\|left\|317](/img/user/images/shop-office/sherry/sherry-04_gDSC04606.jpg)
+![images/shop-office/sherry/sherry-04_gDSC04606.jpg\|++レジカウンター\|left\|420](/img/user/images/shop-office/sherry/sherry-04_gDSC04606.jpg)
 
 ## レジカウンターとバックヤード（上）
 
