@@ -37,7 +37,7 @@
 
 ```image-grid-captions
 columns: 2
-gap: 8
+gap: 18
 
 ![[images/shop-office/sherry/sherry-05_gDSC04604.jpg|++鉄骨階段]]
 ![[images/shop-office/sherry/sherry-06_gDSC04591.jpg|++鉄骨階段]]

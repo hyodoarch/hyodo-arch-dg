@@ -11,7 +11,7 @@
 
 ```image-grid-captions
 columns: 3
-gap: 8
+gap: 18
 
 ![[images/shop-office/prospect/prospect-1153-02.jpg|エントランス]]
 ![[images/shop-office/prospect/prospect-1154-05.jpg|セットエリア]]
@@ -29,7 +29,7 @@ gap: 8
 
 ```image-grid-captions
 columns: 2
-gap: 8
+gap: 18
 
 ![[images/shop-office/prospect/prospect-1154_0003.jpg|カット・セット時のミラー]]
 ![[images/shop-office/prospect/prospect-1154_0001.jpg|展示の際はミラーを開く]]
@@ -41,7 +41,7 @@ gap: 8
 
 ```image-grid-captions
 columns: 2
-gap: 8
+gap: 18
 
 ![[images/shop-office/prospect/prospect-1155_02.jpg|## スモーキング・ボックス
 
@@ -53,7 +53,7 @@ gap: 8
 
 ```image-grid-captions
 columns: 2
-gap: 8
+gap: 18
 
 ![[images/shop-office/prospect/prospect-party-3.jpg]]
 ![[images/shop-office/prospect/prospect-party-1.jpg]]
