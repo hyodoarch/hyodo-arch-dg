@@ -4,7 +4,7 @@
 
 | 機能 | 記録 | 更新後の主な確認 |
 | --- | --- | --- |
-| 本文858px・本文16px・サイドバー320px・SVGバナー240px・文字18/16px | [content-layout.md](content-layout.md) | 本文・画像・一覧、1000px境界、タブレット横表示、メニュー操作、検索窓の右9px移動 |
+| 本文858px・本文16px・サイドバー320px・PNGバナー240px・文字18/16px | [content-layout.md](content-layout.md) | 本文・画像・一覧、1000px境界、タブレット横表示、メニュー操作、検索窓の右9px移動 |
 | 事務所favicon | [favicon.md](favicon.md) | 承認画像・SVG/ICO/PNG生成・白背景・head参照・公開配信 |
 | Google AdSense用ads.txt | [ads-txt.md](ads-txt.md) | コピー登録、test、build、生成内容、公開2ドメイン |
 
