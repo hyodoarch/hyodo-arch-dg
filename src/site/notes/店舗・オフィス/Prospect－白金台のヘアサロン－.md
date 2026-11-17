@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"dg-permalink":"/shop-office/prospect/","permalink":"/shop-office/prospect/","tags":["サロン","ギャラリー","美容室"],"dg-note-properties":{"thumbnail":"[[images/shop-office/prospect/ic-prospect-f026_24.jpg]]","description":"東京白金台の「プラチナ・ストリート（外苑西通り）」に建つテナントビル内のヘアサロンの店舗内装設計です。客席のプライバシー配慮やギャラリー併設など、様々な工夫があります。","tags":["サロン","ギャラリー","美容室"],"order":-10,"source-url":"https://www.hyodo-arch.com/projects/prospect.html"}}
+{"dg-publish":true,"dg-permalink":"/shop-office/prospect/","permalink":"/shop-office/prospect/","tags":["ギャラリー","美容室","ヘアサロン"],"dg-note-properties":{"thumbnail":"[[images/shop-office/prospect/ic-prospect-f026_24.jpg]]","description":"東京白金台の「プラチナ・ストリート（外苑西通り）」に建つテナントビル内のヘアサロンの店舗内装設計です。客席のプライバシー配慮やギャラリー併設など、様々な工夫があります。","tags":["ギャラリー","美容室","ヘアサロン"],"order":-10,"source-url":"https://www.hyodo-arch.com/projects/prospect.html"}}
 ---
 
 ![images/shop-office/prospect/prospect-f026_24.jpg\|++ヘアサロンの店内](/img/user/images/shop-office/prospect/prospect-f026_24.jpg)

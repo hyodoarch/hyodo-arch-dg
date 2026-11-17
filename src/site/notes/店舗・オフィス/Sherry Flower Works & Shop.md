@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"dg-permalink":"/shop-office/sherry/","permalink":"/shop-office/sherry/","tags":["フラワーショップ","スタジオ"],"dg-note-properties":{"thumbnail":"[[images/shop-office/sherry/ic_sherry_gDSC04563.jpg]]","description":"埼玉県川口市に計画したフラワー・スタジオです。花材が華やかに見えるようにモノトーンを基調としました。1階が花卉の販売、2階がフラワースタジオになっています。","tags":["フラワーショップ","スタジオ"],"order":50,"source-url":"https://www.hyodo-arch.com/projects/sherry.html"}}
+{"dg-publish":true,"dg-permalink":"/shop-office/sherry/","permalink":"/shop-office/sherry/","tags":["フラワーショップ","スタジオ","鉄骨階段"],"dg-note-properties":{"thumbnail":"[[images/shop-office/sherry/ic_sherry_gDSC04563.jpg]]","description":"埼玉県川口市に計画したフラワー・スタジオです。花材が華やかに見えるようにモノトーンを基調としました。1階が花卉の販売、2階がフラワースタジオになっています。","tags":["フラワーショップ","スタジオ","鉄骨階段"],"order":50,"source-url":"https://www.hyodo-arch.com/projects/sherry.html"}}
 ---
 
 ![images/shop-office/sherry/sherry-11_g20240202_044036133_iOS.jpg\|++1階ショップの花材とレジカウンター](/img/user/images/shop-office/sherry/sherry-11_g20240202_044036133_iOS.jpg)
