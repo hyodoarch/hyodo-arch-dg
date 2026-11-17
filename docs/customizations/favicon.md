@@ -5,7 +5,7 @@
 - 現行の元データはVaultの images/common/hyodoarch-favicon.svg。家の輪郭はpath、窓はrectで描く純粋なベクターSVG。元の承認済みPNGは参照資料として保持。
 - src/site/favicon.svg はVaultの元SVGと同一。PNGの埋込み・外部画像・フォント依存はない。色は濃茶 #281e18、家の外側は透明・内側は白。利用者がInkscapeで窓の間隔を広げて保存したSVGをそのまま使用。
 - 既存normalize-favicon.jsとserialFaviconsでSVG・ICO（16/32/64px）・Apple（180px）・192/512px PNG・manifestを生成。distは直接編集しない。
-- src/site/_includes/components/pageheader.njk はApple背景を白にし、SVG/ICO/Appleの参照にv=20261117-3を付け、旧ブラウザーキャッシュと区別する。次回変更時も版を更新する。
+- src/site/_includes/components/pageheader.njk はApple背景を白にし、SVG/ICO/Appleの参照にv=20261117-4を付け、旧ブラウザーキャッシュと区別する。次回変更時も版を更新する。
 - 標準favicon.svgとpageheader.njkはDG更新・テンプレート置換で上書きされる可能性がある。失うと旧アイコン・旧背景・旧キャッシュ参照へ戻る。更新時はGit履歴から両ファイルの独自変更を再統合する。独自docsは通常残るが全体置換では保証されない。
 - 復元元はhyodoarch/hyodo-arch-dgの本変更のGit履歴とVault元画像。
 - 今回の検証は利用者指定によりfaviconの見え方のみ。全体テスト・ローカルの全体ビルドは実施しない。公開生成はCloudflareで行う。
