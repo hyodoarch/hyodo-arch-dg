@@ -7,40 +7,36 @@ import { drag as d3Drag } from 'd3-drag';
 // Pixi v7 loaded as UMD global
 const { Application, Container, Graphics, Text, Circle } = PIXI;
 
-async function fetchGraphData() {
-    const graphData = await fetch('/graph.json').then(res => res.json());
-    const fullGraphData = filterFullGraphData(graphData);
-    return { graphData, fullGraphData };
+function graphForDisplay(graphData, showTags) {
+    if (!graphData) return null;
+    const nodes = Object.values(graphData.nodes);
+    const links = [...graphData.links];
+    if (showTags) {
+        nodes.push(...(graphData.tagNodes ?? []).map(node => ({ ...node, tag: true })));
+        links.push(...(graphData.tagLinks ?? []));
+    }
+    return { nodes, links };
 }
 
 function filterFullGraphData(graphData) {
     if (!graphData) return null;
-    graphData = JSON.parse(JSON.stringify(graphData));
-    const hiddens = Object.values(graphData.nodes).filter(n => n.hide).map(n => n.id);
+    const nodes = graphData.nodes.filter(node => !node.hide);
+    const ids = new Set(nodes.map(node => node.id));
     return {
-        links: graphData.links.filter(l => hiddens.indexOf(l.source) === -1 && hiddens.indexOf(l.target) === -1),
-        nodes: Object.values(graphData.nodes).filter(n => !n.hide),
+        nodes,
+        links: graphData.links.filter(l => ids.has(l.source) && ids.has(l.target)),
     };
 }
 
 function filterLocalGraphData(graphData, depth) {
     if (!graphData) return null;
-    depth = depth || 1;
-    const allNodes = JSON.parse(JSON.stringify(graphData.nodes));
-    const allLinks = JSON.parse(JSON.stringify(graphData.links));
-    let currentLink = decodeURI(window.location.pathname);
-
-    let currentNode = allNodes[currentLink];
-    if (!currentNode) {
-        const lower = currentLink.toLowerCase();
-        currentNode = Object.values(allNodes).find(v => v.url.toLowerCase() === lower);
-    }
-    if (!currentNode) {
-        currentNode = Object.values(allNodes).find(v => v.home);
-    }
+    const { nodes: allNodes, links: allLinks } = graphData;
+    const currentLink = decodeURI(window.location.pathname);
+    const lower = currentLink.toLowerCase();
+    const currentNode = allNodes.find(node => node.url === currentLink) ??
+        allNodes.find(node => node.url?.toLowerCase() === lower) ??
+        allNodes.find(node => node.home);
     if (!currentNode) return null;
-
-    currentNode.current = true;
 
     // Hidden nodes (home page, index/hub pages like the-shelf or entity-index)
     // are never rendered, but they're linked from a huge number of pages. If we
@@ -51,7 +47,7 @@ function filterLocalGraphData(graphData, depth) {
     // (reached from, never walked through), except the current node itself,
     // whose own direct links must still count even if it happens to be hidden
     // (e.g. viewing the local graph on the home page).
-    const hiddenIds = new Set(Object.values(allNodes).filter(n => n.hide).map(n => n.id));
+    const hiddenIds = new Set(allNodes.filter(n => n.hide).map(n => n.id));
     const canBridge = id => id === currentNode.id || !hiddenIds.has(id);
 
     // Build an id-based adjacency map so we can walk out to arbitrary depth
@@ -78,11 +74,16 @@ function filterLocalGraphData(graphData, depth) {
         frontier = next;
     }
 
-    const nodes = Object.values(allNodes).filter(n => !n.hide && visited.has(n.id));
-    const ids = nodes.map(n => n.id);
+    const nodes = allNodes.filter(n => !n.hide && visited.has(n.id))
+        .map(node => ({
+            ...node,
+            current: node === currentNode,
+            showTagLabel: node.tag && (node === currentNode || adjacency[currentNode.id]?.has(node.id)),
+        }));
+    const ids = new Set(nodes.map(n => n.id));
     return {
         nodes,
-        links: allLinks.filter(l => ids.indexOf(l.target) > -1 && ids.indexOf(l.source) > -1),
+        links: allLinks.filter(l => ids.has(l.target) && ids.has(l.source)),
     };
 }
 
@@ -141,6 +142,7 @@ function renderGraph(graphData, containerId, isFullScreen) {
 
     const color = resolveColor(getCssVar('--dg-graph-node-color') || getCssVar('--graph-main') || '#666');
     const mutedColor = resolveColor(getCssVar('--dg-graph-node-color-muted') || getCssVar('--graph-muted') || '#ccc');
+    const tagColor = resolveColor(getCssVar('--dg-graph-tag-color') || '#4e6799');
     const textColor = resolveColor(getCssVar('--dg-graph-label-color') || getCssVar('--text-normal') || '#eee');
     const bodyFont = getComputedStyle(document.body).fontFamily || 'Sans-Serif';
 
@@ -148,7 +150,7 @@ function renderGraph(graphData, containerId, isFullScreen) {
 
     const nodes = graphData.nodes.map(n => ({
         ...n,
-        text: htmlDecode(n.title),
+        text: n.tag ? n.title : htmlDecode(n.title),
     }));
     const links = graphData.links.map(l => ({ source: l.source, target: l.target }));
 
@@ -231,16 +233,15 @@ function renderGraph(graphData, containerId, isFullScreen) {
         label.resolution = 2;
         label.anchor.set(0.5, 1);
         label.scale.set(1 / 3);
-        label.alpha = 0;
+        label.alpha = n.showTagLabel ? 1 : 0;
 
         const gfx = new Graphics();
         gfx.interactive = true;
-        gfx.cursor = 'pointer';
+        gfx.cursor = n.url ? 'pointer' : 'default';
         gfx.hitArea = new Circle(0, 0, r + 2);
         gfx._nodeId = n.id;
 
-        // Draw node circle — current node gets main color, others get muted
-        const nodeColor = n.current ? color : mutedColor;
+        const nodeColor = n.tag ? tagColor : n.current ? color : mutedColor;
         gfx.beginFill(nodeColor);
         gfx.drawCircle(0, 0, r);
         gfx.endFill();
@@ -304,10 +305,14 @@ function renderGraph(graphData, containerId, isFullScreen) {
     select(app.view).call(
         d3Drag()
             .container(() => app.view)
-            .subject(() => {
-                if (!hoveredNodeId) return null;
-                const node = nodes.find(n => n.id === hoveredNodeId);
-                if (!node) return null;
+            .subject(event => {
+                // Touch input has no hover. Hit-test the same circles that Pixi draws.
+                const x = currentTransform.invertX(event.x);
+                const y = currentTransform.invertY(event.y);
+                const hit = nodeRenderData.findLast(({ gfx, radius }) =>
+                    Math.hypot(x - gfx.x, y - gfx.y) <= radius + 2);
+                if (!hit) return null;
+                const node = hit.simulationData;
                 return {
                     x: node.x * currentTransform.k + currentTransform.x,
                     y: node.y * currentTransform.k + currentTransform.y,
@@ -339,10 +344,8 @@ function renderGraph(graphData, containerId, isFullScreen) {
                 const dx = event.x - dragStartPos.x;
                 const dy = event.y - dragStartPos.y;
                 const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dt < 500 && dist < 5) {
-                    if (node.url) {
-                        window.location = node.url;
-                    }
+                if (dt < 500 && dist < 5 && node.url && event.sourceEvent.type !== 'touchcancel') {
+                    window.location = node.url;
                 }
             })
     );
@@ -359,7 +362,7 @@ function renderGraph(graphData, containerId, isFullScreen) {
             const scaleOpacity = Math.max((transform.k - 1) / 3.75, 0);
             for (const n of nodeRenderData) {
                 if (n.simulationData.id !== hoveredNodeId) {
-                    n.label.alpha = scaleOpacity;
+                    n.label.alpha = n.simulationData.showTagLabel ? 1 : scaleOpacity;
                 }
             }
         });
@@ -407,8 +410,9 @@ function renderGraph(graphData, containerId, isFullScreen) {
     requestAnimationFrame(animate);
 
     // Zoom to fit after simulation settles
+    let fitTimer;
     if (isFullScreen || graphData.nodes.length > 4) {
-        setTimeout(() => {
+        fitTimer = setTimeout(() => {
             let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
             for (const n of nodes) {
                 if (n.x == null || n.y == null) continue;
@@ -436,6 +440,7 @@ function renderGraph(graphData, containerId, isFullScreen) {
 
     return function cleanup() {
         stopAnimation = true;
+        clearTimeout(fitTimer);
         simulation.stop();
         select(app.view).on('.drag', null).on('.zoom', null);
         app.destroy(true, { children: true });
@@ -444,59 +449,93 @@ function renderGraph(graphData, containerId, isFullScreen) {
 
 // --- Initialize ---
 let graphDataCache = null;
-let fullGraphDataCache = null;
 let localGraphCleanup = null;
-let globalGraphCleanup = null;
+let modalGraphCleanup = null;
+let modalRenderFrame = null;
+let modalMode = null;
 let localGraphDepth = 1;
+const tagPreferenceKey = 'dg-graph-show-tags';
+const tagControls = document.querySelectorAll('#graph-component [data-show-graph-tags]');
+const modal = document.getElementById('full-graph');
+let showTags = true;
+try {
+    showTags = localStorage.getItem(tagPreferenceKey) !== 'false';
+} catch {
+    // Keep the default in this page when browser storage is unavailable.
+}
 
 async function init() {
-    const { graphData, fullGraphData } = await fetchGraphData();
-    graphDataCache = graphData;
-    fullGraphDataCache = fullGraphData;
+    for (const control of tagControls) {
+        control.checked = showTags;
+        control.addEventListener('change', () => setShowTags(control.checked));
+    }
+    const response = await fetch('/graph.json');
+    graphDataCache = await response.json();
     renderLocal();
+    if (modalMode) renderModal();
+}
+
+function setShowTags(value) {
+    showTags = value;
+    for (const control of tagControls) control.checked = value;
+    try {
+        localStorage.setItem(tagPreferenceKey, String(value));
+    } catch {
+        // The controls still share the current page's setting.
+    }
+    renderLocal();
+    if (modalMode) renderModal();
 }
 
 function renderLocal() {
-    if (localGraphCleanup) {
-        localGraphCleanup();
-        localGraphCleanup = null;
-    }
-    const data = filterLocalGraphData(graphDataCache, localGraphDepth);
-    const cleanup = renderGraph(data, 'link-graph', false);
-    localGraphCleanup = cleanup;
+    localGraphCleanup?.();
+    const data = filterLocalGraphData(graphForDisplay(graphDataCache, showTags), localGraphDepth);
+    localGraphCleanup = renderGraph(data, 'link-graph', false);
 }
 
 function setLocalGraphDepth(depth) {
     localGraphDepth = parseInt(depth, 10) || 1;
     renderLocal();
+    if (modalMode === 'local') renderModal();
 }
 
-function openModal(data) {
-    if (globalGraphCleanup) {
-        globalGraphCleanup();
-        globalGraphCleanup = null;
-    }
-    document.getElementById('full-graph').style.display = '';
-    setTimeout(() => {
-        globalGraphCleanup = renderGraph(data, 'full-graph-container', true);
-        lucide.createIcons({ attrs: { class: ['svg-icon'] } });
-    }, 50);
+function clearModalGraph() {
+    if (modalRenderFrame !== null) cancelAnimationFrame(modalRenderFrame);
+    modalRenderFrame = null;
+    modalGraphCleanup?.();
+    modalGraphCleanup = null;
+}
+
+function renderModal() {
+    clearModalGraph();
+    modalRenderFrame = requestAnimationFrame(() => {
+        modalRenderFrame = null;
+        const graph = graphForDisplay(graphDataCache, showTags);
+        const data = modalMode === 'local'
+            ? filterLocalGraphData(graph, localGraphDepth)
+            : filterFullGraphData(graph);
+        modalGraphCleanup = renderGraph(data, 'full-graph-container', true);
+    });
+}
+
+function openModal(mode) {
+    if (!modal.open) modal.showModal();
+    modalMode = mode;
+    renderModal();
 }
 
 function openFullGraph() {
-    openModal(fullGraphDataCache);
+    openModal('full');
 }
 
 function openExpandedLocal() {
-    openModal(filterLocalGraphData(graphDataCache, localGraphDepth));
+    openModal('local');
 }
 
 function closeFullGraph() {
-    document.getElementById('full-graph').style.display = 'none';
-    if (globalGraphCleanup) {
-        globalGraphCleanup();
-        globalGraphCleanup = null;
-    }
+    modalMode = null;
+    clearModalGraph();
+    modal.close();
 }
 
 // Expose to Alpine
@@ -510,7 +549,7 @@ document.addEventListener('forestry:css-changed', function() {
 init();
 </script>
 
-<div id="graph-component" class="graph" x-data="{ showFullGraph: false, graphDepth: 1 }">
+<div id="graph-component" class="graph" x-data="{ graphDepth: 1 }">
     <div class="graph-title-container">
         <div class="graph-title">Connected Pages</div>
         <div id="graph-controls">
@@ -521,14 +560,22 @@ init();
             </div>
             {% endif %}
             <div class="ctrl-right">
-                <span id="global-graph-btn" x-on:click="showFullGraph = true; window.__graph.openFullGraph()"><i data-lucide="globe" aria-hidden="true"></i></span>
-                <span id="graph-fs-btn" x-on:click="showFullGraph = true; window.__graph.openExpandedLocal()"><i data-lucide="expand" aria-hidden="true"></i></span>
+                <span id="global-graph-btn" x-on:click="window.__graph.openFullGraph()"><i data-lucide="globe" aria-hidden="true"></i></span>
+                <span id="graph-fs-btn" x-on:click="window.__graph.openExpandedLocal()"><i data-lucide="expand" aria-hidden="true"></i></span>
             </div>
         </div>
     </div>
+    <label class="graph-tags-control">
+        <input type="checkbox" data-show-graph-tags checked />
+        タグを表示
+    </label>
     <div id="link-graph"></div>
-    <div x-show="showFullGraph" id="full-graph" class="show" style="display: none;" x-on:click.self="window.__graph.closeFullGraph(); showFullGraph = false;">
-        <span id="full-graph-close" x-on:click="window.__graph.closeFullGraph(); showFullGraph = false;"><i data-lucide="x" aria-hidden="true"></i></span>
+    <dialog id="full-graph" aria-label="グラフビュー" x-on:click.self="window.__graph.closeFullGraph()" x-on:cancel.prevent="window.__graph.closeFullGraph()">
+        <button type="button" id="full-graph-close" aria-label="閉じる" x-on:click="window.__graph.closeFullGraph()"><i data-lucide="x" aria-hidden="true"></i></button>
+        <label class="graph-tags-control graph-tags-control-modal">
+            <input type="checkbox" data-show-graph-tags checked />
+            タグを表示
+        </label>
         <div id="full-graph-container"></div>
-    </div>
+    </dialog>
 </div>

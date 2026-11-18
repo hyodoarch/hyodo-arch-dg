@@ -1,6 +1,6 @@
 require('dotenv').config();
 const { ALL_NOTE_SETTINGS } = require('../../helpers/constants');
-const { tagNames, tagNotes } = require('../../helpers/tagNotes');
+const { tagSlug, tagNames, tagNotes } = require('../../helpers/tagNotes');
 
 module.exports = {
   layout: 'layouts/note.njk',
@@ -13,7 +13,7 @@ module.exports = {
   },
   eleventyComputed: {
     title: data => data.tagName,
-    permalink: data => `/tags/${String(data.tagName).trim().replace(/\s+/g, '-').replace(/[\/\\?#%]/g, '-')}/`,
+    permalink: data => `/tags/${tagSlug(data.tagName)}/`,
     tagNotes,
     settings: data => {
       const values = {};

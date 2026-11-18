@@ -1,5 +1,9 @@
 const { property, isListedNote, noteCards } = require('./folderNotes');
 
+function tagSlug(tag) {
+  return String(tag).trim().replace(/\s+/g, '-').replace(/[\/\\?#%]/g, '-');
+}
+
 function tagsForNote(item) {
   const value = property(item.data, 'tags') ?? [];
   return [...new Set((Array.isArray(value) ? value : [value])
@@ -17,4 +21,4 @@ function tagNotes(data) {
     .filter(item => isListedNote(item) && tagsForNote(item).includes(data.tagName)));
 }
 
-module.exports = { tagsForNote, tagNames, tagNotes };
+module.exports = { tagSlug, tagsForNote, tagNames, tagNotes };

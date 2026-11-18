@@ -1,4 +1,6 @@
 const path = require("path");
+const { property } = require("./folderNotes");
+const { tagSlug, tagsForNote, tagNames } = require("./tagNotes");
 
 const wikiLinkRegex = /\[\[(.*?\|.*?)\]\]/g;
 const internalLinkRegex = /href="\/(.*?)"/g;
@@ -325,10 +327,32 @@ async function getGraph(data) {
   // Store enriched basesNotes for the markdown-it plugin to use
   exports._basesNotesWithLinks = basesNotes;
 
+  const listedTags = new Set(tagNames(notes));
+  const tags = new Map();
+  const tagLinks = [];
+  for (const note of notes) {
+    const node = nodes[note.url];
+    if (node.hide || property(note.data, "dg-hide") || property(note.data, "dg-publish") !== true) {
+      continue;
+    }
+    for (const tag of tagsForNote(note)) {
+      if (!tags.has(tag)) {
+        tags.set(tag, {
+          id: notes.length + tags.size,
+          title: `#${tag}`,
+          url: listedTags.has(tag) ? `/tags/${tagSlug(tag)}/` : null,
+        });
+      }
+      tagLinks.push({ source: node.id, target: tags.get(tag).id });
+    }
+  }
+
   return {
     homeAlias,
     nodes,
     links,
+    tagNodes: [...tags.values()],
+    tagLinks,
   };
 }
 

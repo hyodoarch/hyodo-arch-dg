@@ -18,6 +18,7 @@ const matterOptions = {
 const faviconsPlugin = require("./src/helpers/serialFavicons");
 const normalizeFavicon = require("./src/site/normalize-favicon.js");
 const { convertMdHrefs } = require("./src/helpers/linkUtils");
+const { tagSlug } = require("./src/helpers/tagNotes");
 const nodePath = require("path");
 
 const FAVICON_SOURCE = "./src/site/favicon.svg";
@@ -136,13 +137,6 @@ function getAnchorAttributes(filePath, linkTitle) {
     },
     innerHTML: title,
   }
-}
-
-function tagSlug(tag) {
-  return String(tag)
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[\/\\?#%]/g, "-");
 }
 
 const tagRegex = /(^|\s|\>)(#[^\s!@#$%^&*()=+\.,\[{\]};:'"?><]+)(?!([^<]*>))/g;

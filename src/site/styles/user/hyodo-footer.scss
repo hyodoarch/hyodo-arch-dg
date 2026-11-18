@@ -1,8 +1,62 @@
+#graph-component > .graph-title-container {
+  position: static;
+}
+
+#graph-component > .graph-title-container {
+  position: static;
+}
+
+#full-graph[open] {
+  display: block;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+#full-graph #full-graph-close {
+  display: grid;
+  place-items: center;
+  padding: 4px;
+  background: var(--dg-graph-bg);
+  border: 0;
+  border-radius: var(--dg-graph-ctrl-radius);
+  box-shadow: none;
+}
+
+.graph-tags-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  width: fit-content;
+  color: var(--text-normal);
+  font-size: 0.875rem;
+  cursor: pointer;
+
+  input {
+    margin: 0;
+    accent-color: var(--dg-graph-tag-color);
+  }
+}
+
+#full-graph .graph-tags-control-modal {
+  position: absolute;
+  top: 12px;
+  left: max(12px, calc((100% - var(--dg-graph-fullscreen-width)) / 2));
+  z-index: 10;
+  padding-inline: 8px;
+  border-radius: var(--dg-graph-ctrl-radius);
+  background: var(--dg-graph-bg);
+}
+
 body:not(:has(.content.canvas-page)) {
   --dg-graph-bg: #fff;
   --dg-graph-border-color: #ddd;
   --dg-graph-node-color: #526f2c;
   --dg-graph-node-color-muted: #999;
+  --dg-graph-tag-color: #4e6799;
   --dg-graph-label-color: #444;
   --dg-graph-label-size: 24;
   --dg-graph-ctrl-size: 1rem;
