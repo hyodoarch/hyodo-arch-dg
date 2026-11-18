@@ -17,7 +17,7 @@
   <section class="consultation-card">
     <h2>メールで相談する</h2>
     <p>ご質問やオンライン相談のご希望はこちら。</p>
-    <a href="https://forms.gle/26Tbzxpa5kcQrd3j8">メールで相談する</a>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSd6Em4nCrg8uPUP_wzZ-2WLPUSp1HC0OBqoEUbU5R-0le3bQA/viewform?usp=dialog">メールで相談する</a>
   </section>
 
 </div>
