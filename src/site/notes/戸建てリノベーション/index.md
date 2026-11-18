@@ -2,6 +2,4 @@
 {"dg-publish":true,"dg-permalink":"/house-reno/","permalink":"/house-reno/","title":"戸建てリノベーション","dg-note-properties":{"order":1050,"title":"戸建てリノベーション","project-list":"戸建てリノベーション"}}
 ---
 
-# {{ title }}
-
-戸建てリノベーションの事例です。
+# {{ title }}の事例です。

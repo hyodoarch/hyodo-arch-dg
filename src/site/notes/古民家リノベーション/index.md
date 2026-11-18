@@ -2,6 +2,4 @@
 {"dg-publish":true,"dg-permalink":"/kominka-reno/","permalink":"/kominka-reno/","title":"古民家リノベーション","dg-note-properties":{"order":1040,"title":"古民家リノベーション","project-list":"古民家リノベーション"}}
 ---
 
-# {{ title }}
-
-古民家リノベーションの事例です。
+# {{ title }}の事例です。
