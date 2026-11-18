@@ -11,7 +11,7 @@
   <section class="consultation-card">
     <h2>対面で相談する</h2>
     <p>土曜日・日曜日もご相談いただけます。</p>
-    <a href="https://calendar.app.google/bfWji2b8p4FEXcaa7">相談日時を予約する</a>
+    <a href="https://calendar.app.google/8X55xx7WwcwabeN2A">相談日時を予約する</a>
   </section>
 
   <section class="consultation-card">
