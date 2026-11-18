@@ -7,14 +7,12 @@ import { drag as d3Drag } from 'd3-drag';
 // Pixi v7 loaded as UMD global
 const { Application, Container, Graphics, Text, Circle } = PIXI;
 
-function graphForDisplay(graphData, showTags) {
+function graphForDisplay(graphData) {
     if (!graphData) return null;
     const nodes = Object.values(graphData.nodes);
     const links = [...graphData.links];
-    if (showTags) {
-        nodes.push(...(graphData.tagNodes ?? []).map(node => ({ ...node, tag: true })));
-        links.push(...(graphData.tagLinks ?? []));
-    }
+    nodes.push(...(graphData.tagNodes ?? []).map(node => ({ ...node, tag: true })));
+    links.push(...(graphData.tagLinks ?? []));
     return { nodes, links };
 }
 
@@ -136,8 +134,8 @@ function renderGraph(graphData, containerId, isFullScreen) {
 
     while (el.firstChild) el.removeChild(el.firstChild);
 
-    const width = el.offsetWidth;
-    const height = el.offsetHeight || 250;
+    const width = el.clientWidth;
+    const height = el.clientHeight || 250;
     if (width === 0) return null;
 
     const color = resolveColor(getCssVar('--dg-graph-node-color') || getCssVar('--graph-main') || '#666');
@@ -454,42 +452,18 @@ let modalGraphCleanup = null;
 let modalRenderFrame = null;
 let modalMode = null;
 let localGraphDepth = 1;
-const tagPreferenceKey = 'dg-graph-show-tags';
-const tagControls = document.querySelectorAll('#graph-component [data-show-graph-tags]');
 const modal = document.getElementById('full-graph');
-let showTags = true;
-try {
-    showTags = localStorage.getItem(tagPreferenceKey) !== 'false';
-} catch {
-    // Keep the default in this page when browser storage is unavailable.
-}
 
 async function init() {
-    for (const control of tagControls) {
-        control.checked = showTags;
-        control.addEventListener('change', () => setShowTags(control.checked));
-    }
     const response = await fetch('/graph.json');
     graphDataCache = await response.json();
     renderLocal();
     if (modalMode) renderModal();
 }
 
-function setShowTags(value) {
-    showTags = value;
-    for (const control of tagControls) control.checked = value;
-    try {
-        localStorage.setItem(tagPreferenceKey, String(value));
-    } catch {
-        // The controls still share the current page's setting.
-    }
-    renderLocal();
-    if (modalMode) renderModal();
-}
-
 function renderLocal() {
     localGraphCleanup?.();
-    const data = filterLocalGraphData(graphForDisplay(graphDataCache, showTags), localGraphDepth);
+    const data = filterLocalGraphData(graphForDisplay(graphDataCache), localGraphDepth);
     localGraphCleanup = renderGraph(data, 'link-graph', false);
 }
 
@@ -510,7 +484,7 @@ function renderModal() {
     clearModalGraph();
     modalRenderFrame = requestAnimationFrame(() => {
         modalRenderFrame = null;
-        const graph = graphForDisplay(graphDataCache, showTags);
+        const graph = graphForDisplay(graphDataCache);
         const data = modalMode === 'local'
             ? filterLocalGraphData(graph, localGraphDepth)
             : filterFullGraphData(graph);
@@ -546,6 +520,21 @@ document.addEventListener('forestry:css-changed', function() {
     if (graphDataCache) renderLocal();
 });
 
+// Recreate the canvas when its responsive container changes dimensions.
+const graphSizes = new WeakMap();
+const graphResizeObserver = new ResizeObserver(entries => {
+    for (const { target, contentRect } of entries) {
+        const size = `${Math.round(contentRect.width)}x${Math.round(contentRect.height)}`;
+        const previousSize = graphSizes.get(target);
+        graphSizes.set(target, size);
+        if (!graphDataCache || !previousSize || previousSize === size || !contentRect.width) continue;
+        if (target.id === 'link-graph') renderLocal();
+        else if (modalMode) renderModal();
+    }
+});
+graphResizeObserver.observe(document.getElementById('link-graph'));
+graphResizeObserver.observe(document.getElementById('full-graph-container'));
+
 init();
 </script>
 
@@ -555,7 +544,7 @@ init();
         <div id="graph-controls">
             {% if settings.dgShowGraphDepthControl %}
             <div class="ctrl-left">
-                <label id="graph-depth-label" for="graph-depth-slider">Depth <span x-text="graphDepth"></span></label>
+                <label id="graph-depth-label" for="graph-depth-slider">深さ <span x-text="graphDepth"></span></label>
                 <input type="range" id="graph-depth-slider" min="1" max="3" step="1" x-model.number="graphDepth" x-on:input="window.__graph.setLocalGraphDepth(graphDepth)" />
             </div>
             {% endif %}
@@ -565,17 +554,9 @@ init();
             </div>
         </div>
     </div>
-    <label class="graph-tags-control">
-        <input type="checkbox" data-show-graph-tags checked />
-        タグを表示
-    </label>
     <div id="link-graph"></div>
     <dialog id="full-graph" aria-label="グラフビュー" x-on:click.self="window.__graph.closeFullGraph()" x-on:cancel.prevent="window.__graph.closeFullGraph()">
         <button type="button" id="full-graph-close" aria-label="閉じる" x-on:click="window.__graph.closeFullGraph()"><i data-lucide="x" aria-hidden="true"></i></button>
-        <label class="graph-tags-control graph-tags-control-modal">
-            <input type="checkbox" data-show-graph-tags checked />
-            タグを表示
-        </label>
         <div id="full-graph-container"></div>
     </dialog>
 </div>

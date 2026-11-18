@@ -7,7 +7,7 @@
 | 本文858px・本文16px・サイドバー320px・PNGバナー240px・文字18/16px | [content-layout.md](content-layout.md) | 本文・画像・一覧、1000px境界、タブレット横表示、メニュー操作、検索窓の右9px移動 |
 | 事務所favicon | [favicon.md](favicon.md) | 承認画像・SVG/ICO/PNG生成・白背景・head参照・公開配信 |
 | Google AdSense用ads.txt | [ads-txt.md](ads-txt.md) | コピー登録、test、build、生成内容、公開2ドメイン |
-| グラフビューのタグ表示 | [graph-tags.md](graph-tags.md) | タグ別の接続、深さ、表示切り替え、タグ一覧への移動 |
+| グラフビューのタグ表示と本文下の配置 | [graph-tags.md](graph-tags.md) | タグの常時表示、深さ、タグ一覧への移動、600px境界とキャンバスのリサイズ |
 
 既存機能の説明は [開発・公開手順](../local-development.md) と各docsを参照する。Vaultが利用できる場合は `_メモ置場/サイト運用の説明書/アップデート時に上書きされる可能性のあるファイル.md` が従来の機能別台帳。台帳には変更概要とこの記録への参照を残し、詳しい復元手順を二重管理しない。
 

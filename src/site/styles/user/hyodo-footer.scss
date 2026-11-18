@@ -2,10 +2,6 @@
   position: static;
 }
 
-#graph-component > .graph-title-container {
-  position: static;
-}
-
 #full-graph[open] {
   display: block;
   max-width: none;
@@ -23,32 +19,6 @@
   border: 0;
   border-radius: var(--dg-graph-ctrl-radius);
   box-shadow: none;
-}
-
-.graph-tags-control {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 32px;
-  width: fit-content;
-  color: var(--text-normal);
-  font-size: 0.875rem;
-  cursor: pointer;
-
-  input {
-    margin: 0;
-    accent-color: var(--dg-graph-tag-color);
-  }
-}
-
-#full-graph .graph-tags-control-modal {
-  position: absolute;
-  top: 12px;
-  left: max(12px, calc((100% - var(--dg-graph-fullscreen-width)) / 2));
-  z-index: 10;
-  padding-inline: 8px;
-  border-radius: var(--dg-graph-ctrl-radius);
-  background: var(--dg-graph-bg);
 }
 
 body:not(:has(.content.canvas-page)) {
@@ -87,9 +57,37 @@ body:not(:has(.content.canvas-page)) {
       a { color: inherit; text-decoration: none; }
       a:hover { text-decoration: underline; }
     }
-    .graph { align-self: flex-end; max-width: 100%; }
-    #link-graph { box-sizing: border-box; max-width: 100%; }
+    .sidebar-container:has(> .graph) {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: "graph" "controls" "office";
+      gap: 24px;
+      align-items: start;
+
+      > .graph { display: contents; }
+      > .hyodo-office-info { grid-area: office; min-width: 0; }
+    }
+    #graph-component > .graph-title-container {
+      grid-area: controls;
+      position: static;
+      justify-content: flex-start;
+      min-width: 0;
+    }
+    #link-graph {
+      grid-area: graph;
+      box-sizing: border-box;
+      width: 100%;
+      height: auto;
+      min-height: 250px;
+      aspect-ratio: 3 / 2;
+      margin: 0;
+      overflow: hidden;
+    }
     #graph-controls {
+      flex-wrap: wrap;
+      max-width: 100%;
+      box-sizing: border-box;
+      margin: 0;
       background: #fff;
       border: 1px solid #e5e5e5;
       box-shadow: 0 1px 4px #0001;
@@ -100,18 +98,12 @@ body:not(:has(.content.canvas-page)) {
     @media (min-width: 600px) {
       .sidebar-container:has(> .graph) {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) var(--dg-graph-width);
-        align-items: start;
-        column-gap: 24px;
-        > .hyodo-office-info,
+        grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+        grid-template-areas: "controls graph" "office graph";
+        grid-template-rows: max-content 1fr;
+        align-content: start;
         > .toc,
         > .backlinks { grid-column: 1; min-width: 0; }
-        > .graph {
-          grid-column: 2;
-          grid-row: 1 / span 3;
-          align-self: start;
-          justify-self: end;
-        }
       }
     }
 
@@ -133,13 +125,9 @@ body:not(:has(.content.canvas-page)) {
         &:hover { background: rgba(78, 103, 153, 0.08); }
         &:focus-visible { outline: 2px solid #4e6799; outline-offset: 3px; }
       }
-
-      .graph { align-self: flex-start; }
-      .sidebar-container:has(> .graph) > .graph { justify-self: start; }
     }
   }
-}
-
+      }
 body .hyodo-back-to-top {
   position: fixed;
   left: var(--hyodo-back-to-top-left, 15px);
