@@ -1,5 +1,7 @@
-<h2 class="tag-page-title">{{ tagName | escape }}</h2>
-<p class="tag-page-description">{{ tagName | escape }}の事例をまとめました。</p>
+<div class="tag-page-heading">
+  <h2 class="tag-page-title">&#35;{{ tagName | escape }}</h2>
+  <p class="tag-page-description">タグの事例です。</p>
+</div>
 {% if tagNotes and tagNotes.length > 0 %}
   {% set listingNotes = tagNotes %}
   {% include "components/note-cards.njk" %}
