@@ -21,4 +21,6 @@ Vaultの `HOME.md` に `sitetitle` と `description` を記述する。DGプラ�
 
 Node22で `npm test`、`npm run build`、`npm run check:ads-txt` を実行する。HOMEプロパティが未Publishのbuildでは従来タイトルになる。新プロパティは実テンプレートの回帰テストで検証し、Publish後に本番反映を確認する。Vaultの元ノートは通常のDG更新対象外。同期競合・手動置換時の復元元はDropbox履歴。
 
-2026-11-19：ユーザーのDG Publishコミット `37a177b`（HOMEプロパティ・カテゴリー5件）を、承認されたpull --ff-onlyで取得。Node22.23.3で645テスト・通常build・ads.txt検証成功。生成HTMLのHOMEタイトル、3種類の説明文、OGP・Twitterタイトル、canonical、カテゴリー5件の見出し・タイトル、代表作品のタイトルを照合した。検証結果は `.cache/home-seo-local-results.json`。システム変更の公開と本番確認は次の手順で行う。
+2026-11-19：ユーザーのDG Publishコミット `37a177b`（HOMEプロパティ・カテゴリー5件）を、承認されたpull --ff-onlyで取得。Node22.23.3で645テスト・通常build・ads.txt検証成功。生成HTMLのHOMEタイトル、3種類の説明文、OGP・Twitterタイトル、canonical、カテゴリー5件の見出し・タイトル、代表作品のタイトルを照合した。検証結果は `.cache/home-seo-local-results.json`。
+
+システム変更は `78ac59bc9d754d4f48f9ab9c992e7f91105df44f` としてmainへcommit・通常push済み。同コミットのCloudflare Pagesデプロイ `09703d77-dd71-4c16-9963-be59ba930cf6` は2026-11-19 16:58 JSTに成功。本番wwwのHOMEで承認されたsitetitle、検索用・OGP・Twitterのdescription、OGP・Twitterタイトル、canonicalが各1個で期待値と一致することをHTTP取得で確認。カテゴリー5件と本蓮の家はHTTP200、既存のタイトル形式とcanonicalを維持。カテゴリー5件の新見出し、wwwあり／なし両方のads.txtも確認。結果は `.cache/home-seo-live-results.json`。ブラウザー操作は環境エラーで利用できず、本番HTMLを読み取り検証した。画面の目視確認・検索結果への再クロール反映は今回の確認対象外。復元元は上記システムコミットとこの資料の以後の履歴。
