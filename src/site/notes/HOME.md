@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"permalink":"/HOME/","tags":["gardenEntry"],"dg-note-properties":{}}
+{"dg-publish":true,"permalink":"/HOME/","tags":["gardenEntry"],"dg-note-properties":{"sitetitle":"川口市の住宅設計・リノベーション｜兵藤善紀建築設計事務所","description":"当建築設計事務所は、埼玉県川口市を拠点に活動する一級建築士事務所です。ローコストで実現するデザイン注文住宅、店舗やオフィスのデザイン、古民家やマンションのリノベーションの設計・監理を行っています。"}}
 ---
 
 ```slideshow
