@@ -89,6 +89,43 @@ it('shares one head title across the real home, note, tag, 404 and random layout
   }
 });
 
+it('uses HOME properties for head metadata only, with safe fallback and escaping', () => {
+  const sitetitle = '川口市の住宅設計・リノベーション｜兵藤善紀建築設計事務所';
+  const description = '埼玉県川口市を拠点に活動する一級建築士事務所です。';
+  for (const layout of ['index', 'note']) {
+    const data = { title: 'HOME', page: { url: '/', fileSlug: 'HOME' }, noteProps: { sitetitle, description } };
+    const html = renderLayoutHead(layout, data);
+    expect(html.querySelector('title').text).toBe(sitetitle);
+    expect(html.querySelector('meta[property="og:title"]').getAttribute('content')).toBe(sitetitle);
+    expect(html.querySelector('meta[name="twitter:title"]').getAttribute('content')).toBe(sitetitle);
+    for (const selector of ['meta[name="description"]', 'meta[property="og:description"]', 'meta[name="twitter:description"]']) {
+      expect(html.querySelectorAll(selector)).toHaveLength(1);
+      expect(html.querySelector(selector).getAttribute('content')).toBe(description);
+    }
+    expect(data.title).toBe('HOME');
+    for (const value of [undefined, '', '  ', false, 42, ['invalid'], {}]) {
+      const fallback = renderLayoutHead(layout, { ...data, noteProps: { sitetitle: value } });
+      expect(fallback.querySelector('title').text).toBe('兵藤善紀建築設計事務所');
+    }
+    const escaped = renderLayoutHead(layout, { ...data, noteProps: { sitetitle: 'A "B" & <img src=x>' } });
+    expect(escaped.querySelector('title').text).toBe('A "B" & <img src=x>');
+    expect(escaped.querySelector('meta[property="og:title"]').getAttribute('content')).toBe('A "B" & <img src=x>');
+    expect(escaped.querySelectorAll('img')).toHaveLength(0);
+    const other = renderLayoutHead(layout, { noteProps: { sitetitle } });
+    expect(other.querySelector('title').text).toBe('作品名 | 兵藤善紀建築設計事務所');
+  }
+});
+
+it('retains explicit social titles on HOME while using sitetitle for the browser title', () => {
+  const html = renderLayoutHead('index', {
+    page: { url: '/', fileSlug: 'HOME' }, noteProps: { sitetitle: 'トップ専用タイトル' },
+    metatags: { 'og:title': '専用OGP', 'twitter:title': '専用X' },
+  });
+  expect(html.querySelector('title').text).toBe('トップ専用タイトル');
+  expect(html.querySelector('meta[property="og:title"]').getAttribute('content')).toBe('専用OGP');
+  expect(html.querySelector('meta[name="twitter:title"]').getAttribute('content')).toBe('専用X');
+});
+
 it('uses the configured site name and safely escapes both title text and metadata attributes', () => {
   const title = 'ページ "A" & <script>alert(1)</script>';
   const siteName = '別の事務所 "B" & <img src=x onerror="alert(1)">';

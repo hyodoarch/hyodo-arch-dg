@@ -7,11 +7,12 @@ const siteRoot = path.resolve(__dirname, '../site');
 const text = value => typeof value === 'string' ? value.replace(/\s+/g, ' ').trim() : '';
 
 // Format the head only; keep the note's title for headings, lists and the feed.
-function seoTitle(title, siteName, pageUrl) {
+function seoTitle(title, siteName, pageUrl, homeTitle) {
   const pageTitle = text(title);
   const siteTitle = text(siteName);
+  if (pageUrl === '/') return text(homeTitle) || siteTitle || pageTitle;
   if (!siteTitle) return pageTitle;
-  if (pageUrl === '/' || !pageTitle) return siteTitle;
+  if (!pageTitle) return siteTitle;
   const suffix = ` | ${siteTitle}`;
   return pageTitle === siteTitle || pageTitle.endsWith(suffix)
     ? pageTitle : pageTitle + suffix;

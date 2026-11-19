@@ -89,9 +89,11 @@ Googleタグ標準の `config` による通常のページビュー計測を使�
 
 ## headのtitle
 
-ブラウザのtitleは通常ページで「ページタイトル | 事務所名」、トップ（page.urlが `/`）では事務所名のみとする。事務所名は既存の `SITE_NAME_HEADER`（meta.siteName）から取得するため、Cloudflare用の新しい環境変数は不要。既に同じ事務所名が付いた404等には重複して追加しない。
+ブラウザのtitleは通常ページで「ページタイトル | 事務所名」、トップ（page.urlが `/`）ではHOMEの `sitetitle` を使用する。DG Publishが送信する `dg-note-properties`（noteProps）から取得し、文字列以外・空欄は従来の事務所名へ戻す。他ページに同プロパティがあってもタイトルに使用しない。事務所名は既存の `SITE_NAME_HEADER`（meta.siteName）から取得するため、Cloudflare用の新しい環境変数は不要。既に同じ事務所名が付いた404等には重複して追加しない。
 
 `src/helpers/seo.js` のseoTitleフィルターをindex・note・randomの各レイアウトで使い、headTitleとして既存pageheaderへ渡す。HTMLのtitleと自動生成するog:title・twitter:titleで共用し、HTML出力時にエスケープする。ノートのtitle自体は変更しないため、本文見出し、一覧、検索、feedのタイトルは維持する。DG標準metatagsで明示されたOGP・Twitterタイトルは従来どおり優先する。
+
+HOMEの `sitetitle` と `description` はVaultで編集し、ユーザーがDG Publishで送信する。descriptionは既存のメタ情報処理を使用する。共通の事務所名・本文・ナビゲーション・一覧・検索・feedのタイトルは変更しない。実装・更新時の注意は `docs/customizations/seo-title.md` を参照。
 
 ## canonical
 
