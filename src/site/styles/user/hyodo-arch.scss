@@ -301,6 +301,7 @@ body:not(:has(.content.canvas-page)) {
   // 補助情報は本文下へ。右ナビゲーションとの重なりを避ける。
   > aside > .sidebar {
     position: relative !important;
+    z-index: 0;
     inset: auto !important;
     box-sizing: border-box;
     width: 100%;

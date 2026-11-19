@@ -14,6 +14,8 @@
 
 本文末尾のfloat画像とフッターの分離、全画面幅共通の本文下padding30pxについても [content-layout.md](content-layout.md) を参照する。
 
+開閉メニュー・暗幕よりフッターを後ろに収める重なり順の指定は [graph-tags.md](graph-tags.md) を参照する。
+
 ## 更新・記録の手順
 
 1. `AGENTS.md` に従ってGit状態・originを確認する。既存変更や未送信コミットを保護し、上流版で丸ごと上書きしない。
