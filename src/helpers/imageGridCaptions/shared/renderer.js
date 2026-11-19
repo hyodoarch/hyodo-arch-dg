@@ -1,5 +1,5 @@
 const { errorText, parseCaptionBlocks } = require('./parser');
-const { calculateLayout } = require('./layout');
+const { calculateLayout, calculateResponsiveGap } = require('./layout');
 function showError(element, error) {
     element.className = "image-grid-captions__error";
     element.setAttribute("role", "alert");
@@ -51,12 +51,13 @@ function mountGrid(row) {
     row.append(message);
     let disposed = false;
     let failed = false;
-    const gap = Number(row.dataset.gap);
+    const configuredGap = Number(row.dataset.gap);
     const update = ()=>{
         if (disposed || failed || images.some((img)=>!img.complete || !img.naturalWidth || !img.naturalHeight)) return;
         const width = row.getBoundingClientRect().width;
         if (width <= 0) return;
         try {
+            const gap = calculateResponsiveGap(width, configuredGap);
             const layout = calculateLayout(width, gap, images.map((img)=>img.naturalWidth / img.naturalHeight));
             message.hidden = true;
             row.style.gap = `${gap}px`;

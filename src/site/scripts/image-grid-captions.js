@@ -99,8 +99,16 @@ function parseGrid(source) {
     };
 }
 
+// DG policy: the authored gap is the maximum; narrow grids use half of it.
+function calculateResponsiveGap(width, gap) {
+    if (!Number.isFinite(width) || width < 0 || !Number.isSafeInteger(gap) || gap < 0) {
+        throw new Error("Invalid gap dimensions.");
+    }
+    const progress = Math.max(0, Math.min(1, (width - 375) / (720 - 375)));
+    return gap * (0.5 + 0.5 * progress);
+}
 function calculateLayout(width, gap, ratios) {
-    if (!Number.isFinite(width) || width < 0 || !Number.isSafeInteger(gap) || gap < 0 || !ratios.length || ratios.some((r)=>!Number.isFinite(r) || r <= 0)) {
+    if (!Number.isFinite(width) || width < 0 || !Number.isFinite(gap) || gap < 0 || !ratios.length || ratios.some((r)=>!Number.isFinite(r) || r <= 0)) {
         throw new Error("Invalid layout dimensions.");
     }
     const available = width - gap * (ratios.length - 1);
@@ -163,12 +171,13 @@ function mountGrid(row) {
     row.append(message);
     let disposed = false;
     let failed = false;
-    const gap = Number(row.dataset.gap);
+    const configuredGap = Number(row.dataset.gap);
     const update = ()=>{
         if (disposed || failed || images.some((img)=>!img.complete || !img.naturalWidth || !img.naturalHeight)) return;
         const width = row.getBoundingClientRect().width;
         if (width <= 0) return;
         try {
+            const gap = calculateResponsiveGap(width, configuredGap);
             const layout = calculateLayout(width, gap, images.map((img)=>img.naturalWidth / img.naturalHeight));
             message.hidden = true;
             row.style.gap = `${gap}px`;
