@@ -12,7 +12,7 @@
 
 既存機能の説明は [開発・公開手順](../local-development.md) と各docsを参照する。Vaultが利用できる場合は `_メモ置場/サイト運用の説明書/アップデート時に上書きされる可能性のあるファイル.md` が従来の機能別台帳。台帳には変更概要とこの記録への参照を残し、詳しい復元手順を二重管理しない。
 
-本文末尾のfloat画像とフッターの分離についても [content-layout.md](content-layout.md) を参照する。
+本文末尾のfloat画像とフッターの分離、全画面幅共通の本文下padding30pxについても [content-layout.md](content-layout.md) を参照する。
 
 ## 更新・記録の手順
 

@@ -1,5 +1,11 @@
 # 本文858pxと文字16px
 
+## 本文下余白30px（2026-11-19）
+
+`src/site/styles/user/hyodo-arch.scss` の通常ページ用 `> main.content` の下paddingを60pxから30pxに変更。PC・タブレット・スマートフォン共通。フッターの上margin40pxと合わせて70pxになり、末尾要素自身の余白は別途加わる。flow-rootによる本文内の回り込みの包含は維持する。
+
+ユーザー拡張なので通常残るが保証ではない。更新・再インストール・全体置換・CSS読込順変更で失うと下余白が60pxに戻りうる。復元元はこの変更を含むGitコミットのSCSS。2026-11-19に公開依頼を受領。Node22のbuildでCSSを再生成する。本書と一覧READMEも独自資料として保持する。Node22.23.3で643テスト・公開用build・ads.txt検証成功。Edgeの1440/1000/999/675/674/390/320pxで入間の家（左右float）・根岸の家・NEWSの28条件を確認し、下padding30px・フッター上margin40px・横はみ出しなし・画像の回り込み包含を実測。公開コミット・Cloudflare成功・本番確認の結果はVaultの変更台帳へ記録する。
+
 ## 本文末尾の回り込み（2026-11-19）
 
 `src/site/styles/user/hyodo-arch.scss` の通常ページ用 `> main.content` に `display: flow-root` を追加。本文が左右float画像の高さを含み、最後の説明文より画像が長くても後続のグラフビュー・事務所情報が横へ回り込まない。本文中の回り込みは維持し、canvasは対象外。
