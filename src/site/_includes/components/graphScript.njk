@@ -598,8 +598,11 @@ init();
 </script>
 
 <div id="graph-component" class="graph" x-data="{ graphDepth: 1 }">
+    <div class="graph-intro">
+        <h3>グラフビュー</h3>
+        <p>事例とタグのつながりを、動かして、たどって、楽しんでみてください。</p>
+    </div>
     <div class="graph-title-container">
-        <div class="graph-title">Connected Pages</div>
         <div id="graph-controls">
             {% if settings.dgShowGraphDepthControl %}
             <div class="ctrl-left">
@@ -608,8 +611,8 @@ init();
             </div>
             {% endif %}
             <div class="ctrl-right">
-                <span id="global-graph-btn" x-on:click="window.__graph.openFullGraph()"><i data-lucide="globe" aria-hidden="true"></i></span>
-                <span id="graph-fs-btn" x-on:click="window.__graph.openExpandedLocal()"><i data-lucide="expand" aria-hidden="true"></i></span>
+                <button type="button" id="global-graph-btn" aria-label="全体グラフを表示" title="全体グラフを表示" x-on:click="window.__graph.openFullGraph()"><i data-lucide="globe" aria-hidden="true"></i></button>
+                <button type="button" id="graph-fs-btn" aria-label="グラフを拡大" title="グラフを拡大" x-on:click="window.__graph.openExpandedLocal()"><i data-lucide="expand" aria-hidden="true"></i></button>
             </div>
         </div>
     </div>

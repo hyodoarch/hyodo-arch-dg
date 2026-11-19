@@ -59,18 +59,34 @@ body:not(:has(.content.canvas-page)) {
     .sidebar-container:has(> .graph) {
       display: grid;
       grid-template-columns: minmax(0, 1fr);
-      grid-template-areas: "graph" "controls" "office";
-      gap: 24px;
+      grid-template-areas: "intro" "graph" "controls" "office";
+      gap: 0 24px;
       align-items: start;
 
       > .graph { display: contents; }
       > .hyodo-office-info { grid-area: office; min-width: 0; }
+    }
+    .graph-intro {
+      grid-area: intro;
+      min-width: 0;
+      margin-bottom: 12px;
+      font-size: 16px;
+      line-height: 1.8;
+
+      h3 {
+        margin: 0 0 8px;
+        font-size: 16px;
+        line-height: inherit;
+      }
+      p { margin: 0; font-size: inherit; line-height: inherit; }
     }
     #graph-component > .graph-title-container {
       grid-area: controls;
       position: static;
       justify-content: flex-start;
       min-width: 0;
+      width: auto;
+      margin-bottom: 24px;
     }
     #link-graph {
       grid-area: graph;
@@ -79,7 +95,7 @@ body:not(:has(.content.canvas-page)) {
       height: auto;
       min-height: 250px;
       aspect-ratio: 3 / 2;
-      margin: 0;
+      margin: 0 0 24px;
       overflow: hidden;
     }
     #graph-controls {
@@ -87,10 +103,29 @@ body:not(:has(.content.canvas-page)) {
       max-width: 100%;
       box-sizing: border-box;
       margin: 0;
+      width: fit-content;
       background: #fff;
       border: 1px solid #e5e5e5;
       box-shadow: 0 1px 4px #0001;
       color: #555;
+
+      .ctrl-right button {
+        display: grid;
+        place-items: center;
+        box-sizing: border-box;
+        width: var(--dg-graph-ctrl-icon-size);
+        height: var(--dg-graph-ctrl-icon-size);
+        min-width: 0;
+        min-height: 0;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+        color: inherit;
+        cursor: pointer;
+        &:focus-visible { outline: 2px solid #4e6799; outline-offset: 2px; }
+      }
     }
     .backlinks { margin-top: 0; }
 
@@ -98,12 +133,74 @@ body:not(:has(.content.canvas-page)) {
       .sidebar-container:has(> .graph) {
         display: grid;
         grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
-        grid-template-areas: "controls graph" "office graph";
-        grid-template-rows: max-content 1fr;
+        grid-template-areas: "intro graph" "controls graph" "office graph";
+        grid-template-rows: max-content max-content 1fr;
         align-content: start;
         > .toc,
         > .backlinks { grid-column: 1; min-width: 0; }
       }
+      #link-graph { margin-bottom: 0; }
+    }
+
+    @media (width < 600px), (any-pointer: coarse) {
+      #graph-controls {
+        width: 100%;
+
+        .ctrl-left {
+          flex: 1;
+          min-width: 0;
+          input[type="range"] {
+            flex: 1;
+            min-width: 0;
+            width: auto;
+            height: 32px;
+            margin: 0;
+            appearance: none;
+            background: transparent;
+            border: 0;
+            box-shadow: none;
+
+            &::-webkit-slider-runnable-track {
+              height: 3px;
+              border-radius: 2px;
+              background: #333;
+            }
+            &::-webkit-slider-thumb {
+              appearance: none;
+              box-sizing: border-box;
+              width: 20px;
+              height: 20px;
+              top: 0;
+              margin-top: -8.5px;
+              border: 1px solid #444;
+              border-radius: 50%;
+              background: #fff;
+              box-shadow: 0 1px 3px #0002;
+            }
+            &::-moz-range-track {
+              height: 3px;
+              border-radius: 2px;
+              background: #333;
+            }
+            &::-moz-range-thumb {
+              width: 20px;
+              height: 20px;
+              border: 1px solid #444;
+              border-radius: 50%;
+              background: #fff;
+            }
+            &:focus-visible { outline: 2px solid #4e6799; outline-offset: 2px; }
+          }
+        }
+        .ctrl-right {
+          flex-shrink: 0;
+          gap: 9px;
+          button { width: 32px; height: 32px; }
+        }
+      }
+    }
+    @media (min-width: 600px) and (any-pointer: coarse) {
+      #graph-component > .graph-title-container { width: calc(100% + 6px); }
     }
 
     @media (width < 1000px) {
@@ -126,7 +223,7 @@ body:not(:has(.content.canvas-page)) {
       }
     }
   }
-      }
+}
 body .hyodo-back-to-top {
   position: fixed;
   left: var(--hyodo-back-to-top-left, 15px);
