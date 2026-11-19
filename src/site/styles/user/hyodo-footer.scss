@@ -70,15 +70,15 @@ body:not(:has(.content.canvas-page)) {
       grid-area: intro;
       min-width: 0;
       margin-bottom: 12px;
-      font-size: 16px;
-      line-height: 1.8;
 
       h3 {
-        margin: 0 0 8px;
-        font-size: 16px;
-        line-height: inherit;
+        margin: 0;
+        font-family: var(--hyodo-font-family);
+        font-size: var(--hyodo-h3-size);
+        font-weight: 700;
+        line-height: 1.5;
+        color: var(--hyodo-heading-color);
       }
-      p { margin: 0; font-size: inherit; line-height: inherit; }
     }
     #graph-component > .graph-title-container {
       grid-area: controls;
