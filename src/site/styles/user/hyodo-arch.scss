@@ -484,6 +484,7 @@ body .search-container {
     padding-top: var(--dg-content-padding-top-mobile);
     // 画像の親要素には余白を設けず、文章だけに余白を付ける。
     > header,
+    > .tag-page-heading,
     > :is(h1, h2, h3, h4, h5, h6, p, blockquote) {
       padding-inline: 9px;
     }
