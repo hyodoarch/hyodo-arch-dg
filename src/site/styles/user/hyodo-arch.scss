@@ -66,6 +66,7 @@ body:not(:has(.content.canvas-page)) {
   background: #fff;
 
   > main.content {
+    display: flow-root;
     box-sizing: border-box;
     width: 100%;
     max-width: var(--hyodo-content-width);
