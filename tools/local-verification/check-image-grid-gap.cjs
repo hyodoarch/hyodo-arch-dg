@@ -30,8 +30,16 @@ async function measure(page, selector = '.image-grid-captions') {
             heights: images.map(img => img.getBoundingClientRect().height),
             ratios: images.map(img => img.naturalWidth / img.naturalHeight),
             rightError: Math.abs(items.at(-1).getBoundingClientRect().right - rect.right),
-            captionPadding: items.map(item => item.querySelector('figcaption')).filter(Boolean)
-                .map(caption => parseFloat(getComputedStyle(caption).paddingLeft)),
+            captions: items.map(item => {
+                const caption = item.querySelector('figcaption');
+                if (!caption) return null;
+                const horizontal = element => {
+                    const style = getComputedStyle(element);
+                    return ['paddingLeft', 'paddingRight', 'marginLeft', 'marginRight'].map(key => parseFloat(style[key]));
+                };
+                return { spacing: horizontal(caption), width: caption.getBoundingClientRect().width,
+                    children: [...caption.children].map(horizontal) };
+            }),
         };
     }));
 }
@@ -53,6 +61,46 @@ function verify(rows) {
             assert.ok(Math.abs(width / row.heights[i] - row.ratios[i]) < 0.002, label);
         });
     }
+}
+function verifyCaptions(rows, viewport) {
+    for (const row of rows) row.captions.forEach((caption, index) => {
+        if (!caption) return;
+        const expected = viewport <= 674 ? [index === 0 ? 9 : 0, index === row.columns - 1 ? 9 : 0, 0, 0] : [0, 0, 0, 0];
+        assert.deepEqual(caption.spacing, expected, `Caption ${index} at ${viewport}: ${JSON.stringify(row)}`);
+        assert.ok(Math.abs(caption.width - row.widths[index]) < 0.1, 'Padding must stay inside the figure width');
+        caption.children.forEach(spacing => assert.deepEqual(spacing, [0, 0, 0, 0]));
+    });
+}
+async function createFixture(page, columns, configuredGap, omittedCaptions = []) {
+    await page.evaluate(({ columns, configuredGap, omittedCaptions }) => {
+        document.getElementById('gap-fixture')?.remove();
+        const row = document.createElement('div');
+        row.id = 'gap-fixture';
+        row.className = 'image-grid-captions';
+        row.dataset.columns = String(columns);
+        row.dataset.gap = String(configuredGap);
+        row.style.width = '858px';
+        for (let i = 0; i < columns; i++) {
+            const figure = document.createElement('figure');
+            figure.className = 'image-grid-captions__item';
+            const image = document.createElement('img');
+            image.className = 'image-grid-captions__image';
+            image.src = 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${i % 2 ? 600 : 300}" height="450"><rect width="100%" height="100%" fill="silver"/></svg>`);
+            figure.append(image);
+            if (!omittedCaptions.includes(i)) {
+                const caption = document.createElement('figcaption');
+                caption.className = 'image-grid-captions__caption';
+                for (const [tag, text] of [['h3', `写真${i + 1}の見出し`], ['p', '複数行に折り返す説明文です。画像の幅の中に収まることを確認します。'], ['p', '二つ目の段落です。']]) {
+                    const block = document.createElement(tag);
+                    block.textContent = text;
+                    caption.append(block);
+                }
+                figure.append(caption);
+            }
+            row.append(figure);
+        }
+        document.querySelector('main').prepend(row);
+    }, { columns, configuredGap, omittedCaptions });
 }
 async function settled(page, selector = '.image-grid-captions') {
     await page.waitForFunction(selector => [...document.querySelectorAll(selector)].every(row => {
@@ -84,17 +132,21 @@ async function settled(page, selector = '.image-grid-captions') {
             assert.equal(response.status(), 200, route);
             await page.locator('.image-grid-captions img').evaluateAll(images => images.forEach(img => img.loading = 'eager'));
             await page.waitForFunction(() => [...document.querySelectorAll('.image-grid-captions img')].every(img => img.complete && img.naturalWidth));
-            for (const width of [320, 374, 375, 376, 390, 480, 600, 674, 675, 719, 720, 721, 768, 820, 999, 1000, 1024, 1440, 375, 1440]) {
+            for (const width of [320, 374, 375, 376, 390, 393, 480, 600, 674, 675, 719, 720, 721, 768, 820, 999, 1000, 1024, 1440, 375, 1440]) {
                 await page.setViewportSize({ width, height: 1000 });
                 await settled(page);
                 const rows = await measure(page);
                 verify(rows);
                 assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${route} ${width}: overflow`);
-                if (width <= 674) rows.forEach(row => row.captionPadding.forEach(padding => assert.equal(padding, 9)));
+                verifyCaptions(rows, width);
                 results.push({ route, viewport: width, rows });
-                if ([375, 768, 1440].includes(width)) {
+                if ([375, 393, 768, 1440].includes(width)) {
                     await page.locator('.image-grid-captions').first().scrollIntoViewIfNeeded();
                     await page.screenshot({ path: path.join(output, `${route.split('/')[2]}-${width}.png`) });
+                    if (route === '/house/ph-6x6/' && width === 393) {
+                        await page.locator('.image-grid-captions[data-columns="2"]').first().scrollIntoViewIfNeeded();
+                        await page.screenshot({ path: path.join(output, 'ph-6x6-two-393.png') });
+                    }
                 }
             }
             const zoom = page.locator('.image-grid-captions__zoom').first();
@@ -108,31 +160,34 @@ async function settled(page, selector = '.image-grid-captions') {
         await page.setViewportSize({ width: 1440, height: 1000 });
         for (const columns of [2, 3, 4]) {
             for (const configuredGap of [0, 8, 18]) {
-                await page.evaluate(({ columns, configuredGap }) => {
-                    document.getElementById('gap-fixture')?.remove();
-                    const row = document.createElement('div');
-                    row.id = 'gap-fixture';
-                    row.className = 'image-grid-captions';
-                    row.dataset.columns = String(columns);
-                    row.dataset.gap = String(configuredGap);
-                    row.style.width = '858px';
-                    for (let i = 0; i < columns; i++) {
-                        const figure = document.createElement('figure');
-                        figure.className = 'image-grid-captions__item';
-                        const image = document.createElement('img');
-                        image.className = 'image-grid-captions__image';
-                        image.src = 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${i % 2 ? 600 : 300}" height="450"><rect width="100%" height="100%" fill="silver"/></svg>`);
-                        figure.append(image);
-                        row.append(figure);
-                    }
-                    document.querySelector('main').prepend(row);
-                }, { columns, configuredGap });
+                await createFixture(page, columns, configuredGap);
                 for (const width of [858, 720, 719.5, 600, 480, 375.5, 375, 320, 720, 375, 858]) {
                     await page.locator('#gap-fixture').evaluate((row, width) => row.style.width = `${width}px`, width);
                     await settled(page, '#gap-fixture');
                     const rows = await measure(page, '#gap-fixture');
                     verify(rows);
+                    verifyCaptions(rows, 1440);
                     results.push({ fixture: true, columns, configuredGap, width, rows });
+                }
+            }
+        }
+        // Keep the same fixture while crossing the mobile boundary and returning.
+        for (const columns of [2, 3, 4]) {
+            for (const omittedCaptions of [[], [0], [columns - 1], [0, columns - 1]]) {
+                await createFixture(page, columns, 18, omittedCaptions);
+                await page.locator('#gap-fixture').evaluate(row => row.style.width = '100%');
+                for (const viewport of [375, 393, 674, 675, 768, 1440, 375]) {
+                    await page.setViewportSize({ width: viewport, height: 1000 });
+                    await settled(page, '#gap-fixture');
+                    const rows = await measure(page, '#gap-fixture');
+                    verify(rows);
+                    verifyCaptions(rows, viewport);
+                    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Fixture overflow');
+                    results.push({ captionFixture: true, columns, omittedCaptions, viewport, rows });
+                    if (columns === 4 && omittedCaptions.length === 0 && viewport === 393) {
+                        await page.locator('#gap-fixture').scrollIntoViewIfNeeded();
+                        await page.screenshot({ path: path.join(output, 'four-captions-393.png') });
+                    }
                 }
             }
         }

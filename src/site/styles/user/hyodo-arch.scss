@@ -501,7 +501,11 @@ body .search-container {
     }
     > p > picture, > p > img, > p > picture > img { width: 100%; }
     .image-captions-caption { padding-inline: 9px; }
-    .image-grid-captions__caption { padding-left: 9px; }
+    .image-grid-captions > .image-grid-captions__item {
+      > .image-grid-captions__caption { margin-inline: 0; padding-inline: 0; }
+      &:first-of-type > .image-grid-captions__caption { padding-left: 9px; }
+      &:last-of-type > .image-grid-captions__caption { padding-right: 9px; }
+    }
     > div.note-tags { margin-left: 9px; }
   }
 }
