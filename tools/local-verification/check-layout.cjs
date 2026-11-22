@@ -31,7 +31,8 @@ async function measure(page) {
       nav: rect(nav), navVisible: !!nav && getComputedStyle(nav).display !== 'none',
       dock: rect(document.querySelector('.hyodo-contact-dock')),
       font: getComputedStyle(main).fontSize,
-      headings: ['h1', 'h2', 'h3'].map(s => font('main ' + s)),
+      headings: ['h1', 'h2:not(.tag-page-title)', 'h3'].map(s => font('main ' + s)),
+      tagTitle: font('main .tag-page-title'),
       thumbnail: rect(document.querySelector('.folder-note-thumbnail-link')),
       card: rect(document.querySelector('.folder-note-card')),
       navFonts: [font('.filetree-sidebar > .folder .foldername-wrapper'), font('.filetree-sidebar .filelist .notelink'), font('.hyodo-sidebar-links')],
@@ -40,6 +41,74 @@ async function measure(page) {
     };
   });
 }
+
+async function checkCategoryDescriptions(page, base, output) {
+  for (const route of ['/house/', '/apt-reno/']) {
+    await page.goto(base + route, { waitUntil: 'networkidle' });
+    await page.evaluate(() => document.fonts.ready.then(() => undefined));
+    const description = page.locator('.category-project-list .folder-note-description').first();
+
+    for (const width of [390, 576, 577, 1000]) {
+      await page.setViewportSize({ width, height: 900 });
+      const result = await description.evaluate(element => ({
+        width: document.querySelector('main.content').getBoundingClientRect().width,
+        clamp: getComputedStyle(element).webkitLineClamp,
+      }));
+      const expectedWidth = width === 1000 ? 577 : width;
+      assert.equal(result.width, expectedWidth, `${route} at viewport ${width}px`);
+      assert.equal(result.clamp, expectedWidth <= 576 ? '3' : 'none', `${route} at main width ${expectedWidth}px`);
+    }
+
+    await page.setViewportSize({ width: 576, height: 900 });
+    const lineCounts = await description.evaluate(element => {
+      const fixture = element.cloneNode(false);
+      element.after(fixture);
+      const lineHeight = parseFloat(getComputedStyle(fixture).lineHeight);
+      const countLines = () => Math.round(fixture.getBoundingClientRect().height / lineHeight);
+      const counts = [];
+      fixture.style.webkitLineClamp = 'none';
+      for (let length = 1; length <= 300; length++) {
+        fixture.textContent = '住宅の設計事例。'.repeat(length);
+        const natural = countLines();
+        if (natural !== counts.length + 1) continue;
+        fixture.style.removeProperty('-webkit-line-clamp');
+        counts.push({ natural, visible: countLines() });
+        fixture.style.webkitLineClamp = 'none';
+        if (natural === 4) break;
+      }
+      fixture.remove();
+      return counts;
+    });
+    assert.deepEqual(lineCounts, [1, 2, 3, 4].map(natural => ({
+      natural, visible: Math.min(natural, 3),
+    })), route);
+
+    await page.emulateMedia({ media: 'print' });
+    assert.equal(await description.evaluate(element => getComputedStyle(element).webkitLineClamp), 'none', route);
+    await page.emulateMedia({ media: 'screen' });
+
+    await page.setViewportSize({ width: 390, height: 900 });
+    const firstCard = page.locator('.category-project-list .folder-note-card:has(.folder-note-thumbnail-link)').first();
+    await page.screenshot({ path: path.join(output, `category-${route.split('/')[1]}-390.png`) });
+    for (const selector of ['.folder-note-title a', '.folder-note-thumbnail-link']) {
+      const link = firstCard.locator(selector);
+      const target = new URL(await link.getAttribute('href'), page.url()).href;
+      await link.click();
+      await page.waitForURL(target);
+      await page.goto(base + route, { waitUntil: 'networkidle' });
+    }
+  }
+
+  await page.setViewportSize({ width: 390, height: 900 });
+  for (const route of ['/', '/tags/和風/']) {
+    await page.goto(base + encodeURI(route), { waitUntil: 'networkidle' });
+    const counts = await page.locator('main .folder-note-description').evaluateAll(elements =>
+      elements.map(element => getComputedStyle(element).webkitLineClamp));
+    assert.ok(counts.length > 0, route);
+    assert.ok(counts.every(clamp => clamp === 'none'), route);
+  }
+}
+
 (async () => {
   fs.mkdirSync(output, { recursive: true });
   const results = [];
@@ -49,6 +118,11 @@ async function measure(page) {
     const base = `http://127.0.0.1:${server.address().port}`;
     browser = await chromium.launch({ channel: process.env.BROWSER_CHANNEL || 'msedge', headless: true });
     const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' });
+    if (!process.env.GRID_ONLY && !process.env.DETAILS_ONLY) {
+      await checkCategoryDescriptions(page, base, output);
+      console.log('Category description width, line count, and scope checks passed.');
+      await page.setViewportSize({ width: 1440, height: 1000 });
+    }
     // In-memory four-column fixture: do not add unpublished notes to the site.
     await page.goto(base + '/house/house_in_sawara/', { waitUntil: 'networkidle' });
     await page.evaluate(() => {
@@ -108,6 +182,7 @@ async function measure(page) {
           assert.ok(Math.abs(result.thumbnail.width - expected) < 1, label);
         }
         result.headings.forEach((size, i) => { if (size) assert.equal(size, ['20px', '18px', '16px'][i], label); });
+        if (result.tagTitle) assert.equal(result.tagTitle, '16px', label);
         if (route === '/' && [390, 820, 1024, 1440].includes(width)) await page.screenshot({ path: path.join(output, `home-${width}.png`) });
       }
     }

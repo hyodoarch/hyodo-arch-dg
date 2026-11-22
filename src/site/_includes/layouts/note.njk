@@ -72,7 +72,9 @@ permalink: "notes/{{ page.fileSlug | slugify }}/"
 
       {% if folderNotes and folderNotes.length > 0 %}
         {% set listingNotes = folderNotes %}
-        {% include "components/note-cards.njk" %}
+        <div class="category-project-list">
+          {% include "components/note-cards.njk" %}
+        </div>
       {% endif %}
       {% for imp in dynamics.common.afterContent %}
         {% include imp %}

@@ -8,6 +8,7 @@
 | HOMEプロパティによる検索・ブラウザー用タイトル | [seo-title.md](seo-title.md) | sitetitle・description、未設定時の事務所名、他ページ・明示OGPの維持 |
 | タグ一覧の角丸見出しと説明文 | [tag-page-heading.md](tag-page-heading.md) | #付きh2・説明h2、スマホ左右9px、横並びと折り返し、一覧まで24px |
 | 本文858px・本文16px・サイドバー320px・PNGバナー240px・文字18/16px | [content-layout.md](content-layout.md) | 本文・画像・一覧、1000px境界、タブレット横表示、メニュー操作、検索窓の右9px移動 |
+| カテゴリーの作品カード説明文 | [content-layout.md](content-layout.md#カテゴリーの作品カード説明文) | メイン幅576px以下で最大3行、タグ・本文内一覧と印刷は全文 |
 | 事務所favicon | [favicon.md](favicon.md) | 承認画像・SVG/ICO/PNG生成・白背景・head参照・公開配信 |
 | Google AdSense用ads.txt | [ads-txt.md](ads-txt.md) | コピー登録、test、build、生成内容、公開2ドメイン |
 | グラフビューのタグ表示と本文下の配置 | [graph-tags.md](graph-tags.md) | 本文h3と同じ書式の案内、タッチ用操作欄、文字とノードの寸法、少数タグの自動拡大、600px境界とリサイズ |

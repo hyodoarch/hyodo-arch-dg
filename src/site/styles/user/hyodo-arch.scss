@@ -28,6 +28,21 @@ body main.content .folder-note-body {
   .folder-note-title { margin: 0 0 6px; }
   .folder-note-description { margin: 0; overflow-wrap: anywhere; }
 }
+@media screen {
+  body > main.content:has(> .category-project-list) {
+    container: category-main / inline-size;
+  }
+
+  @container category-main (max-width: 576px) {
+    .category-project-list .folder-note-description {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      overflow: hidden;
+    }
+  }
+}
+
 @media (max-width: 674px) {
   body main.content .folder-note-list { margin-left: 0; margin-right: 9px; }
   body main.content .folder-note-card {
